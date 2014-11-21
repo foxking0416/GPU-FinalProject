@@ -101,9 +101,7 @@ function attachMarkerToCountry( countryName, importance ){
 	var tiny = (importance < 20000000) && (!marker.selected);	
 	marker.tiny = tiny;
 
-	// if( tiny )
-	// 	nameLayer.innerHTML = country.countryCode;	
-	// else
+		//This is highlight the country name
 		nameLayer.innerHTML = countryName.replace(' ','&nbsp;');	
 
 	// marker.nameLayer = nameLayer;

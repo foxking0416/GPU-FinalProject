@@ -111,6 +111,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 			var points = set.lineGeometry.vertices;
 			var particleCount = Math.floor(set.v / 8000 / set.lineGeometry.vertices.length) + 1;
 			particleCount = constrain(particleCount,1,100);
+			particleCount = 100;
 			var particleSize = set.lineGeometry.size;			
 			for( var s=0; s<particleCount; s++ ){
 				// var rIndex = Math.floor( Math.random() * points.length );
@@ -183,10 +184,10 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 
 	//	make a final mesh out of this composite
 	var splineOutline = new THREE.Line( linesGeo, new THREE.LineBasicMaterial( 
-		{ 	color: 0xffffff, opacity: 1.0, blending: 
+		{ 	color: 0xffffff, opacity: 0.5, blending: 
 			THREE.AdditiveBlending, transparent:true, 
 			depthWrite: false, vertexColors: true, 
-			linewidth: 1 } ) 
+			linewidth: 10 } ) 
 	);
 
 	splineOutline.renderDepth = false;
@@ -220,10 +221,10 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 
 
 	var particleGraphic = THREE.ImageUtils.loadTexture("images/map_mask.png");
-	var particleMat = new THREE.ParticleBasicMaterial( { map: particleGraphic, color: 0xffffff, size: 60, 
+	/*var particleMat = new THREE.ParticleBasicMaterial( { map: particleGraphic, color: 0xffffff, size: 60, 
 														blending: THREE.NormalBlending, transparent:true, 
 														depthWrite: false, vertexColors: true,
-														sizeAttenuation: true } );
+														sizeAttenuation: true } );*/
 	particlesGeo.colors = particleColors;
 	var pSystem = new THREE.ParticleSystem( particlesGeo, shaderMaterial );
 	pSystem.dynamic = true;
@@ -238,7 +239,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 		values_color[ v ] = particleColors[v];
 	}
 
-	pSystem.update = function(){	
+	/*pSystem.update = function(){	
 		// var time = Date.now()									
 		for( var i in this.geometry.vertices ){						
 			var particle = this.geometry.vertices[i];
@@ -264,12 +265,12 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 			particle.lerpSelf( nextPoint, particle.lerpN );			
 		}
 		this.geometry.verticesNeedUpdate = true;
-	};		
+	};		*/
 
 	//	return this info as part of the mesh package, we'll use this in selectvisualization
 	splineOutline.affectedCountries = affectedCountries;
 
-
+	//return pSystem;
 	return splineOutline;	
 }
 

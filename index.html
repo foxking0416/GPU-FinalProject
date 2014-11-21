@@ -31,31 +31,32 @@
 
 		<script src="js/Detector.js"></script>
 		<script src="js/Tween.js"></script>
-		<script src="js/dat.gui.min.js"></script>
-		<script src="js/Three.js"></script>
-		<script src="js/THREEx.KeyboardState.js"></script>
-		<script src="js/THREEx.WindowResize.js"></script>
-		<script src="js/Stats.js"></script>
-		<script src="js/jquery-1.7.1.min.js"></script>
-    	<script src="js/jquery-ui-1.8.21.custom.min.js"></script>
+		<script src="js/dat.gui.min.js"></script>			<!--Library-->
+		<script src="js/Three.js"></script>					<!--Library-->
+		<!--<script src="js/three.min.js"></script>					<!--Library-->
+		<script src="js/THREEx.KeyboardState.js"></script>	<!--Library-->
+		<script src="js/THREEx.WindowResize.js"></script>	<!--Library-->
+		<script src="js/Stats.js"></script>					<!--Library-->
+		<script src="js/jquery-1.7.1.min.js"></script>		<!--Library-->
+    	<script src="js/jquery-ui-1.8.21.custom.min.js"></script>		<!--Library-->
     	<script src="js/RequestAnimationFrame.js"></script>
-		<script src="js/ShaderExtras.js"></script>
-		<script src="js/canvg.js"></script>
-		<script src="js/rgbcolor.js"></script>
-		<script src="js/innersvg.js"></script>
+		<script src="js/ShaderExtras.js"></script>			<!--Library-->
+		<script src="js/canvg.js"></script>					<!--Library:  Javascript SVG parser and renderer on d3-->
+		<script src="js/rgbcolor.js"></script>				<!--Library:  Vector graphic editor-->
+		<script src="js/innersvg.js"></script>				<!--Provide innerHTML/innerSVG properties on SVG Elements-->
 
 		<script src="js/util.js"></script>
-		<script src="js/mousekeyboard.js"></script>
+		<script src="js/mousekeyboard.js"></script>			<!--**********************-->
 		<script src="js/datguicontrol.js"></script>
-		<script src="js/dataloading.js"></script>
-		<script src="js/camerastates.js"></script>
-		<script src="js/geopins.js"></script>
-		<script src="js/visualize.js"></script>
+		<script src="js/dataloading.js"></script>			<!--Just loading the data-->
+		<script src="js/camerastates.js"></script>			<!--Almost nothing inside-->
+		<script src="js/geopins.js"></script>				<!--Set up pins for every country-->
+		<script src="js/visualize.js"></script>				<!--***********Important************-->
 		<script src="js/visualize_lines.js"></script>
-		<script src="js/markers.js"></script>
+		<script src="js/markers.js"></script>				<!--***********Add country name and import export value information on marker***********-->
 		<script src="js/svgtoy.js" type="text/javascript"></script>
-		<script src="js/d3.v2.min.js"></script>
-		<script src="js/ui.controls.js"></script>
+		<script src="js/d3.v2.min.js"></script>				<!--Library Data-Driven Documents-->
+		<script src="js/ui.controls.js"></script>			<!--***********Important: draw the chart************-->
 
 		<script id="vertexshader" type="x-shader/x-vertex" >
 			uniform float amplitude;
@@ -80,18 +81,20 @@
 		<script id="fragmentshader" type="x-shader/x-fragment" >
 			uniform vec3 color;
 			uniform sampler2D texture;
+			
 
 			varying vec3 vColor;
 
 			void main() {
 
-				//gl_FragColor = vec4( color * vColor, 1.0 );
+				gl_FragColor = vec4( color * vColor, 1.0 );
 				//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
-				//gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
 				
 			}
 		</script>
 
+		
 		<script id="globeVertexShader" type="x-shader/x-vertex">
 			varying vec3 vNormal;
 			varying vec2 vUv;
@@ -120,8 +123,46 @@
 				float outlineColor = texture2D( outline, vUv ).x * outlineLevel;
 				float diffuse = mask + outlineColor;
 				gl_FragColor = vec4( vec3(diffuse), 1.0  );
+				//gl_FragColor = vec4( mapColor );
 				//gl_FragColor = vec4( lookupColor );
 				// gl_FragColor = vec4(texture2D( lookup, vUv ).xyz,1.);
+				//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+			}
+		</script>
+		
+		<script id="cubeVertexShader" type="x-shader/x-vertex">
+			varying vec3 vNormal;
+			varying vec2 vUv;
+			void main() {
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0);
+				gl_Position += vec4(1000.0,0.0,0.0,1.0);
+				vNormal = normalize( normalMatrix * normal );
+				vUv = uv;
+			}
+		</script>
+
+		<script id="cubeFragmentShader" type="x-shader/x-fragment">
+			uniform sampler2D mapIndex;
+			uniform sampler2D lookup;
+			uniform sampler2D outline;
+			uniform float outlineLevel;
+			varying vec3 vNormal;
+			varying vec2 vUv;
+			void main() {
+
+				vec4 mapColor = texture2D( mapIndex, vUv );
+				float indexedColor = mapColor.x;
+				vec2 lookupUV = vec2( indexedColor, 0. );
+				vec4 lookupColor = texture2D( lookup, lookupUV );
+				float mask = lookupColor.x + (1.-outlineLevel) * indexedColor;
+				mask = clamp(mask,0.,1.);
+				float outlineColor = texture2D( outline, vUv ).x * outlineLevel;
+				float diffuse = mask + outlineColor;
+				gl_FragColor = vec4( vec3(diffuse), 1.0  );
+				//gl_FragColor = vec4( mapColor );
+				//gl_FragColor = vec4( lookupColor );
+				// gl_FragColor = vec4(texture2D( lookup, vUv ).xyz,1.);
+				gl_FragColor = vec4(1.0,0.0,0.0,1.0);
 			}
 		</script>
 

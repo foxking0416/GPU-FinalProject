@@ -356,28 +356,29 @@ var d3Graphs = {
             }
             return 1;
         });
+		ticks.exit().remove();
         //tick labels
-        var tickLabels = this.histogramSVG.selectAll("text.tickLblLeft").data(tickData);
+        /*var tickLabels = this.histogramSVG.selectAll("text.tickLblLeft").data(tickData);
         tickLabels.enter().append('svg:text').attr('class','tickLbl tickLblLeft').attr('text-anchor','end');
         tickLabels.attr('x', d3Graphs.histogramLeftPadding-3).attr('y',function(d) {
             return d3Graphs.histogramYScale(d) + d3Graphs.histogramVertPadding + 4;
         }).text(function(d) { return Math.abs(d); }).attr('display', function(d) {
             if(d == 0) { return 'none'; }
             return null;
-        });
-        var tickLabelsRight = this.histogramSVG.selectAll("text.tickLblRight").data(tickData);
+        });*/
+        /*var tickLabelsRight = this.histogramSVG.selectAll("text.tickLblRight").data(tickData);
         tickLabelsRight.enter().append('svg:text').attr('class','tickLbl tickLblRight');
         tickLabelsRight.attr('x', d3Graphs.histogramWidth - d3Graphs.histogramRightPadding+3).attr('y',function(d) {
             return d3Graphs.histogramYScale(d) + d3Graphs.histogramVertPadding + 4;
         }).text(function(d) { return Math.abs(d); }).attr('display', function(d) {
             if(d == 0) { return 'none'; }
             return null;
-        });
-        ticks.exit().remove();
-        tickLabels.exit().remove();
-        tickLabelsRight.exit().remove();
+        });*/
+        
+        //tickLabels.exit().remove();
+        //tickLabelsRight.exit().remove();
         //+ and -
-        var plusMinus = this.histogramSVG.selectAll("text.plusMinus").data(["+","—","+","—"]); //those are &mdash;s
+        /*var plusMinus = this.histogramSVG.selectAll("text.plusMinus").data(["+","—","+","—"]); //those are &mdash;s
         plusMinus.enter().append('svg:text').attr('class','plusMinus').attr('text-anchor',function(d,i) {
             if(i < 2) return 'end';
             return null;
@@ -388,7 +389,7 @@ var d3Graphs = {
         }).attr('y',function(d,i) {
             var yOffset = 10;
             return d3Graphs.histogramYScale(0) + d3Graphs.histogramVertPadding +  6 + (d == '+' ? -yOffset : yOffset); 
-        }).text(String);
+        }).text(String);*/
         //lines
         var importsVisible = $("#importExportBtns .imports .check").not(".inactive").length != 0;
         var exportsVisible = $("#importExportBtns .exports .check").not(".inactive").length != 0;
@@ -406,6 +407,8 @@ var d3Graphs = {
                 return d3Graphs.line(d3Graphs.histogramImportArray);
             }
         }).attr('visibility',importsVisible ? 'visible' : 'hidden');
+		importLine.moveToFront();
+		
         var exportLine = this.histogramSVG.selectAll("path.export").data([1]);
         exportLine.enter().append('svg:path').attr('class','export');
         exportLine.attr('d',function() {
@@ -415,7 +418,7 @@ var d3Graphs = {
                 return d3Graphs.line(d3Graphs.histogramExportArray);
             }
         }).attr('visibility', exportsVisible ? 'visible' : 'hidden');
-        importLine.moveToFront();
+        
         exportLine.moveToFront();
         //active year labels
         var yearOffset = $("#handle").css('left');
@@ -538,8 +541,9 @@ var d3Graphs = {
         var yScale = d3.scale.linear().domain([0,max]).range([0,this.barGraphHeight - this.barGraphBottomPadding - this.barGraphTopPadding]);
         var importRects = this.barGraphSVG.selectAll("rect.import").data(importArray);
         var midX = this.barGraphWidth / 2;
+		var midY = this.barGraphHeight / 2;
         this.cumImportY = this.cumExportY = 0;
-        importRects.enter().append('rect').attr('class', function(d) {
+        /*importRects.enter().append('rect').attr('class', function(d) {
             return 'import '+d.type;
         }).attr('x',midX - this.barWidth).attr('width',this.barWidth);
         
@@ -557,7 +561,20 @@ var d3Graphs = {
             var value = d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - d3Graphs.cumExportY - yScale(d.amount);
             d3Graphs.cumExportY += yScale(d.amount);
             return value;
-        }).attr('height',function(d) { return yScale(d.amount); });
+        }).attr('height',function(d) { return yScale(d.amount); });*/
+		
+		
+		
+		//******************Test*********************//
+		importRects.enter().append('rect').attr('class', function(d) {
+            return 'import '+d.type;
+        }).attr('y',midY ).attr('height',this.barWidth);
+        
+        importRects.attr('x',10.0).attr('width',this.barGraphWidth);
+		
+		//******************Test*********************//
+		
+		
         //bar graph labels
         this.cumImportLblY = 0;
         this.cumExportLblY = 0;

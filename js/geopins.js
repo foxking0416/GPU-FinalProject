@@ -2,7 +2,7 @@ function loadGeoData( latlonData ){
     //	-----------------------------------------------------------------------------
     //	Load the world geo data json, per country	
 
-	var sphereRad = 1;				
+	//var sphereRad = 1;				
 	var rad = 100;
 
 	//	iterate through each set of country pins

@@ -20,6 +20,7 @@ var lookupTexture;
 var backTexture;
 var worldCanvas;
 var sphere;
+var cube;
 var rotating;	
 var visualizationMesh;							
 
@@ -228,6 +229,21 @@ function initScene() {
 		fragmentShader: document.getElementById( 'globeFragmentShader' ).textContent,
 		// sizeAttenuation: true,
 	});
+	
+	var uniforms1 = {
+		'mapIndex': { type: 't', value: 0, texture: indexedMapTexture  },		
+		'lookup': { type: 't', value: 1, texture: lookupTexture },
+		'outline': { type: 't', value: 2, texture: outlinedMapTexture },
+		'outlineLevel': {type: 'f', value: 1 },
+	};
+	var shaderMaterial2 = new THREE.ShaderMaterial( {
+
+		uniforms: 		uniforms,
+		// attributes:     attributes,
+		vertexShader:   document.getElementById( 'cubeVertexShader' ).textContent,
+		fragmentShader: document.getElementById( 'cubeFragmentShader' ).textContent,
+		// sizeAttenuation: true,
+	});
 
 
     //	-----------------------------------------------------------------------------
@@ -245,16 +261,22 @@ function initScene() {
 		}
 	);				
 	// backMat.ambient = new THREE.Color(255,255,255);							
-	sphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial );				
+	sphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial );	//100 is radius, 40 is segments in width, 40 is segments in height
 	// sphere.receiveShadow = true;
 	// sphere.castShadow = true;
-	sphere.doubleSided = false;
+	sphere.doubleSided = true;
 	sphere.rotation.x = Math.PI;				
 	sphere.rotation.y = -Math.PI/2;
 	sphere.rotation.z = Math.PI;
 	sphere.id = "base";	
 	rotating.add( sphere );	
 
+	
+	cube = new THREE.Mesh( new THREE.CubeGeometry( 150, 150, 150 ), shaderMaterial2 );
+	//cube.rotation.x = Math.PI/6;
+	//cube.translateX = 1000;
+	cube.translateY = 100;
+	rotating.add( cube );	
 
 	for( var i in timeBins ){					
 		var bin = timeBins[i].data;
@@ -288,7 +310,7 @@ function initScene() {
 	console.timeEnd('buildDataVizGeometries');
 
 	visualizationMesh = new THREE.Object3D();
-	rotating.add(visualizationMesh);	
+	//rotating.add(visualizationMesh);	
 
 	buildGUI();
 
@@ -421,7 +443,7 @@ function animate() {
 	for( var i in markers ){
 		var marker = markers[i];
 		marker.update();
-	}		    	
+	}		
 
 }
 
