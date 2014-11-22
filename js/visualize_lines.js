@@ -53,7 +53,7 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 
 	//	how many vertices do we want on this guy? this is for *each* side
 	var vertexCountDesired = Math.floor( /*splineCurveA.getLength()*/ distanceBetweenCountryCenter * 0.02 + 6 ) * 2;	
-	var vertexCountDesired = 3;
+	//var vertexCountDesired = 3;
 	//	collect the vertices
 	var points = splineCurveA.getPoints( vertexCountDesired );
 
@@ -68,7 +68,8 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 	var spiralRadius = 2;
 	var spiralPoints = [];
 	var circularSeg = 6;
-	for(var i = 0; i < points.length-1; ++i){
+	
+	/*for(var i = 0; i < points.length-1; ++i){
 		var eachCurveDir = (new THREE.Vector3()).sub(points[i+1], points[i]);
 		var segmentDis = eachCurveDir.length();
 		eachCurveDir.normalize();
@@ -82,13 +83,14 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 			var p = points[i].clone().addSelf(pTan).clone().addSelf(pLat).clone().addSelf(pCur);
 			spiralPoints.push( p );
 		}
-	}
+	}*/
 
-	var lineGeometry = new THREE.Geometry();
+
 	
 	
 	//Create tube surface points
-	var tubePoints = [];
+	/*var tubePoints = [];
+	var lineGeometry = new THREE.Geometry();
 	for(var i = 0; i < points.length; ++i){
 		lineGeometry.vertices.push( new THREE.Vertex( points[i] ) );
 	
@@ -110,20 +112,22 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 			var p = points[i].clone().addSelf(pTan).clone().addSelf(pLat);
 			tubePoints.push( p );
 		}
-	}
+	}*/
 	
-	spiralPoints.push( vec3_origin );
-	
-	
+	//spiralPoints.push( vec3_origin );
 	//points.push( vec3_origin );
 
+
+	/*var splineOutline = THREE.Curve.Utils.createLineGeometry( spiralPoints );
+	splineOutline.size = 10;
+	return splineOutline;*/
+	
+	
 	//	create a line geometry out of these
 	var curveGeometry = THREE.Curve.Utils.createLineGeometry( points );
-
 	curveGeometry.size = 10;
-	lineGeometry.size = 10;
 	return curveGeometry;
-	//return lineGeometry;
+
 }
 
 function constrain(v, min, max){

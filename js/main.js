@@ -238,14 +238,14 @@ function initScene() {
 		vertexShader:   document.getElementById( 'globeVertexShader' ).textContent,
 		fragmentShader: document.getElementById( 'globeFragmentShader' ).textContent,
 		// sizeAttenuation: true,
-		opacity: 0.0,
+		opacity: 0.5,
 		blending: 		THREE.AdditiveBlending, //
 		depthTest: 		true,
 		depthWrite: 	false,
 		transparent:	true,
 	});
 	
-	var uniforms1 = {
+	var uniforms2 = {
 		'flag': { type: 't', value: 3, texture: flagTexture  },
 		'mapIndex': { type: 't', value: 0, texture: indexedMapTexture  },		
 		'lookup': { type: 't', value: 1, texture: lookupTexture },
@@ -254,7 +254,7 @@ function initScene() {
 	};
 	var shaderMaterial2 = new THREE.ShaderMaterial( {
 
-		uniforms: 		uniforms1,
+		uniforms: 		uniforms2,
 		// attributes:     attributes,
 		vertexShader:   document.getElementById( 'cubeVertexShader' ).textContent,
 		fragmentShader: document.getElementById( 'cubeFragmentShader' ).textContent,
@@ -265,6 +265,28 @@ function initScene() {
 		depthTest: 		true,
 		depthWrite: 	false,
 		transparent:	true,*/
+	});
+	
+	var uniforms3 = {
+		'flag': { type: 't', value: 3, texture: flagTexture  },
+		'mapIndex': { type: 't', value: 0, texture: indexedMapTexture  },		
+		'lookup': { type: 't', value: 1, texture: lookupTexture },
+		'outline': { type: 't', value: 2, texture: outlinedMapTexture },
+		'outlineLevel': {type: 'f', value: 1 },
+	};
+	var shaderMaterial3 = new THREE.ShaderMaterial( {
+
+		uniforms: 		uniforms3,
+		// attributes:     attributes,
+		vertexShader:   document.getElementById( 'FlagVertexShader' ).textContent,
+		fragmentShader: document.getElementById( 'FlagFragmentShader' ).textContent,
+		// sizeAttenuation: true,
+		
+		opacity: 0.5,
+		blending: 		THREE.MultiplyBlending,//MultiplyBlending
+		depthTest: 		true,
+		depthWrite: 	false,
+		transparent:	true,
 	});
 
 
@@ -301,32 +323,6 @@ function initScene() {
 	var extrudeGeo = new THREE.Mesh( triangle3d, shaderMaterial2 );
 	rotating.add( mesh );*/
 
-/*
-	var californiaPts = [];
-
-	californiaPts.push( new THREE.Vector2 ( 61.0, 32.0 ) );
-	californiaPts.push( new THREE.Vector2 ( 45.0, 30.0 ) );
-	californiaPts.push( new THREE.Vector2 ( 39.2, 39.2 ) );
-	californiaPts.push( new THREE.Vector2 ( 26.6, 43.8 ) );
-	californiaPts.push( new THREE.Vector2 ( 19.0, 57.0 ) );
-	californiaPts.push( new THREE.Vector2 ( 19.0, 60.0 ) );
-	californiaPts.push( new THREE.Vector2 ( 16.0, 62.0 ) );
-	californiaPts.push( new THREE.Vector2 ( 16.0, 65.0 ) );
-	californiaPts.push( new THREE.Vector2 ( 18.0, 64.0 ) );
-	californiaPts.push( new THREE.Vector2 ( 16.5, 68.0 ) );
-	californiaPts.push( new THREE.Vector2 ( 15.0, 67.0 ) );
-	californiaPts.push( new THREE.Vector2 (  9.0, 73.7 ) );
-	californiaPts.push( new THREE.Vector2 (  8.0, 79.5 ) );
-	californiaPts.push( new THREE.Vector2 (  5.0, 83.5 ) );
-	californiaPts.push( new THREE.Vector2 (  6.4, 87.0 ) );
-	californiaPts.push( new THREE.Vector2 (  6.0, 94.5 ) );
-	californiaPts.push( new THREE.Vector2 ( 30.0, 94.5 ) );
-	californiaPts.push( new THREE.Vector2 ( 30.0, 74.3 ) );
-	californiaPts.push( new THREE.Vector2 ( 60.0, 47.3 ) );
-	californiaPts.push( new THREE.Vector2 ( 62.6, 42.5 ) );
-	californiaPts.push( new THREE.Vector2 ( 60.0, 37.0 ) );
-	californiaPts.push( new THREE.Vector2 ( 61.0, 32.0 ) );
-	var californiaShape = new THREE.Shape( californiaPts );*/
 	
 	
 	var americaPts = [];
@@ -410,8 +406,18 @@ function initScene() {
 	var americanShape = new THREE.Shape( americaPts );
 	var american3d = new THREE.ExtrudeGeometry( americanShape, { amount: 20, bevelEnabled: false} );
 	var americanPoints = americanShape.createPointsGeometry();
+	var mesh = THREE.SceneUtils.createMultiMaterialObject( american3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
 	var extrudeGeo = new THREE.Mesh( american3d, shaderMaterial2 );
-	//rotating.add( extrudeGeo );
+	rotating.add( extrudeGeo );
+	rotating.add( mesh );
+	
+	var virtuslSphere = new THREE.Mesh( new THREE.SphereGeometry( 50, 40, 40 ), shaderMaterial3 );	//100 is radius, 40 is segments in width, 40 is segments in height
+	virtuslSphere.doubleSided = true;
+	virtuslSphere.rotation.x = Math.PI;				
+	virtuslSphere.rotation.y = -Math.PI/2;
+	virtuslSphere.rotation.z = Math.PI;
+	virtuslSphere.id = "base";	
+	rotating.add( virtuslSphere );	
 	
 	/*var extrudePath = new THREE.Path();
 	extrudePath.moveTo( 0, 0 );
@@ -445,7 +451,22 @@ function initScene() {
 		new THREE.Vector3( 100, 0, 0 )
 	);
 	var splineOutline = new THREE.Line( linesGeo, new THREE.LineBasicMaterial( {color: 0xff1100, linewidth: 10}));
-	rotating.add( splineOutline );*/
+	
+	var linesGeo2 = new THREE.Geometry();
+	linesGeo2.vertices.push(
+		new THREE.Vector3( -10, 0, 0 ),
+		new THREE.Vector3( -10, 100, 0 ),
+		new THREE.Vector3( -110, 100, 0 ),
+		new THREE.Vector3( -110, 0, 0 )
+	);
+	var splineOutline2 = new THREE.Line( linesGeo2, new THREE.LineBasicMaterial( {color: 0xff1100, linewidth: 10}));
+	
+	var test = new THREE.Geometry();
+	THREE.GeometryUtils.merge(test, linesGeo);
+	THREE.GeometryUtils.merge(test, linesGeo2);
+	var splineOutline3 = new THREE.Line( test, new THREE.LineBasicMaterial( {color: 0xff1100, linewidth: 10}), THREE.LinePieces);
+	
+	rotating.add( splineOutline3 );*/
 	
 	
 	
@@ -506,8 +527,6 @@ function initScene() {
 		var bin = timeBins[i].data;
 		for( var s in bin ){
 			var set = bin[s];
-			// if( set.v < 1000000 )
-			// 	continue;
 
 			var exporterName = set.e.toUpperCase();
 			var importerName = set.i.toUpperCase();
@@ -534,7 +553,7 @@ function initScene() {
 	console.timeEnd('buildDataVizGeometries');
 
 	visualizationMesh = new THREE.Object3D();
-	//rotating.add(visualizationMesh);	
+	rotating.add(visualizationMesh);	
 
 	buildGUI();
 
@@ -801,9 +820,7 @@ function getPickColor(){
 	my = Math.floor( my );
 
 	var buf = new Uint8Array( 4 );		    	
-	// console.log(buf);
-	gl.readPixels( mx, my, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, buf );
-	// console.log(buf);		
+	gl.readPixels( mx, my, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, buf );		
 
 	renderer.autoClear = true;
 	renderer.autoClearColor = true;
@@ -813,7 +830,7 @@ function getPickColor(){
 	gl.preserveDrawingBuffer = false;	
 
 	mapUniforms['outlineLevel'].value = 1;
-	//rotating.add(visualizationMesh);
+	rotating.add(visualizationMesh);
 
 
 	if( affectedCountries !== undefined ){

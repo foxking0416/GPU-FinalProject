@@ -136,7 +136,7 @@
 			varying vec2 vUv;
 			void main() {
 				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0);
-				//gl_Position += vec4(1000.0,0.0,0.0,1.0);
+				gl_Position += vec4(830.0, 0.0, 0.0,1.0);
 				vNormal = normalize( normalMatrix * normal );
 				vUv = uv;
 			}
@@ -160,15 +160,45 @@
 				mask = clamp(mask,0.,1.);
 				float outlineColor = texture2D( outline, vUv ).x * outlineLevel;
 				float diffuse = mask + outlineColor;
-				//gl_FragColor = vec4( vec3(diffuse), 1.0  );
-				
-				//gl_FragColor = vec4( lookupColor );
-				// gl_FragColor = vec4(texture2D( lookup, vUv ).xyz,1.);
-				gl_FragColor = vec4(1.0,1.0,0.0,1.0);
-				gl_FragColor = vec4( flagColor );
+				gl_FragColor = vec4(1.0,1.0,1.0,1.0);
+				//gl_FragColor = vec4( flagColor );
 			}
 		</script>
 
+		<script id="FlagVertexShader" type="x-shader/x-vertex">
+			varying vec3 vNormal;
+			varying vec2 vUv;
+			void main() {
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0);
+				gl_Position += vec4(1000.0,0.0,0.0,1.0);
+				vNormal = normalize( normalMatrix * normal );
+				vUv = uv;
+			}
+		</script>
+		
+		<script id="FlagFragmentShader" type="x-shader/x-fragment">
+			uniform sampler2D mapIndex;
+			uniform sampler2D lookup;
+			uniform sampler2D outline;
+			uniform sampler2D flag;
+			uniform float outlineLevel;
+			varying vec3 vNormal;
+			varying vec2 vUv;
+			void main() {
+				vec4 flagColor = texture2D( flag, vUv );
+				vec4 mapColor = texture2D( mapIndex, vUv );
+				float indexedColor = mapColor.x;
+				vec2 lookupUV = vec2( indexedColor, 0. );
+				vec4 lookupColor = texture2D( lookup, lookupUV );
+				float mask = lookupColor.x + (1.-outlineLevel) * indexedColor;
+				mask = clamp(mask,0.,1.);
+				float outlineColor = texture2D( outline, vUv ).x * outlineLevel;
+				float diffuse = mask + outlineColor;
+
+				gl_FragColor = vec4( flagColor );
+			}
+		</script>
+		
 		<script src="js/main.js" type="text/javascript"></script>
 
 		<script type="text/javascript">

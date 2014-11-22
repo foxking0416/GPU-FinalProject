@@ -26,9 +26,6 @@ function buildDataVizGeometries( linearData ){
 
 			//	visualize this event
 			set.lineGeometry = makeConnectionLineGeometry( exporter, importer, set.v, set.wc );		
-
-			// if( s % 1000 == 0 )
-			// 	console.log( 'calculating ' + s + ' of ' + yearBin.length + ' in year ' + year);
 		}
 
 	}			
@@ -60,8 +57,8 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 
 	var particlesGeo = new THREE.Geometry();
 	var particleColors = [];			
-
-
+	
+	//var splineOutline;
 
 	//	go through the data from year, and find all relevant geometries
 	for( i in bin ){
@@ -102,12 +99,30 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 			}
 
 			//	merge it all together
-			THREE.GeometryUtils.merge( linesGeo, set.lineGeometry );
+			//THREE.GeometryUtils.merge( linesGeo, set.lineGeometry );
 
 			var particleColor = lastColor.clone();		
 			var points = set.lineGeometry.vertices;//assembly the curve
+			
+
+	
+			
+			for(var i = 0; i < set.lineGeometry.vertices.length; ++i){
+				//console.log('points[' + i + '].x = ' + points[i].x + 'points[' + i + '].y == ' + points[i].y + 'points[' + i + '].z = ' + points[i].z);
+				
+				if(i === 0 || i === set.lineGeometry.vertices.length - 1)
+					linesGeo.vertices.push(new THREE.Vector3( points[i].x, points[i].y, points[i].z ));
+				else{
+					linesGeo.vertices.push(new THREE.Vector3( points[i].x, points[i].y, points[i].z ));
+					linesGeo.vertices.push(new THREE.Vector3( points[i].x, points[i].y, points[i].z ));
+				}
+			}
+			
+			
+			
+			
 			var particleCount = Math.floor(set.v / 8000 / set.lineGeometry.vertices.length) + 1;
-			particleCount = constrain(particleCount,1,100);
+			particleCount = constrain(particleCount, 1, 100);
 			particleCount = 20;
 			var particleSize = set.lineGeometry.size;			
 			for( var s=0; s<particleCount; s++ ){
@@ -173,22 +188,27 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 		}		
 	}
 
-	// console.log(selectedCountry);
 
-	linesGeo.colors = lineColors;	
+		
 
-	//	make a final mesh out of this composite
-	var splineOutline = new THREE.Line( linesGeo, new THREE.LineBasicMaterial( 
-		{ 	color: 0xffffff, 
+	
+
+	
+	
+	linesGeo.colors = lineColors;
+	var splineOutline = new THREE.Line( 
+		linesGeo, 
+		new THREE.LineBasicMaterial( 
+		{ 	color: 0xffff00, 
 			opacity: 0.5, 
 			blending: THREE.AdditiveBlending, 
 			transparent:true, 
 			depthWrite: false, 
 			vertexColors: true, 
-			linewidth: 10,
-			} ) 
+			linewidth: 2,
+		} ),
+		THREE.LinePieces 
 	);
-
 	splineOutline.renderDepth = false;
 
 
@@ -329,7 +349,7 @@ function selectVisualization( linearData, year, countries, exportCategories, imp
 	var mesh = getVisualizedMesh( timeBins, year, countries, exportCategories, importCategories );				
 	console.timeEnd('getVisualizedMesh');
 
-	console.log('aaaaaaa');
+	
 	//	add it to scene graph
 	visualizationMesh.add( mesh );	
 
