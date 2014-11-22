@@ -125,7 +125,7 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 	
 	//	create a line geometry out of these
 	var curveGeometry = THREE.Curve.Utils.createLineGeometry( points );
-	curveGeometry.size = 10;
+	curveGeometry.size = 5;
 	return curveGeometry;
 
 }

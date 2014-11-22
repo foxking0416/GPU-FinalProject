@@ -22,7 +22,8 @@ var backTexture;
 var worldCanvas;
 var sphere;
 var cube;
-var rotating;	
+var rotating;
+var rotating2;
 var visualizationMesh;							
 
 var mapUniforms;
@@ -198,6 +199,9 @@ function initScene() {
 	rotating = new THREE.Object3D();
 	scene.add(rotating);
 
+	rotating2 = new THREE.Object3D();
+	scene.add(rotating2);
+	
 	lookupCanvas = document.createElement('canvas');	
 	lookupCanvas.width = 256;
 	lookupCanvas.height = 1;
@@ -399,7 +403,7 @@ function initScene() {
 	americaPts.push( new THREE.Vector2 ( 13.6, 4.9 ) );
 	americaPts.push( new THREE.Vector2 ( 6.0, 2.0 ) );
 	for(var i = 0; i < americaPts.length; ++i){
-		americaPts[i] = new THREE.Vector2 (americaPts[i].x, 60 - americaPts[i].y);
+		americaPts[i] = new THREE.Vector2 (americaPts[i].x - 40, 30 - americaPts[i].y);
 	}
 	
 	
@@ -408,16 +412,16 @@ function initScene() {
 	var americanPoints = americanShape.createPointsGeometry();
 	var mesh = THREE.SceneUtils.createMultiMaterialObject( american3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
 	var extrudeGeo = new THREE.Mesh( american3d, shaderMaterial2 );
-	rotating.add( extrudeGeo );
-	rotating.add( mesh );
+	rotating2.add( extrudeGeo );
 	
+
 	var virtuslSphere = new THREE.Mesh( new THREE.SphereGeometry( 50, 40, 40 ), shaderMaterial3 );	//100 is radius, 40 is segments in width, 40 is segments in height
 	virtuslSphere.doubleSided = true;
 	virtuslSphere.rotation.x = Math.PI;				
 	virtuslSphere.rotation.y = -Math.PI/2;
 	virtuslSphere.rotation.z = Math.PI;
 	virtuslSphere.id = "base";	
-	rotating.add( virtuslSphere );	
+	rotating2.add( virtuslSphere );	
 	
 	/*var extrudePath = new THREE.Path();
 	extrudePath.moveTo( 0, 0 );
@@ -651,6 +655,9 @@ function animate() {
 	rotating.rotation.x = rotateX;
 	rotating.rotation.y = rotateY;	
 
+	rotating2.rotation.x = rotateX;
+	rotating2.rotation.y = rotateY;	
+	
     render();	
     		        		       
     requestAnimationFrame( animate );	

@@ -104,19 +104,50 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 			var particleColor = lastColor.clone();		
 			var points = set.lineGeometry.vertices;//assembly the curve
 			
-
+			var normal = (new THREE.Vector3()).sub(points[points.length-1], points[0]);
+			var curveDir = (new THREE.Vector3()).sub(points[1], points[0]);
+			var tangent = normal.clone().crossSelf(curveDir.clone());
+			tangent.normalize();
+			var spiralRadius = 2;
+			var spiralPoints = [];
+			var circularSeg = 6;
 	
-			
-			for(var i = 0; i < set.lineGeometry.vertices.length; ++i){
+			for(var i = 0; i < points.length-1; ++i){
+				var eachCurveDir = (new THREE.Vector3()).sub(points[i+1], points[i]);
+				var segmentDis = eachCurveDir.length();
+				eachCurveDir.normalize();
+				var lat = eachCurveDir.clone().crossSelf(tangent.clone());
+				
+				
+				for(var j = 0; j < circularSeg; ++j){
+					var pTan = tangent.clone().multiplyScalar(spiralRadius * Math.cos(2 * Math.PI / circularSeg * j));
+					var pLat = lat.clone().multiplyScalar(spiralRadius * Math.sin(2 * Math.PI / circularSeg * j));
+					var pCur = eachCurveDir.clone().multiplyScalar(segmentDis / circularSeg * j);
+					var p = points[i].clone().addSelf(pTan).clone().addSelf(pLat).clone().addSelf(pCur);
+					spiralPoints.push( p );
+				}
+			}
+	
+			for(var i = 0; i < spiralPoints.length; ++i){
 				//console.log('points[' + i + '].x = ' + points[i].x + 'points[' + i + '].y == ' + points[i].y + 'points[' + i + '].z = ' + points[i].z);
 				
-				if(i === 0 || i === set.lineGeometry.vertices.length - 1)
+				if(i === 0 || i === spiralPoints - 1)
+					linesGeo.vertices.push(new THREE.Vector3( spiralPoints[i].x, spiralPoints[i].y, spiralPoints[i].z ));
+				else{
+					linesGeo.vertices.push(new THREE.Vector3( spiralPoints[i].x, spiralPoints[i].y, spiralPoints[i].z ));
+					linesGeo.vertices.push(new THREE.Vector3( spiralPoints[i].x, spiralPoints[i].y, spiralPoints[i].z ));
+				}
+			}
+			
+			/*for(var i = 0; i < points.length; ++i){
+
+				if(i == 0 || i == set.lineGeometry.vertices.length - 1)
 					linesGeo.vertices.push(new THREE.Vector3( points[i].x, points[i].y, points[i].z ));
 				else{
 					linesGeo.vertices.push(new THREE.Vector3( points[i].x, points[i].y, points[i].z ));
 					linesGeo.vertices.push(new THREE.Vector3( points[i].x, points[i].y, points[i].z ));
 				}
-			}
+			}*/
 			
 			
 			
@@ -125,7 +156,25 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 			particleCount = constrain(particleCount, 1, 100);
 			particleCount = 20;
 			var particleSize = set.lineGeometry.size;			
-			for( var s=0; s<particleCount; s++ ){
+			/*for( var s=0; s < particleCount; s++ ){
+
+				var desiredIndex = s / particleCount * spiralPoints.length;
+				var rIndex = constrain(Math.floor(desiredIndex),0,spiralPoints.length-1);
+
+				var point = spiralPoints[rIndex];						
+				var particle = point.clone();
+				particle.moveIndex = rIndex;
+				particle.nextIndex = rIndex+1;
+				if(particle.nextIndex >= spiralPoints.length )
+					particle.nextIndex = 0;
+				particle.lerpN = 0;
+				particle.path = spiralPoints;
+				particlesGeo.vertices.push( particle );	
+				particle.size = particleSize;
+				particleColors.push( particleColor );						
+			}*/
+			
+			for( var s=0; s < particleCount; s++ ){
 
 				var desiredIndex = s / particleCount * points.length;
 				var rIndex = constrain(Math.floor(desiredIndex),0,points.length-1);
@@ -141,7 +190,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 				particlesGeo.vertices.push( particle );	
 				particle.size = particleSize;
 				particleColors.push( particleColor );						
-			}			
+			}
 
 			if( $.inArray( exporterName, affectedCountries ) < 0 ){
 				affectedCountries.push(exporterName);
@@ -199,15 +248,12 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 	var splineOutline = new THREE.Line( 
 		linesGeo, 
 		new THREE.LineBasicMaterial( 
-		{ 	color: 0xffff00, 
-			opacity: 0.5, 
-			blending: THREE.AdditiveBlending, 
-			transparent:true, 
-			depthWrite: false, 
-			vertexColors: true, 
-			linewidth: 2,
-		} ),
-		THREE.LinePieces 
+		{ 	color: 0xffffff, opacity: 1.0, blending: 
+			THREE.AdditiveBlending, transparent:true, 
+			depthWrite: false, vertexColors: true, 
+			linewidth: 1
+		} )
+		,THREE.LinePieces 
 	);
 	splineOutline.renderDepth = false;
 
@@ -247,7 +293,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 	particlesGeo.colors = particleColors;
 	var pSystem = new THREE.ParticleSystem( particlesGeo, shaderMaterial );
 	pSystem.dynamic = true;
-	splineOutline.add( pSystem );
+	//splineOutline.add( pSystem );
 
 	var vertices = pSystem.geometry.vertices;
 	var values_size = attributes.size.value;
@@ -257,8 +303,8 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 		values_size[ v ] = pSystem.geometry.vertices[v].size;
 		values_color[ v ] = particleColors[v];
 	}
-
-	/*pSystem.update = function(){	
+/*
+	pSystem.update = function(){	
 		// var time = Date.now()									
 		for( var i in this.geometry.vertices ){						
 			var particle = this.geometry.vertices[i];
@@ -290,11 +336,6 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 	splineOutline.affectedCountries = affectedCountries;
 	return splineOutline;	
 	
-	/*var geometry = new THREE.CylinderGeometry( 50, 50, 20, 32 );
-	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-	var cylinder = new THREE.Mesh( geometry, material );
-	cylinder.affectedCountries = affectedCountries;
-	return cylinder;*/
 	
 }
 
