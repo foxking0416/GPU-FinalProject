@@ -53,7 +53,7 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 
 	//	how many vertices do we want on this guy? this is for *each* side
 	var vertexCountDesired = Math.floor( /*splineCurveA.getLength()*/ distanceBetweenCountryCenter * 0.02 + 6 ) * 2;	
-	//var vertexCountDesired = 10;
+	var vertexCountDesired = 3;
 	//	collect the vertices
 	var points = splineCurveA.getPoints( vertexCountDesired );
 
@@ -61,7 +61,7 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 	points = points.splice(0,points.length-1);
 	points = points.concat( splineCurveB.getPoints( vertexCountDesired ) );
 
-	
+
 	var curveDir = (new THREE.Vector3()).sub(points[1], points[0]);
 	var tangent = normal.clone().crossSelf(curveDir.clone());
 	tangent.normalize();
@@ -84,10 +84,14 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 		}
 	}
 
-
+	var lineGeometry = new THREE.Geometry();
+	
+	
 	//Create tube surface points
 	var tubePoints = [];
 	for(var i = 0; i < points.length; ++i){
+		lineGeometry.vertices.push( new THREE.Vertex( points[i] ) );
+	
 	
 		var eachCurveDir;
 	
@@ -111,14 +115,15 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 	spiralPoints.push( vec3_origin );
 	
 	
-	points.push( vec3_origin );
+	//points.push( vec3_origin );
 
 	//	create a line geometry out of these
 	var curveGeometry = THREE.Curve.Utils.createLineGeometry( points );
 
 	curveGeometry.size = 10;
-
+	lineGeometry.size = 10;
 	return curveGeometry;
+	//return lineGeometry;
 }
 
 function constrain(v, min, max){

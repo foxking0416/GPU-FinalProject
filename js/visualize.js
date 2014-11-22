@@ -31,12 +31,6 @@ function buildDataVizGeometries( linearData ){
 			// 	console.log( 'calculating ' + s + ' of ' + yearBin.length + ' in year ' + year);
 		}
 
-		//	use this break to only visualize one year (1992)
-		// break;
-
-		//	how to make this work?
-		// loadLayer.innerHTML = 'loading data for ' + year + '...';
-		// console.log(loadLayer.innerHTML);
 	}			
 
 	loadLayer.style.display = 'none';	
@@ -67,9 +61,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 	var particlesGeo = new THREE.Geometry();
 	var particleColors = [];			
 
-	// var careAboutExports = ( action === 'exports' );
-	// var careAboutImports = ( action === 'imports' );
-	// var careAboutBoth = ( action === 'both' );
+
 
 	//	go through the data from year, and find all relevant geometries
 	for( i in bin ){
@@ -113,14 +105,12 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 			THREE.GeometryUtils.merge( linesGeo, set.lineGeometry );
 
 			var particleColor = lastColor.clone();		
-			var points = set.lineGeometry.vertices;
+			var points = set.lineGeometry.vertices;//assembly the curve
 			var particleCount = Math.floor(set.v / 8000 / set.lineGeometry.vertices.length) + 1;
 			particleCount = constrain(particleCount,1,100);
-			particleCount = 10;
+			particleCount = 20;
 			var particleSize = set.lineGeometry.size;			
 			for( var s=0; s<particleCount; s++ ){
-				// var rIndex = Math.floor( Math.random() * points.length );
-				// var rIndex = Math.min(s,points.length-1);
 
 				var desiredIndex = s / particleCount * points.length;
 				var rIndex = constrain(Math.floor(desiredIndex),0,points.length-1);
@@ -195,7 +185,8 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 			transparent:true, 
 			depthWrite: false, 
 			vertexColors: true, 
-			linewidth: 10 } ) 
+			linewidth: 10,
+			} ) 
 	);
 
 	splineOutline.renderDepth = false;
@@ -277,9 +268,14 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 
 	//	return this info as part of the mesh package, we'll use this in selectvisualization
 	splineOutline.affectedCountries = affectedCountries;
-
-	//return pSystem;
 	return splineOutline;	
+	
+	/*var geometry = new THREE.CylinderGeometry( 50, 50, 20, 32 );
+	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+	var cylinder = new THREE.Mesh( geometry, material );
+	cylinder.affectedCountries = affectedCountries;
+	return cylinder;*/
+	
 }
 
 function selectVisualization( linearData, year, countries, exportCategories, importCategories ){

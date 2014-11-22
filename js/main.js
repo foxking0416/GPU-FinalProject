@@ -238,6 +238,11 @@ function initScene() {
 		vertexShader:   document.getElementById( 'globeVertexShader' ).textContent,
 		fragmentShader: document.getElementById( 'globeFragmentShader' ).textContent,
 		// sizeAttenuation: true,
+		opacity: 0.0,
+		blending: 		THREE.AdditiveBlending, //
+		depthTest: 		true,
+		depthWrite: 	false,
+		transparent:	true,
 	});
 	
 	var uniforms1 = {
@@ -255,11 +260,11 @@ function initScene() {
 		fragmentShader: document.getElementById( 'cubeFragmentShader' ).textContent,
 		// sizeAttenuation: true,
 		
-		opacity: 0.5,
+		/*opacity: 0.5,
 		blending: 		THREE.AdditiveBlending,
 		depthTest: 		true,
 		depthWrite: 	false,
-		transparent:	true,
+		transparent:	true,*/
 	});
 
 
@@ -404,9 +409,9 @@ function initScene() {
 	
 	var americanShape = new THREE.Shape( americaPts );
 	var american3d = new THREE.ExtrudeGeometry( americanShape, { amount: 20, bevelEnabled: false} );
-	
+	var americanPoints = americanShape.createPointsGeometry();
 	var extrudeGeo = new THREE.Mesh( american3d, shaderMaterial2 );
-	rotating.add( extrudeGeo );
+	//rotating.add( extrudeGeo );
 	
 	/*var extrudePath = new THREE.Path();
 	extrudePath.moveTo( 0, 0 );
@@ -424,10 +429,27 @@ function initScene() {
 	rotating.add( mesh );*/
 	
 	
-	var geometry = new THREE.CylinderGeometry( 50, 50, 20, 32 );
+	
+	
+	/*var geometry = new THREE.CylinderGeometry( 50, 50, 20, 32 );
 	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
 	var cylinder = new THREE.Mesh( geometry, shaderMaterial2 );
-	//rotating.add( cylinder );
+	rotating.add( cylinder );*/
+
+	/*
+	var linesGeo = new THREE.Geometry();
+	linesGeo.vertices.push(
+		new THREE.Vector3( 0, 0, 0 ),
+		new THREE.Vector3( 0, 100, 0 ),
+		new THREE.Vector3( 100, 100, 0 ),
+		new THREE.Vector3( 100, 0, 0 )
+	);
+	var splineOutline = new THREE.Line( linesGeo, new THREE.LineBasicMaterial( {color: 0xff1100, linewidth: 10}));
+	rotating.add( splineOutline );*/
+	
+	
+	
+	//var face = new THREE.Face3();
 	
 	/*cube = new THREE.Mesh( new THREE.CubeGeometry( 150, 150, 150 ), shaderMaterial2 );
 	//cube.rotation.x = Math.PI/6;
@@ -512,14 +534,12 @@ function initScene() {
 	console.timeEnd('buildDataVizGeometries');
 
 	visualizationMesh = new THREE.Object3D();
-	rotating.add(visualizationMesh);	
+	//rotating.add(visualizationMesh);	
 
 	buildGUI();
 
 	selectVisualization( timeBins, '2010', ['UNITED STATES'], ['Military Weapons','Civilian Weapons', 'Ammunition'], ['Military Weapons','Civilian Weapons', 'Ammunition'] );					
 
-		// test for highlighting specific countries
-	// highlightCountry( ["United States", "Switzerland", "China"] );
 
 
     //	-----------------------------------------------------------------------------
@@ -775,8 +795,8 @@ function getPickColor(){
     var gl = renderer.context;
     gl.preserveDrawingBuffer = true;
 
-	var mx = ( mouseX + renderer.context.canvas.width/2 );//(mouseX + renderer.context.canvas.width/2) * 0.25;
-	var my = ( -mouseY + renderer.context.canvas.height/2 );//(-mouseY + renderer.context.canvas.height/2) * 0.25;
+	var mx = ( mouseX + renderer.context.canvas.width/2 );
+	var my = ( -mouseY + renderer.context.canvas.height/2 );
 	mx = Math.floor( mx );
 	my = Math.floor( my );
 
@@ -793,7 +813,7 @@ function getPickColor(){
 	gl.preserveDrawingBuffer = false;	
 
 	mapUniforms['outlineLevel'].value = 1;
-	rotating.add(visualizationMesh);
+	//rotating.add(visualizationMesh);
 
 
 	if( affectedCountries !== undefined ){
