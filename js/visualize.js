@@ -3,6 +3,7 @@ function buildDataVizGeometries( linearData ){
 	var loadLayer = document.getElementById('loading');
 
 	for( var i in linearData ){
+	//var i = 0;
 		var yearBin = linearData[i].data;		
 
 		var year = linearData[i].t;
@@ -43,8 +44,12 @@ function buildDataVizGeometries( linearData ){
 
 function getVisualizedMesh( linearData, year, countries, exportCategories, importCategories ){
 	//	for comparison purposes, all caps the country names
+	//var flag = true;
 	for( var i in countries ){
-		countries[i] = countries[i].toUpperCase();
+		//if(flag === true){
+			countries[i] = countries[i].toUpperCase();
+			//flag = false;
+		//}
 	}
 
 	//	pick out the year first from the data
@@ -111,7 +116,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 			var points = set.lineGeometry.vertices;
 			var particleCount = Math.floor(set.v / 8000 / set.lineGeometry.vertices.length) + 1;
 			particleCount = constrain(particleCount,1,100);
-			particleCount = 100;
+			particleCount = 10;
 			var particleSize = set.lineGeometry.size;			
 			for( var s=0; s<particleCount; s++ ){
 				// var rIndex = Math.floor( Math.random() * points.length );
@@ -184,9 +189,12 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 
 	//	make a final mesh out of this composite
 	var splineOutline = new THREE.Line( linesGeo, new THREE.LineBasicMaterial( 
-		{ 	color: 0xffffff, opacity: 0.5, blending: 
-			THREE.AdditiveBlending, transparent:true, 
-			depthWrite: false, vertexColors: true, 
+		{ 	color: 0xffffff, 
+			opacity: 0.5, 
+			blending: THREE.AdditiveBlending, 
+			transparent:true, 
+			depthWrite: false, 
+			vertexColors: true, 
 			linewidth: 10 } ) 
 	);
 
@@ -212,9 +220,9 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
 
 		blending: 		THREE.AdditiveBlending,
-		depthTest: 		true,
-		depthWrite: 	false,
 		transparent:	true,
+		depthWrite: 	false,
+		depthTest: 		true,
 		// sizeAttenuation: true,
 	});
 
@@ -325,6 +333,7 @@ function selectVisualization( linearData, year, countries, exportCategories, imp
 	var mesh = getVisualizedMesh( timeBins, year, countries, exportCategories, importCategories );				
 	console.timeEnd('getVisualizedMesh');
 
+	console.log('aaaaaaa');
 	//	add it to scene graph
 	visualizationMesh.add( mesh );	
 

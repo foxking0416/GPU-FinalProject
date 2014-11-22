@@ -4,6 +4,7 @@ var overlay = document.getElementById('visualization');
 
 var mapIndexedImage;
 var mapOutlineImage;
+var flagImage;
 
 //	where in html to hold all our things
 var glContainer = document.getElementById( 'glContainer' );
@@ -111,20 +112,24 @@ function start( e ){
 			mapOutlineImage = new Image();
 			mapOutlineImage.src = 'images/map_outline.png';
 			mapOutlineImage.onload = function(){
-				loadCountryCodes(
-					function(){
-						loadWorldPins(
-							function(){										
-								loadContentData(								
-									function(){																	
-										initScene();
-										animate();		
-									}
-								);														
-							}
-						);
-					}
-				);
+				flagImage = new Image();
+				flagImage.src = 'images/Flag.png';
+				flagImage.onload = function(){
+					loadCountryCodes(
+						function(){
+							loadWorldPins(
+								function(){										
+									loadContentData(								
+										function(){																	
+											initScene();
+											animate();		
+										}
+									);														
+								}
+							);
+						}
+					);
+				};
 			};			
 		};		
 	};
@@ -203,7 +208,6 @@ function initScene() {
 	lookupTexture.needsUpdate = true;
 
 	var indexedMapTexture = new THREE.Texture( mapIndexedImage );
-	//THREE.ImageUtils.loadTexture( 'images/map_indexed.png' );
 	indexedMapTexture.needsUpdate = true;
 	indexedMapTexture.magFilter = THREE.NearestFilter;
 	indexedMapTexture.minFilter = THREE.NearestFilter;
@@ -212,6 +216,12 @@ function initScene() {
 	outlinedMapTexture.needsUpdate = true;
 	// outlinedMapTexture.magFilter = THREE.NearestFilter;
 	// outlinedMapTexture.minFilter = THREE.NearestFilter;
+	
+	var flagTexture = new THREE.Texture( flagImage );
+	//THREE.ImageUtils.loadTexture( 'images/map_indexed.png' );
+	flagTexture.needsUpdate = true;
+	flagTexture.magFilter = THREE.NearestFilter;
+	flagTexture.minFilter = THREE.NearestFilter;
 
 	var uniforms = {
 		'mapIndex': { type: 't', value: 0, texture: indexedMapTexture  },		
@@ -231,6 +241,7 @@ function initScene() {
 	});
 	
 	var uniforms1 = {
+		'flag': { type: 't', value: 3, texture: flagTexture  },
 		'mapIndex': { type: 't', value: 0, texture: indexedMapTexture  },		
 		'lookup': { type: 't', value: 1, texture: lookupTexture },
 		'outline': { type: 't', value: 2, texture: outlinedMapTexture },
@@ -238,46 +249,237 @@ function initScene() {
 	};
 	var shaderMaterial2 = new THREE.ShaderMaterial( {
 
-		uniforms: 		uniforms,
+		uniforms: 		uniforms1,
 		// attributes:     attributes,
 		vertexShader:   document.getElementById( 'cubeVertexShader' ).textContent,
 		fragmentShader: document.getElementById( 'cubeFragmentShader' ).textContent,
 		// sizeAttenuation: true,
+		
+		opacity: 0.5,
+		blending: 		THREE.AdditiveBlending,
+		depthTest: 		true,
+		depthWrite: 	false,
+		transparent:	true,
 	});
 
 
-    //	-----------------------------------------------------------------------------
-    //	Create the backing (sphere)
-    // var mapGraphic = new THREE.Texture(worldCanvas);//THREE.ImageUtils.loadTexture("images/map.png");
-    // backTexture =  mapGraphic;
-    // mapGraphic.needsUpdate = true;
-	backMat = new THREE.MeshBasicMaterial(
-		{
-			// color: 		0xffffff, 
-			// shininess: 	10, 
-// 			specular: 	0x333333,
-			// map: 		mapGraphic,
-			// lightMap: 	mapGraphic
-		}
-	);				
-	// backMat.ambient = new THREE.Color(255,255,255);							
+						
 	sphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial );	//100 is radius, 40 is segments in width, 40 is segments in height
-	// sphere.receiveShadow = true;
-	// sphere.castShadow = true;
 	sphere.doubleSided = true;
 	sphere.rotation.x = Math.PI;				
 	sphere.rotation.y = -Math.PI/2;
 	sphere.rotation.z = Math.PI;
 	sphere.id = "base";	
 	rotating.add( sphere );	
+	
+	var extrudeSettings = {	amount: 20,  bevelEnabled: false, steps: 2 };
+	var extrudePath = new THREE.Path();
+	extrudePath.moveTo( 0, 0 );
+	extrudePath.lineTo( 1.0, 1.0 );
+	extrudePath.quadraticCurveTo( 8.0, 6.0, 16.0, 1.0 );
+	extrudePath.quadraticCurveTo( 24.0, -4.0, 32.0, 1.0 );
+	
+
+	//extrudeSettings.extrudePath = extrudePath;
 
 	
-	cube = new THREE.Mesh( new THREE.CubeGeometry( 150, 150, 150 ), shaderMaterial2 );
+	
+	/*var triangleShape = new THREE.Shape();
+	triangleShape.moveTo(  8.0, 2.0 );
+	triangleShape.lineTo(  4.0, 8.0 );
+	triangleShape.lineTo( 12.0, 8.0 );
+	triangleShape.lineTo(  8.0, 2.0 ); 
+	var triangle3d = triangleShape.extrude( extrudeSettings );
+	var trianglePoints = triangleShape.createPointsGeometry();
+	var triangleSpacedPoints = triangleShape.createSpacedPointsGeometry();
+	var mesh = THREE.SceneUtils.createMultiMaterialObject( triangle3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
+	var extrudeGeo = new THREE.Mesh( triangle3d, shaderMaterial2 );
+	rotating.add( mesh );*/
+
+/*
+	var californiaPts = [];
+
+	californiaPts.push( new THREE.Vector2 ( 61.0, 32.0 ) );
+	californiaPts.push( new THREE.Vector2 ( 45.0, 30.0 ) );
+	californiaPts.push( new THREE.Vector2 ( 39.2, 39.2 ) );
+	californiaPts.push( new THREE.Vector2 ( 26.6, 43.8 ) );
+	californiaPts.push( new THREE.Vector2 ( 19.0, 57.0 ) );
+	californiaPts.push( new THREE.Vector2 ( 19.0, 60.0 ) );
+	californiaPts.push( new THREE.Vector2 ( 16.0, 62.0 ) );
+	californiaPts.push( new THREE.Vector2 ( 16.0, 65.0 ) );
+	californiaPts.push( new THREE.Vector2 ( 18.0, 64.0 ) );
+	californiaPts.push( new THREE.Vector2 ( 16.5, 68.0 ) );
+	californiaPts.push( new THREE.Vector2 ( 15.0, 67.0 ) );
+	californiaPts.push( new THREE.Vector2 (  9.0, 73.7 ) );
+	californiaPts.push( new THREE.Vector2 (  8.0, 79.5 ) );
+	californiaPts.push( new THREE.Vector2 (  5.0, 83.5 ) );
+	californiaPts.push( new THREE.Vector2 (  6.4, 87.0 ) );
+	californiaPts.push( new THREE.Vector2 (  6.0, 94.5 ) );
+	californiaPts.push( new THREE.Vector2 ( 30.0, 94.5 ) );
+	californiaPts.push( new THREE.Vector2 ( 30.0, 74.3 ) );
+	californiaPts.push( new THREE.Vector2 ( 60.0, 47.3 ) );
+	californiaPts.push( new THREE.Vector2 ( 62.6, 42.5 ) );
+	californiaPts.push( new THREE.Vector2 ( 60.0, 37.0 ) );
+	californiaPts.push( new THREE.Vector2 ( 61.0, 32.0 ) );
+	var californiaShape = new THREE.Shape( californiaPts );*/
+	
+	
+	var americaPts = [];
+	americaPts.push( new THREE.Vector2 ( 6.0, 2.0 ) );
+	americaPts.push( new THREE.Vector2 ( 6.0, 4.6 ) );
+	americaPts.push( new THREE.Vector2 ( 3.2, 3.9 ) );
+	americaPts.push( new THREE.Vector2 ( 3.4, 6.8 ) );
+	americaPts.push( new THREE.Vector2 ( 1.8, 10.6 ) );
+	americaPts.push( new THREE.Vector2 ( 0.0, 14.3 ) );
+	americaPts.push( new THREE.Vector2 ( 0.2, 16.3 ) );
+	americaPts.push( new THREE.Vector2 ( -1.1, 18.2 ) );
+	americaPts.push( new THREE.Vector2 ( -0.8, 21.1 ) );
+	americaPts.push( new THREE.Vector2 ( 0.5, 23.9 ) );
+	americaPts.push( new THREE.Vector2 ( -0.1, 26.2 ) );
+	americaPts.push( new THREE.Vector2 ( 1.3, 28.9 ) );
+	americaPts.push( new THREE.Vector2 ( 1.5, 30.3 ) );
+	americaPts.push( new THREE.Vector2 ( 3.0, 31.5 ) );
+	americaPts.push( new THREE.Vector2 ( 5.6, 34.4 ) );
+	americaPts.push( new THREE.Vector2 ( 5.8, 35.9 ) );
+	americaPts.push( new THREE.Vector2 ( 9.0, 36.1 ) );
+	americaPts.push( new THREE.Vector2 ( 3.0, 31.5 ) );
+	americaPts.push( new THREE.Vector2 ( 12.2, 38.5 ) );
+	americaPts.push( new THREE.Vector2 ( 16.7, 39.9 ) );
+	americaPts.push( new THREE.Vector2 ( 21.7, 40.1 ) );
+	americaPts.push( new THREE.Vector2 ( 27.1, 45.9 ) );
+	americaPts.push( new THREE.Vector2 ( 28.2, 44.3 ) );
+	americaPts.push( new THREE.Vector2 ( 30.0, 44.6 ) );
+	americaPts.push( new THREE.Vector2 ( 33.7, 51.8 ) );
+	americaPts.push( new THREE.Vector2 ( 37.4, 52.5 ) );
+	americaPts.push( new THREE.Vector2 ( 37.1, 49.1 ) );
+	americaPts.push( new THREE.Vector2 ( 40.4, 46.3 ) );
+	americaPts.push( new THREE.Vector2 ( 45.4, 45.4 ) );
+	americaPts.push( new THREE.Vector2 ( 48.8, 45.8 ) );
+	americaPts.push( new THREE.Vector2 ( 48.8, 43.8 ) );
+	americaPts.push( new THREE.Vector2 ( 56.0, 43.4 ) );
+	americaPts.push( new THREE.Vector2 ( 57.1, 44.5 ) );
+	americaPts.push( new THREE.Vector2 ( 58.9, 43.4 ) );
+	americaPts.push( new THREE.Vector2 ( 61.7, 46.2 ) );
+	americaPts.push( new THREE.Vector2 ( 63.8, 50.3 ) );
+	americaPts.push( new THREE.Vector2 ( 66.2, 51.8 ) );
+	americaPts.push( new THREE.Vector2 ( 66.7, 48.4 ) );
+	americaPts.push( new THREE.Vector2 ( 63.0, 42.1 ) );
+	americaPts.push( new THREE.Vector2 ( 63.6, 38.1 ) );
+	americaPts.push( new THREE.Vector2 ( 69.4, 33.0 ) );
+	americaPts.push( new THREE.Vector2 ( 70.8, 30.8 ) );
+	americaPts.push( new THREE.Vector2 ( 69.7, 25.4 ) );
+	americaPts.push( new THREE.Vector2 ( 71.4, 20.7 ) );
+	americaPts.push( new THREE.Vector2 ( 75.2, 18.3 ) );
+	americaPts.push( new THREE.Vector2 ( 74.4, 14.5 ) );
+	americaPts.push( new THREE.Vector2 ( 78.1, 11.1 ) );
+	americaPts.push( new THREE.Vector2 ( 75.9, 6.5 ) );
+	americaPts.push( new THREE.Vector2 ( 73.9, 7.0 ) );
+	americaPts.push( new THREE.Vector2 ( 72.4, 12.1 ) );
+	americaPts.push( new THREE.Vector2 ( 67.7, 13.5 ) );
+	americaPts.push( new THREE.Vector2 ( 66.5, 16.5 ) );
+	americaPts.push( new THREE.Vector2 ( 62.8, 16.9 ) );
+	americaPts.push( new THREE.Vector2 ( 58.1, 21.7 ) );
+	americaPts.push( new THREE.Vector2 ( 58.4, 18.2 ) );
+	americaPts.push( new THREE.Vector2 ( 56.1, 16.9 ) );
+	americaPts.push( new THREE.Vector2 ( 56.0, 14.0 ) );
+	americaPts.push( new THREE.Vector2 ( 53.6, 16.2 ) );
+	americaPts.push( new THREE.Vector2 ( 53.1, 19.9 ) );
+	americaPts.push( new THREE.Vector2 ( 51.9, 21.9 ) );
+	americaPts.push( new THREE.Vector2 ( 50.3, 19.7 ) );
+	americaPts.push( new THREE.Vector2 ( 50.8, 14.4 ) );
+	americaPts.push( new THREE.Vector2 ( 54.6, 12.4 ) );
+	americaPts.push( new THREE.Vector2 ( 52.5, 11.5 ) );
+	americaPts.push( new THREE.Vector2 ( 48.1, 12.4 ) );
+	americaPts.push( new THREE.Vector2 ( 45.1, 12.3 ) );
+	americaPts.push( new THREE.Vector2 ( 47.0, 9.8 ) );
+	americaPts.push( new THREE.Vector2 ( 37.1, 7.8 ) );
+	americaPts.push( new THREE.Vector2 ( 29.4, 7.2 ) );
+	americaPts.push( new THREE.Vector2 ( 21.8, 6.4 ) );
+	americaPts.push( new THREE.Vector2 ( 13.6, 4.9 ) );
+	americaPts.push( new THREE.Vector2 ( 6.0, 2.0 ) );
+	for(var i = 0; i < americaPts.length; ++i){
+		americaPts[i] = new THREE.Vector2 (americaPts[i].x, 60 - americaPts[i].y);
+	}
+	
+	
+	var americanShape = new THREE.Shape( americaPts );
+	var american3d = new THREE.ExtrudeGeometry( americanShape, { amount: 20, bevelEnabled: false} );
+	
+	var extrudeGeo = new THREE.Mesh( american3d, shaderMaterial2 );
+	rotating.add( extrudeGeo );
+	
+	/*var extrudePath = new THREE.Path();
+	extrudePath.moveTo( 0, 0 );
+	extrudePath.lineTo( 1.0, 1.0 );
+	extrudePath.quadraticCurveTo( 8.0, 6.0, 16.0, 1.0 );
+	extrudePath.quadraticCurveTo( 24.0, -4.0, 32.0, 1.0 );
+
+	extrudeSettings.extrudePath = extrudePath;
+	extrudeSettings.bevelEnabled = false;*/
+	
+	
+	/*var california3d = new THREE.ExtrudeGeometry( californiaShape, { amount: 20} );
+	var mesh = THREE.SceneUtils.createMultiMaterialObject( california3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
+	var extrudeGeo = new THREE.Mesh( california3d, shaderMaterial2 );
+	rotating.add( mesh );*/
+	
+	
+	var geometry = new THREE.CylinderGeometry( 50, 50, 20, 32 );
+	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+	var cylinder = new THREE.Mesh( geometry, shaderMaterial2 );
+	//rotating.add( cylinder );
+	
+	/*cube = new THREE.Mesh( new THREE.CubeGeometry( 150, 150, 150 ), shaderMaterial2 );
 	//cube.rotation.x = Math.PI/6;
 	//cube.translateX = 1000;
 	cube.translateY = 100;
-	rotating.add( cube );	
+	rotating.add( cube );	*/
 
+	/////////////////////////
+	/*var start = new THREE.Vector3(-100,0,0);
+	var end = new THREE.Vector3(100,1,0);
+	var mid = start.clone().lerpSelf(end, 0.5);	
+	var distanceBetweenCountryCenter = start.clone().subSelf(end.clone()).length();
+	var distanceHalf = distanceBetweenCountryCenter * 0.5;
+	var midLength = mid.length()
+	mid.normalize();
+	mid.multiplyScalar( midLength + distanceBetweenCountryCenter * 0.7 );	
+	
+	var normal = (new THREE.Vector3()).sub(end,start);
+	normal.normalize();
+	
+
+
+	var startAnchor = start;
+	var midStartAnchor = mid.clone().addSelf( normal.clone().multiplyScalar( -distanceHalf ) );					
+	var midEndAnchor = mid.clone().addSelf( normal.clone().multiplyScalar( distanceHalf ) );
+	var splineCurveA = new THREE.CubicBezierCurve3( start, startAnchor, midStartAnchor, mid);	
+	var points = splineCurveA.getPoints( 10 );
+	
+	var curveDir = (new THREE.Vector3()).sub(points[1], points[0]);
+	var tangent = normal.clone().crossSelf(curveDir.clone());
+	tangent.normalize();
+	var spiralRadius = 5;
+	for(var i = 0; i < points.length-1; ++i){
+		var eachCurveDir = (new THREE.Vector3()).sub(points[i+1], points[i]);
+		var segmentDis = eachCurveDir.length();
+		eachCurveDir.normalize();
+		var lat = eachCurveDir.clone().crossSelf(tangent.clone());
+		
+		for(var j = 0; j < 12; ++j){
+			var pTan = tangent.clone().multiplyScalar(spiralRadius * Math.cos(2 * Math.PI / 12 * j));
+			var pLat = lat.clone().multiplyScalar(spiralRadius * Math.sin(2 * Math.PI / 12 * j));
+			var pCur = eachCurveDir.clone().multiplyScalar(segmentDis / 12 * j);
+			var p = pTan.clone().addSelf(pLat).clone().addSelf(pCur);
+			var a = 0;
+		}
+	}*/
+
+	////////////////////////
+	
+	
+	
+	
 	for( var i in timeBins ){					
 		var bin = timeBins[i].data;
 		for( var s in bin ){
@@ -310,7 +512,7 @@ function initScene() {
 	console.timeEnd('buildDataVizGeometries');
 
 	visualizationMesh = new THREE.Object3D();
-	//rotating.add(visualizationMesh);	
+	rotating.add(visualizationMesh);	
 
 	buildGUI();
 
@@ -367,28 +569,11 @@ function initScene() {
 
 function animate() {	
 
-	//	Disallow roll for now, this is interfering with keyboard input during search
-/*	    	
-	if(keyboard.pressed('o') && keyboard.pressed('shift') == false)
-		camera.rotation.z -= 0.08;		    	
-	if(keyboard.pressed('p') && keyboard.pressed('shift') == false)
-		camera.rotation.z += 0.08;		   
-*/
-
 	if( rotateTargetX !== undefined && rotateTargetY !== undefined ){
 
 		rotateVX += (rotateTargetX - rotateX) * 0.012;
 		rotateVY += (rotateTargetY - rotateY) * 0.012;
-
-		// var move = new THREE.Vector3( rotateVX, rotateVY, 0 );
-		// var distance = move.length();
-		// if( distance > .01 )
-		// 	distance = .01;
-		// move.normalize();
-		// move.multiplyScalar( distance );
-
-		// rotateVX = move.x;
-		// rotateVy = move.y;		
+	
 
 		if( Math.abs(rotateTargetX - rotateX) < 0.1 && Math.abs(rotateTargetY - rotateY) < 0.1 ){
 			rotateTargetX = undefined;
@@ -432,18 +617,18 @@ function animate() {
     requestAnimationFrame( animate );	
 
 
-	THREE.SceneUtils.traverseHierarchy( rotating, 
+	/*THREE.SceneUtils.traverseHierarchy( rotating, 
 		function(mesh) {
 			if (mesh.update !== undefined) {
 				mesh.update();
 			} 
 		}
-	);	
+	);	*/
 
-	for( var i in markers ){
+	/*for( var i in markers ){
 		var marker = markers[i];
 		marker.update();
-	}		
+	}	*/	
 
 }
 

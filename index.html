@@ -34,6 +34,7 @@
 		<script src="js/dat.gui.min.js"></script>			<!--Library-->
 		<script src="js/Three.js"></script>					<!--Library-->
 		<!--<script src="js/three.min.js"></script>					<!--Library-->
+		<!--<script src="js/threen.js"></script>	<!--Library-->
 		<script src="js/THREEx.KeyboardState.js"></script>	<!--Library-->
 		<script src="js/THREEx.WindowResize.js"></script>	<!--Library-->
 		<script src="js/Stats.js"></script>					<!--Library-->
@@ -145,11 +146,12 @@
 			uniform sampler2D mapIndex;
 			uniform sampler2D lookup;
 			uniform sampler2D outline;
+			uniform sampler2D flag;
 			uniform float outlineLevel;
 			varying vec3 vNormal;
 			varying vec2 vUv;
 			void main() {
-
+				vec4 flagColor = texture2D( flag, vUv );
 				vec4 mapColor = texture2D( mapIndex, vUv );
 				float indexedColor = mapColor.x;
 				vec2 lookupUV = vec2( indexedColor, 0. );
@@ -158,11 +160,12 @@
 				mask = clamp(mask,0.,1.);
 				float outlineColor = texture2D( outline, vUv ).x * outlineLevel;
 				float diffuse = mask + outlineColor;
-				gl_FragColor = vec4( vec3(diffuse), 1.0  );
-				//gl_FragColor = vec4( mapColor );
+				//gl_FragColor = vec4( vec3(diffuse), 1.0  );
+				
 				//gl_FragColor = vec4( lookupColor );
 				// gl_FragColor = vec4(texture2D( lookup, vUv ).xyz,1.);
-				gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+				gl_FragColor = vec4(1.0,1.0,0.0,1.0);
+				gl_FragColor = vec4( flagColor );
 			}
 		</script>
 

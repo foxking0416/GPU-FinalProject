@@ -713,6 +713,17 @@ THREE.Vector3.prototype = {
 
 		return ( this.lengthSq() < 0.0001 /* almostZero */ );
 
+	},
+	
+	lerpSelf: function ( v, alpha ) {
+
+		this.x += ( v.x - this.x ) * alpha;
+		this.y += ( v.y - this.y ) * alpha;
+		this.z += ( v.z - this.z ) * alpha;
+
+
+		return this;
+
 	}
 
 };
