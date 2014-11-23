@@ -110,10 +110,10 @@ function start( e ){
 	else{
 		//	ensure the map images are loaded first!!
 		mapIndexedImage = new Image();
-		mapIndexedImage.src = 'images/map_indexed.png';
+		mapIndexedImage.src = 'images/map_indexedCopy.png';
 		mapIndexedImage.onload = function() {
 			mapOutlineImage = new Image();
-			mapOutlineImage.src = 'images/map_outline.png';
+			mapOutlineImage.src = 'images/map_outlineCopy.png';
 			mapOutlineImage.onload = function(){
 				flagImage = new Image();
 				flagImage.src = 'images/Flag.png';
