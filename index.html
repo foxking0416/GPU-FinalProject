@@ -97,42 +97,141 @@
 
 		
 		<script id="globeVertexShader" type="x-shader/x-vertex">
-			varying vec3 vNormal;
-			varying vec2 vUv;
+			//projectionMatrix
+			//modelViewMatrix
+			//normalMatrix: like u_InvTrans?
+		
+			uniform sampler2D earthBump;
+			varying mat3 u_InvTrans;
+			varying vec3 vNormal;		// surface normal in camera coordinates
+			varying vec2 vUv; 			//the same as v_Texcoord
+			varying vec3 v_Position; 	// position in camera coordinates
+			varying vec3 v_positionMC;	// position in model coordinates
 			void main() {
-				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0);
+			
+				float height = texture2D(earthBump, uv).r;
+				u_InvTrans = normalMatrix;
 				vNormal = normalize( normalMatrix * normal );
 				vUv = uv;
+				v_Position = (modelViewMatrix * vec4(vec3( position.x, position.y, position.z) + 0.05 * height * vec3(position) , 1.0)).xyz;
+				v_positionMC = normalize( vec3( position.x, position.y, position.z) + 0.05 * height * vec3(position));
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(vec3( position.x, position.y, position.z) + 0.05 * height * vec3(position) , 1.0); //  + 1.0 * height * vec3( position)
+				
 			}
 		</script>
 
 		<script id="globeFragmentShader" type="x-shader/x-fragment">
+			//uniform vec3 u_CameraSpaceDirLight;
 			uniform sampler2D mapIndex;
 			uniform sampler2D lookup;
 			uniform sampler2D outline;
-			uniform sampler2D earthmap;
+			uniform sampler2D earthMap;
+			uniform sampler2D earthLight;
+			uniform sampler2D earthBump;
+			uniform sampler2D earthSpec;
 			uniform float outlineLevel;
-			varying vec3 vNormal;
-			varying vec2 vUv;
+			varying mat3 u_InvTrans;
+			varying vec3 v_Position;	// position in camera coordinates
+			varying vec3 v_positionMC;  // position in model coordinates
+			varying vec3 vNormal; 		// surface normal in camera coordinates
+			varying vec2 vUv;			// the same as v_Texcoord
+			
+			mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
+			
 			void main() {
 				
-				vec4 earthColor = texture2D( earthmap, vUv );
-				vec4 mapColor = texture2D( mapIndex, vUv );
-				float indexedColor = mapColor.x;
-				vec2 lookupUV = vec2( indexedColor, 0. );
-				vec4 lookupColor = texture2D( lookup, lookupUV );
-				float mask = lookupColor.x + (1.-outlineLevel) * indexedColor;
-				mask = clamp(mask,0.,1.);
-				float outlineColor = texture2D( outline, vUv ).x * outlineLevel;
-				float diffuse = mask + outlineColor;
+				
+				float earthSpec = texture2D(earthSpec, vUv).r;	
+				float centerHeight = texture2D(earthBump, vUv).r;
+				float rightHeight = texture2D(earthBump, vUv+ vec2(1.0/1024.0, 0.0)).r;
+				float topHeight = texture2D(earthBump, vUv+ vec2(0.0, 1.0/512.0)).r;
+				vec3 perturbeNormal = normalize(vec3(centerHeight - rightHeight, centerHeight - topHeight, 0.2));
+				perturbeNormal.x = -perturbeNormal.x;
+				mat3 transformMatrix = eastNorthUpToEyeCoordinates(v_positionMC, vNormal);
+				vec3 bumpNormal = transformMatrix * perturbeNormal;
+				bumpNormal = normalize(bumpNormal);
+				
+				
+				vec3 normalBumpOffNoiseOff = normalize(vNormal);
+				
+				// normalized eye-to-position vector in camera coordinates
+				vec3 eyeToPosition = normalize(v_Position);
+				
+				vec3 u_CameraSpaceDirLight = vec3(1.0, 0.0, 1.0);
+				float diffuse = clamp(dot(u_CameraSpaceDirLight, bumpNormal), -1.0, 1.0);
+				float diffuseForDayAndNight = clamp(dot(u_CameraSpaceDirLight, normalBumpOffNoiseOff), -1.0, 1.0);
+				
+				vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, bumpNormal);
+				float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
+				specular = pow(specular, 2.0);
+				specular = 0.0;
+				
+				vec3 earthColor = texture2D(earthMap, vUv ).rgb;
+				vec3 nightColor = texture2D(earthLight, vUv).rgb;
+				
+				float gammaCorrect = 1.5 / 1.2; //gamma correct by 1/1.2
+				nightColor = pow(nightColor,vec3(gammaCorrect));
+				
+				float rimFactor = dot(vNormal, v_Position) + 1.0;
+				vec3 rimColor = clamp(vec3(rimFactor / 4.0, rimFactor / 2.0, rimFactor / 2.0), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+				vec3 finalDayColor = 1.5 * ((0.6 * diffuse) + (0.7 * specular * earthSpec)) * earthColor;// + rimColor;
+				vec3 finalNightColor = 2.0 * nightColor;// + rimColor;
+				
+				vec4 mapIndexColor = texture2D( mapIndex, vUv );
+				float indexedColor = mapIndexColor.x;
+				vec2 lookupUV = vec2( indexedColor, 0.0 );
+				vec4 lookupColor = texture2D( lookup, lookupUV );	
+				float mask = lookupColor.x + (1.0 - outlineLevel) * indexedColor;
+				mask = clamp(mask, 0.0, 1.0);
+				float outlineColor = 0.5 * texture2D( outline, vUv ).x * outlineLevel;
+				float maskAndOutline = mask + outlineColor;
+				
+				//if(vNormal.y > 0)
+					earthColor = diffuse * earthColor;
+				
+				
+				//gl_FragColor = vec4( vec3(maskAndOutline), 1.0  );
+				//gl_FragColor = vec4( earthColor, 1.0 )* 0.6 * outlineLevel + vec4( vec3(maskAndOutline), 1.0  );
+				//perturbeNormal = normalize(perturbeNormal);
+				//vec3 test= normalize(vNormal);
+				//gl_FragColor = vec4( abs(test.x),abs(test.y),abs(test.z), 1.0 );
+				//gl_FragColor = vec4( bumpNormal, 1.0 );
 				//gl_FragColor = vec4( vec3(diffuse), 1.0  );
-				gl_FragColor = vec4( earthColor.x ,earthColor.y ,earthColor.z ,earthColor.w   )*0.5 * outlineLevel + vec4( vec3(diffuse), 1.0  );
 				//gl_FragColor = vec4( vec3(outlineColor), 1.0  );
 				//gl_FragColor = vec4( mapColor );
 				//gl_FragColor = vec4( lookupColor );
-				// gl_FragColor = vec4(texture2D( lookup, vUv ).xyz,1.);
-				//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+				//gl_FragColor = vec4(texture2D( lookup, vUv ).xyz,1.);
+				vec3 color;
+				if(diffuseForDayAndNight > 0.1)//Day
+					color = finalDayColor;
+				else if(diffuseForDayAndNight < -0.1)//Night
+					color = finalNightColor;
+				else
+					color = mix(finalNightColor,
+								finalDayColor,  			    
+								(diffuseForDayAndNight+0.1) /0.2 );
+				if(vNormal.b < 0.0)
+					color = vec3(0.0, 0.0, 0.0);
+								
+				gl_FragColor = vec4( color, 1.0 )* 0.5 * outlineLevel + vec4( vec3(maskAndOutline), 1.0  );
+				//gl_FragColor = vec4( finalNightColor, 1.0 );
 			}
+			
+			mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
+			{
+				// normalized surface tangent in model coordinates
+				vec3 tangentMC = normalize(vec3(-positionMC.z, positionMC.x, 0.0)); 
+				// normalized surface tangent in eye coordiantes 
+				vec3 tangentEC = normalize(u_InvTrans * tangentMC); // use normalMatrix to replace u_InvTrans ?
+				// normalized surface bitangent in eye coordinates
+				vec3 bitangentEC = normalize(cross(normalEC, tangentEC));
+
+				return mat3(
+					tangentEC.x,   tangentEC.y,   tangentEC.z,
+					bitangentEC.x, bitangentEC.y, bitangentEC.z,
+					normalEC.x,    normalEC.y,    normalEC.z);
+			}
+			
 		</script>
 		
 		<script id="countryVertexShader" type="x-shader/x-vertex">

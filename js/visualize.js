@@ -426,10 +426,10 @@ function selectVisualization( linearData, year, countries, exportCategories, imp
 			while(true) {
                 var targetY0Neg = targetY0 - Math.PI * 2 * piCounter;
                 var targetY0Pos = targetY0 + Math.PI * 2 * piCounter;
-                if(Math.abs(targetY0Neg - rotating.rotation.y) < Math.PI) {
+                if(Math.abs(targetY0Neg - globeMesh.rotation.y) < Math.PI) {
                     rotateTargetY = targetY0Neg;
                     break;
-                } else if(Math.abs(targetY0Pos - rotating.rotation.y) < Math.PI) {
+                } else if(Math.abs(targetY0Pos - globeMesh.rotation.y) < Math.PI) {
                     rotateTargetY = targetY0Pos;
                     break;
                 }
@@ -440,7 +440,7 @@ function selectVisualization( linearData, year, countries, exportCategories, imp
             //lines commented below source of rotation error
 			//is there a more reliable way to ensure we don't rotate around the globe too much? 
 			/*
-			if( Math.abs(rotateTargetY - rotating.rotation.y) > Math.PI )
+			if( Math.abs(rotateTargetY - globeMesh.rotation.y) > Math.PI )
 				rotateTargetY += Math.PI;		
 			*/
 			rotateVX *= 0.6;

@@ -6,6 +6,10 @@ var mapIndexedImage;
 var mapOutlineImage;
 var flagImage;
 var earthMapImage;
+var earthLightImage;
+var earthBumpImage;
+var earthSpecImage;
+
 
 //	where in html to hold all our things
 var glContainer = document.getElementById( 'glContainer' );
@@ -23,8 +27,9 @@ var backTexture;
 var worldCanvas;
 var sphere;
 var cube;
-var rotating;
-var rotating2;
+var globeMesh;
+var countryMesh;
+var flagSphereMesh;
 var visualizationMesh;							
 
 var mapUniforms;
@@ -110,31 +115,43 @@ function start( e ){
 	else{
 		//	ensure the map images are loaded first!!
 		mapIndexedImage = new Image();
-		mapIndexedImage.src = 'images/map_indexedCopy.png';
+		mapIndexedImage.src = 'images/map_indexed.png';
 		mapIndexedImage.onload = function() {
 			mapOutlineImage = new Image();
-			mapOutlineImage.src = 'images/map_outlineCopy.png';
+			mapOutlineImage.src = 'images/map_outline.png';
 			mapOutlineImage.onload = function(){
 				flagImage = new Image();
 				flagImage.src = 'images/Flag.png';
 				flagImage.onload = function(){
 					earthMapImage = new Image();
-					earthMapImage.src = 'images/earthmap1024.png';
+					earthMapImage.src = 'images/earthmap1024Tran.png';
 					earthMapImage.onload = function(){
-						loadCountryCodes(
-							function(){
-								loadWorldPins(
-									function(){										
-										loadContentData(								
-											function(){																	
-												initScene();
-												animate();		
-											}
-										);														
-									}
-								);
-							}
-						);
+						earthLightImage = new Image();
+						earthLightImage.src = 'images/earthlight1024Tran.png';
+						earthLightImage.onload = function(){
+							earthBumpImage = new Image();
+							earthBumpImage.src = 'images/earthbump1024Tran.png';
+							earthBumpImage.onload = function(){
+								earthSpecImage = new Image();
+								earthSpecImage.src = 'images/earthspec1024Tran.png';
+								earthSpecImage.onload = function(){
+									loadCountryCodes(
+										function(){
+											loadWorldPins(
+												function(){										
+													loadContentData(								
+														function(){																	
+															initScene();
+															animate();		
+														}
+													);														
+												}
+											);
+										}
+									);
+								};
+							};
+						};
 					};
 				};
 			};			
@@ -187,24 +204,28 @@ function initScene() {
 
 	scene.add( new THREE.AmbientLight( 0x505050 ) );				
 
-	light1 = new THREE.SpotLight( 0xeeeeee, 3 );
+	light1 = new THREE.SpotLight( 0xffffff, 30 );
 	light1.position.x = 730; 
 	light1.position.y = 520;
 	light1.position.z = 626;
 	light1.castShadow = true;
 	scene.add( light1 );
 
-	light2 = new THREE.PointLight( 0x222222, 14.8 );
-	light2.position.x = -640;
-	light2.position.y = -500;
-	light2.position.z = -1000;
+	light2 = new THREE.PointLight( 0xffffff, 14.8 );
+	light2.position.x = 640;
+	light2.position.y = 500;
+	light2.position.z = 1000;
 	scene.add( light2 );				
+	
 
-	rotating = new THREE.Object3D();
-	scene.add(rotating);
+	globeMesh = new THREE.Object3D();
+	scene.add(globeMesh);
 
-	rotating2 = new THREE.Object3D();
-	scene.add(rotating2);
+	countryMesh = new THREE.Object3D();
+	scene.add(countryMesh);
+	
+	flagSphereMesh = new THREE.Object3D();
+	scene.add(flagSphereMesh);
 	
 	lookupCanvas = document.createElement('canvas');	
 	lookupCanvas.width = 256;
@@ -222,28 +243,52 @@ function initScene() {
 
 	var outlinedMapTexture = new THREE.Texture( mapOutlineImage );
 	outlinedMapTexture.needsUpdate = true;
-	// outlinedMapTexture.magFilter = THREE.NearestFilter;
-	// outlinedMapTexture.minFilter = THREE.NearestFilter;
 	
 	var earthMapTexture = new THREE.Texture( earthMapImage );
 	earthMapTexture.needsUpdate = true;
-	earthMapTexture.magFilter = THREE.NearestFilter;
-	earthMapTexture.minFilter = THREE.NearestFilter;
+	earthMapTexture.magFilter = THREE.LinearFilter;//NearestFilter
+	earthMapTexture.minFilter = THREE.LinearFilter;//NearestFilter
+	
+	var earthLightTexture = new THREE.Texture( earthLightImage );
+	earthLightTexture.needsUpdate = true;
+	earthLightTexture.magFilter = THREE.LinearFilter;
+	earthLightTexture.minFilter = THREE.LinearFilter;
+	
+	var earthSpecTexture = new THREE.Texture( earthSpecImage );
+	earthSpecTexture.needsUpdate = true;
+	earthSpecTexture.magFilter = THREE.LinearFilter;
+	earthSpecTexture.minFilter = THREE.LinearFilter;
+	
+	var earthBumpTexture = new THREE.Texture( earthBumpImage );
+	earthBumpTexture.needsUpdate = true;
+	earthBumpTexture.magFilter = THREE.LinearFilter;
+	earthBumpTexture.minFilter = THREE.LinearFilter;
 	
 	var flagTexture = new THREE.Texture( flagImage );
 	flagTexture.needsUpdate = true;
-	flagTexture.magFilter = THREE.NearestFilter;
-	flagTexture.minFilter = THREE.NearestFilter;
+	flagTexture.magFilter = THREE.LinearFilter;
+	flagTexture.minFilter = THREE.LinearFilter;
 
 	var uniforms_Globe = {
 		'mapIndex': { type: 't', value: 0, texture: indexedMapTexture  },		
 		'lookup': { type: 't', value: 1, texture: lookupTexture },
 		'outline': { type: 't', value: 2, texture: outlinedMapTexture },
-		'earthmap': { type: 't', value: 3, texture: earthMapTexture },
+		'earthMap': { type: 't', value: 3, texture: earthMapTexture },
+		'earthLight': { type: 't', value: 4, texture: earthLightTexture },
+		'earthBump': { type: 't', value: 5, texture: earthBumpTexture },
+		'earthSpec': { type: 't', value: 6, texture: earthSpecTexture },
 		'outlineLevel': {type: 'f', value: 1 },
 	};
 	mapUniforms = uniforms_Globe;
 
+	/*var lightdir = vec3.create([1.0, 0.0, 1.0]);
+	var lightdest = vec4.create();
+	vec3.normalize(lightdir);
+	mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
+	lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
+	vec3.normalize(lightdir);*/
+	
+	
 	shaderMaterial_Globe = new THREE.ShaderMaterial( {
 
 		uniforms: 		uniforms_Globe,
@@ -302,7 +347,7 @@ function initScene() {
 	sphere.rotation.y = -Math.PI/2;
 	sphere.rotation.z = Math.PI;
 	sphere.id = "base";	
-	rotating.add( sphere );	
+	globeMesh.add( sphere );	
 	
 	var extrudeSettings = {	amount: 20,  bevelEnabled: false, steps: 2 };
 	var extrudePath = new THREE.Path();
@@ -326,7 +371,7 @@ function initScene() {
 	var triangleSpacedPoints = triangleShape.createSpacedPointsGeometry();
 	var mesh = THREE.SceneUtils.createMultiMaterialObject( triangle3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
 	var extrudeGeo = new THREE.Mesh( triangle3d, shaderMaterial_Country );
-	rotating.add( mesh );*/
+	globeMesh.add( mesh );*/
 
 	
 	
@@ -413,16 +458,17 @@ function initScene() {
 	var americanPoints = americanShape.createPointsGeometry();
 	var mesh = THREE.SceneUtils.createMultiMaterialObject( american3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
 	var extrudeGeo = new THREE.Mesh( american3d, shaderMaterial_Country );
-	rotating2.add( extrudeGeo );
+	countryMesh.add( extrudeGeo );
 	
-
-	var virtuslSphere = new THREE.Mesh( new THREE.SphereGeometry( 50, 40, 40 ), shaderMaterial_Flag );	//100 is radius, 40 is segments in width, 40 is segments in height
+	var boundCube = new THREE.Mesh( new THREE.CubeGeometry( 100, 100, 100 ), shaderMaterial_Flag );
+	flagSphereMesh.add( boundCube );	
+	/*var virtuslSphere = new THREE.Mesh( new THREE.SphereGeometry( 50, 40, 40 ), shaderMaterial_Flag );	//100 is radius, 40 is segments in width, 40 is segments in height
 	virtuslSphere.doubleSided = true;
 	virtuslSphere.rotation.x = Math.PI;				
 	virtuslSphere.rotation.y = -Math.PI/2;
 	virtuslSphere.rotation.z = Math.PI;
 	virtuslSphere.id = "virtual";	
-	rotating2.add( virtuslSphere );	
+	flagSphereMesh.add( virtuslSphere );*/	
 	
 	/*var extrudePath = new THREE.Path();
 	extrudePath.moveTo( 0, 0 );
@@ -441,7 +487,7 @@ function initScene() {
 	/*var geometry = new THREE.CylinderGeometry( 50, 50, 20, 32 );
 	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
 	var cylinder = new THREE.Mesh( geometry, shaderMaterial_Country );
-	rotating.add( cylinder );*/
+	globeMesh.add( cylinder );*/
 
 	/*
 	var linesGeo = new THREE.Geometry();
@@ -467,7 +513,7 @@ function initScene() {
 	THREE.GeometryUtils.merge(test, linesGeo2);
 	var splineOutline3 = new THREE.Line( test, new THREE.LineBasicMaterial( {color: 0xff1100, linewidth: 10}), THREE.LinePieces);
 	
-	rotating.add( splineOutline3 );*/
+	globeMesh.add( splineOutline3 );*/
 	
 	
 	
@@ -477,7 +523,7 @@ function initScene() {
 	//cube.rotation.x = Math.PI/6;
 	//cube.translateX = 1000;
 	cube.translateY = 100;
-	rotating.add( cube );	*/
+	globeMesh.add( cube );	*/
 
 	
 	
@@ -511,7 +557,7 @@ function initScene() {
 	console.timeEnd('buildDataVizGeometries');
 
 	visualizationMesh = new THREE.Object3D();
-	rotating.add(visualizationMesh);	
+	globeMesh.add(visualizationMesh);	
 
 	buildGUI();
 	//'BOLIVIA, PLURINATIONAL STATE OF'
@@ -607,18 +653,18 @@ function animate() {
 
 	TWEEN.update();		
 
-	rotating.rotation.x = rotateX;
-	rotating.rotation.y = rotateY;	
+	globeMesh.rotation.x = rotateX;
+	globeMesh.rotation.y = rotateY;	
 
-	//rotating2.rotation.x = rotateX;
-	rotating2.rotation.y += 0.01;	
+	//countryMesh.rotation.x = rotateX;
+	countryMesh.rotation.y += 0.01;	
 	
     render();	
     		        		       
     requestAnimationFrame( animate );	
 
 
-	/*THREE.SceneUtils.traverseHierarchy( rotating, 
+	/*THREE.SceneUtils.traverseHierarchy( globeMesh, 
 		function(mesh) {
 			if (mesh.update !== undefined) {
 				mesh.update();
@@ -683,7 +729,7 @@ function highlightCountry( countries ){
 	//	the fact that it didn't select was because bolivia shows up as an invalid country due to country name mismatch
 	//	...
 	var pickMask = countries.length == 0 ? 0 : 1;
-	var oceanFill = 10 * pickMask;
+	var oceanFill = 0 * pickMask;
 	ctx.fillStyle = 'rgb(' + oceanFill + ',' + oceanFill + ',' + oceanFill +')';
 	ctx.fillRect( 0, 0, 1, 1 );
 
@@ -760,7 +806,7 @@ function getPickColor(){
 		affectedCountries = visualizationMesh.children[0].affectedCountries;
 
 	highlightCountry([]);
-	rotating.remove(visualizationMesh);
+	globeMesh.remove(visualizationMesh);
 	mapUniforms['outlineLevel'].value = 0;
 	
 	shaderMaterial_Globe.transparent = false;
@@ -797,7 +843,7 @@ function getPickColor(){
 	mapUniforms['outlineLevel'].value = 1;
 	shaderMaterial_Globe.transparent = true;
 	shaderMaterial_Globe.depthWrite = false;
-	rotating.add(visualizationMesh);
+	globeMesh.add(visualizationMesh);
 
 
 	if( affectedCountries !== undefined ){
