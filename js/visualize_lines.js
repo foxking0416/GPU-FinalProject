@@ -69,22 +69,6 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 	var spiralPoints = [];
 	var circularSeg = 6;
 	
-	/*for(var i = 0; i < points.length-1; ++i){
-		var eachCurveDir = (new THREE.Vector3()).sub(points[i+1], points[i]);
-		var segmentDis = eachCurveDir.length();
-		eachCurveDir.normalize();
-		var lat = eachCurveDir.clone().crossSelf(tangent.clone());
-		
-		
-		for(var j = 0; j < circularSeg; ++j){
-			var pTan = tangent.clone().multiplyScalar(spiralRadius * Math.cos(2 * Math.PI / circularSeg * j));
-			var pLat = lat.clone().multiplyScalar(spiralRadius * Math.sin(2 * Math.PI / circularSeg * j));
-			var pCur = eachCurveDir.clone().multiplyScalar(segmentDis / circularSeg * j);
-			var p = points[i].clone().addSelf(pTan).clone().addSelf(pLat).clone().addSelf(pCur);
-			spiralPoints.push( p );
-		}
-	}*/
-
 
 	
 	

@@ -59,6 +59,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 	var particleColors = [];			
 	
 	//var splineOutline;
+	var testCount = 0;
 
 	//	go through the data from year, and find all relevant geometries
 	for( i in bin ){
@@ -90,28 +91,27 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 
 			var lineColor = thisLineIsExport ? new THREE.Color(exportColor) : new THREE.Color(importColor);
 
-			var lastColor;
+			var lastColor = lineColor;
 			//	grab the colors from the vertices
-			for( s in set.lineGeometry.vertices ){
-				var v = set.lineGeometry.vertices[s];		
+			/*for( s in set.lineGeometry.vertices ){	
 				lineColors.push(lineColor);
 				lastColor = lineColor;
-			}
+			}*/
 
 			//	merge it all together
 			//THREE.GeometryUtils.merge( linesGeo, set.lineGeometry );
 
-			var particleColor = lastColor.clone();		
+				
 			var points = set.lineGeometry.vertices;//assembly the curve
 			
 			var normal = (new THREE.Vector3()).sub(points[points.length-1], points[0]);
 			var curveDir = (new THREE.Vector3()).sub(points[1], points[0]);
 			var tangent = normal.clone().crossSelf(curveDir.clone());
 			tangent.normalize();
-			var spiralRadius = 2;
+			var spiralRadius = 1;
 			var spiralPoints = [];
 			var circularSeg = 6;
-	
+			
 			for(var i = 0; i < points.length-1; ++i){
 				var eachCurveDir = (new THREE.Vector3()).sub(points[i+1], points[i]);
 				var segmentDis = eachCurveDir.length();
@@ -127,28 +127,37 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 					spiralPoints.push( p );
 				}
 			}
-	
+			
 			for(var i = 0; i < spiralPoints.length; ++i){
-				//console.log('points[' + i + '].x = ' + points[i].x + 'points[' + i + '].y == ' + points[i].y + 'points[' + i + '].z = ' + points[i].z);
 				
-				if(i === 0 || i === spiralPoints - 1)
+				if(i === 0 || i === spiralPoints.length - 1){
 					linesGeo.vertices.push(new THREE.Vector3( spiralPoints[i].x, spiralPoints[i].y, spiralPoints[i].z ));
+					lineColors.push(lineColor);
+				}
 				else{
 					linesGeo.vertices.push(new THREE.Vector3( spiralPoints[i].x, spiralPoints[i].y, spiralPoints[i].z ));
 					linesGeo.vertices.push(new THREE.Vector3( spiralPoints[i].x, spiralPoints[i].y, spiralPoints[i].z ));
+					lineColors.push(lineColor);
+					lineColors.push(lineColor);
 				}
 			}
 			
+			testCount++;
 			/*for(var i = 0; i < points.length; ++i){
-
-				if(i == 0 || i == set.lineGeometry.vertices.length - 1)
+				//linesGeo.vertices.push(new THREE.Vector3( points[i].x, points[i].y, points[i].z ));
+				if(i == 0 || i == set.lineGeometry.vertices.length - 1){
 					linesGeo.vertices.push(new THREE.Vector3( points[i].x, points[i].y, points[i].z ));
+					lineColors.push(lineColor);
+				}
 				else{
 					linesGeo.vertices.push(new THREE.Vector3( points[i].x, points[i].y, points[i].z ));
+					lineColors.push(lineColor);
 					linesGeo.vertices.push(new THREE.Vector3( points[i].x, points[i].y, points[i].z ));
+					lineColors.push(lineColor);
 				}
 			}*/
 			
+			var particleColor = lastColor.clone();	
 			
 			
 			

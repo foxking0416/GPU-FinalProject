@@ -5,6 +5,7 @@ var overlay = document.getElementById('visualization');
 var mapIndexedImage;
 var mapOutlineImage;
 var flagImage;
+var earthMapImage;
 
 //	where in html to hold all our things
 var glContainer = document.getElementById( 'glContainer' );
@@ -27,6 +28,7 @@ var rotating2;
 var visualizationMesh;							
 
 var mapUniforms;
+var shaderMaterial_Globe;
 
 //	contains the data loaded from the arms data file
 //	contains a list of years, followed by trades within that year
@@ -80,8 +82,8 @@ var categoryColors = {
 	'ammo' : 0x154492,
 }
 
-var exportColor = 0xdd380c;
-var importColor = 0x154492;
+var exportColor = 0xffff33;
+var importColor = 0x9900cc;
 
 //	the currently selected country
 var selectedCountry = null;
@@ -116,20 +118,24 @@ function start( e ){
 				flagImage = new Image();
 				flagImage.src = 'images/Flag.png';
 				flagImage.onload = function(){
-					loadCountryCodes(
-						function(){
-							loadWorldPins(
-								function(){										
-									loadContentData(								
-										function(){																	
-											initScene();
-											animate();		
-										}
-									);														
-								}
-							);
-						}
-					);
+					earthMapImage = new Image();
+					earthMapImage.src = 'images/earthmap1024.png';
+					earthMapImage.onload = function(){
+						loadCountryCodes(
+							function(){
+								loadWorldPins(
+									function(){										
+										loadContentData(								
+											function(){																	
+												initScene();
+												animate();		
+											}
+										);														
+									}
+								);
+							}
+						);
+					};
 				};
 			};			
 		};		
@@ -141,9 +147,7 @@ function start( e ){
 var Selection = function(){
 	this.selectedYear = '2010';
 	this.selectedCountry = 'UNITED STATES';
-	// this.showExports = true;
-	// this.showImports = true;
-	// this.importExportFilter = 'both';
+
 
 	this.exportCategories = new Object();
 	this.importCategories = new Object();
@@ -221,66 +225,63 @@ function initScene() {
 	// outlinedMapTexture.magFilter = THREE.NearestFilter;
 	// outlinedMapTexture.minFilter = THREE.NearestFilter;
 	
+	var earthMapTexture = new THREE.Texture( earthMapImage );
+	earthMapTexture.needsUpdate = true;
+	earthMapTexture.magFilter = THREE.NearestFilter;
+	earthMapTexture.minFilter = THREE.NearestFilter;
+	
 	var flagTexture = new THREE.Texture( flagImage );
-	//THREE.ImageUtils.loadTexture( 'images/map_indexed.png' );
 	flagTexture.needsUpdate = true;
 	flagTexture.magFilter = THREE.NearestFilter;
 	flagTexture.minFilter = THREE.NearestFilter;
 
-	var uniforms = {
+	var uniforms_Globe = {
 		'mapIndex': { type: 't', value: 0, texture: indexedMapTexture  },		
 		'lookup': { type: 't', value: 1, texture: lookupTexture },
 		'outline': { type: 't', value: 2, texture: outlinedMapTexture },
+		'earthmap': { type: 't', value: 3, texture: earthMapTexture },
 		'outlineLevel': {type: 'f', value: 1 },
 	};
-	mapUniforms = uniforms;
+	mapUniforms = uniforms_Globe;
 
-	var shaderMaterial = new THREE.ShaderMaterial( {
+	shaderMaterial_Globe = new THREE.ShaderMaterial( {
 
-		uniforms: 		uniforms,
+		uniforms: 		uniforms_Globe,
 		// attributes:     attributes,
 		vertexShader:   document.getElementById( 'globeVertexShader' ).textContent,
 		fragmentShader: document.getElementById( 'globeFragmentShader' ).textContent,
-		// sizeAttenuation: true,
-		opacity: 0.5,
-		blending: 		THREE.AdditiveBlending, //
-		depthTest: 		true,
+
+		blending: 		THREE.AdditiveBlending, 
 		depthWrite: 	false,
 		transparent:	true,
-	});
-	
-	var uniforms2 = {
-		'flag': { type: 't', value: 3, texture: flagTexture  },
-		'mapIndex': { type: 't', value: 0, texture: indexedMapTexture  },		
-		'lookup': { type: 't', value: 1, texture: lookupTexture },
-		'outline': { type: 't', value: 2, texture: outlinedMapTexture },
-		'outlineLevel': {type: 'f', value: 1 },
-	};
-	var shaderMaterial2 = new THREE.ShaderMaterial( {
-
-		uniforms: 		uniforms2,
-		// attributes:     attributes,
-		vertexShader:   document.getElementById( 'cubeVertexShader' ).textContent,
-		fragmentShader: document.getElementById( 'cubeFragmentShader' ).textContent,
-		// sizeAttenuation: true,
 		
 		/*opacity: 0.5,
-		blending: 		THREE.AdditiveBlending,
+		blending: 		THREE.AdditiveBlending, //
 		depthTest: 		true,
 		depthWrite: 	false,
 		transparent:	true,*/
 	});
 	
-	var uniforms3 = {
-		'flag': { type: 't', value: 3, texture: flagTexture  },
-		'mapIndex': { type: 't', value: 0, texture: indexedMapTexture  },		
-		'lookup': { type: 't', value: 1, texture: lookupTexture },
-		'outline': { type: 't', value: 2, texture: outlinedMapTexture },
-		'outlineLevel': {type: 'f', value: 1 },
+	
+	var uniforms_Country = {
+		'flag': { type: 't', value: 0, texture: flagTexture  },
 	};
-	var shaderMaterial3 = new THREE.ShaderMaterial( {
+	var shaderMaterial_Country = new THREE.ShaderMaterial( {
 
-		uniforms: 		uniforms3,
+		//uniforms: 		uniforms_Country,
+		// attributes:     attributes,
+		vertexShader:   document.getElementById( 'countryVertexShader' ).textContent,
+		fragmentShader: document.getElementById( 'countryFragmentShader' ).textContent,
+		// sizeAttenuation: true,
+		
+	});
+	
+	var uniforms_Flag = {
+		'flag': { type: 't', value: 0, texture: flagTexture  },
+	};
+	var shaderMaterial_Flag = new THREE.ShaderMaterial( {
+
+		uniforms: 		uniforms_Flag,
 		// attributes:     attributes,
 		vertexShader:   document.getElementById( 'FlagVertexShader' ).textContent,
 		fragmentShader: document.getElementById( 'FlagFragmentShader' ).textContent,
@@ -295,7 +296,7 @@ function initScene() {
 
 
 						
-	sphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial );	//100 is radius, 40 is segments in width, 40 is segments in height
+	sphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial_Globe );	//100 is radius, 40 is segments in width, 40 is segments in height
 	sphere.doubleSided = true;
 	sphere.rotation.x = Math.PI;				
 	sphere.rotation.y = -Math.PI/2;
@@ -324,7 +325,7 @@ function initScene() {
 	var trianglePoints = triangleShape.createPointsGeometry();
 	var triangleSpacedPoints = triangleShape.createSpacedPointsGeometry();
 	var mesh = THREE.SceneUtils.createMultiMaterialObject( triangle3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
-	var extrudeGeo = new THREE.Mesh( triangle3d, shaderMaterial2 );
+	var extrudeGeo = new THREE.Mesh( triangle3d, shaderMaterial_Country );
 	rotating.add( mesh );*/
 
 	
@@ -411,16 +412,16 @@ function initScene() {
 	var american3d = new THREE.ExtrudeGeometry( americanShape, { amount: 20, bevelEnabled: false} );
 	var americanPoints = americanShape.createPointsGeometry();
 	var mesh = THREE.SceneUtils.createMultiMaterialObject( american3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
-	var extrudeGeo = new THREE.Mesh( american3d, shaderMaterial2 );
+	var extrudeGeo = new THREE.Mesh( american3d, shaderMaterial_Country );
 	rotating2.add( extrudeGeo );
 	
 
-	var virtuslSphere = new THREE.Mesh( new THREE.SphereGeometry( 50, 40, 40 ), shaderMaterial3 );	//100 is radius, 40 is segments in width, 40 is segments in height
+	var virtuslSphere = new THREE.Mesh( new THREE.SphereGeometry( 50, 40, 40 ), shaderMaterial_Flag );	//100 is radius, 40 is segments in width, 40 is segments in height
 	virtuslSphere.doubleSided = true;
 	virtuslSphere.rotation.x = Math.PI;				
 	virtuslSphere.rotation.y = -Math.PI/2;
 	virtuslSphere.rotation.z = Math.PI;
-	virtuslSphere.id = "base";	
+	virtuslSphere.id = "virtual";	
 	rotating2.add( virtuslSphere );	
 	
 	/*var extrudePath = new THREE.Path();
@@ -433,17 +434,13 @@ function initScene() {
 	extrudeSettings.bevelEnabled = false;*/
 	
 	
-	/*var california3d = new THREE.ExtrudeGeometry( californiaShape, { amount: 20} );
-	var mesh = THREE.SceneUtils.createMultiMaterialObject( california3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
-	var extrudeGeo = new THREE.Mesh( california3d, shaderMaterial2 );
-	rotating.add( mesh );*/
 	
 	
 	
 	
 	/*var geometry = new THREE.CylinderGeometry( 50, 50, 20, 32 );
 	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-	var cylinder = new THREE.Mesh( geometry, shaderMaterial2 );
+	var cylinder = new THREE.Mesh( geometry, shaderMaterial_Country );
 	rotating.add( cylinder );*/
 
 	/*
@@ -476,55 +473,12 @@ function initScene() {
 	
 	//var face = new THREE.Face3();
 	
-	/*cube = new THREE.Mesh( new THREE.CubeGeometry( 150, 150, 150 ), shaderMaterial2 );
+	/*cube = new THREE.Mesh( new THREE.CubeGeometry( 150, 150, 150 ), shaderMaterial_Country );
 	//cube.rotation.x = Math.PI/6;
 	//cube.translateX = 1000;
 	cube.translateY = 100;
 	rotating.add( cube );	*/
 
-	/////////////////////////
-	/*var start = new THREE.Vector3(-100,0,0);
-	var end = new THREE.Vector3(100,1,0);
-	var mid = start.clone().lerpSelf(end, 0.5);	
-	var distanceBetweenCountryCenter = start.clone().subSelf(end.clone()).length();
-	var distanceHalf = distanceBetweenCountryCenter * 0.5;
-	var midLength = mid.length()
-	mid.normalize();
-	mid.multiplyScalar( midLength + distanceBetweenCountryCenter * 0.7 );	
-	
-	var normal = (new THREE.Vector3()).sub(end,start);
-	normal.normalize();
-	
-
-
-	var startAnchor = start;
-	var midStartAnchor = mid.clone().addSelf( normal.clone().multiplyScalar( -distanceHalf ) );					
-	var midEndAnchor = mid.clone().addSelf( normal.clone().multiplyScalar( distanceHalf ) );
-	var splineCurveA = new THREE.CubicBezierCurve3( start, startAnchor, midStartAnchor, mid);	
-	var points = splineCurveA.getPoints( 10 );
-	
-	var curveDir = (new THREE.Vector3()).sub(points[1], points[0]);
-	var tangent = normal.clone().crossSelf(curveDir.clone());
-	tangent.normalize();
-	var spiralRadius = 5;
-	for(var i = 0; i < points.length-1; ++i){
-		var eachCurveDir = (new THREE.Vector3()).sub(points[i+1], points[i]);
-		var segmentDis = eachCurveDir.length();
-		eachCurveDir.normalize();
-		var lat = eachCurveDir.clone().crossSelf(tangent.clone());
-		
-		for(var j = 0; j < 12; ++j){
-			var pTan = tangent.clone().multiplyScalar(spiralRadius * Math.cos(2 * Math.PI / 12 * j));
-			var pLat = lat.clone().multiplyScalar(spiralRadius * Math.sin(2 * Math.PI / 12 * j));
-			var pCur = eachCurveDir.clone().multiplyScalar(segmentDis / 12 * j);
-			var p = pTan.clone().addSelf(pLat).clone().addSelf(pCur);
-			var a = 0;
-		}
-	}*/
-
-	////////////////////////
-	
-	
 	
 	
 	for( var i in timeBins ){					
@@ -560,8 +514,9 @@ function initScene() {
 	rotating.add(visualizationMesh);	
 
 	buildGUI();
-
-	selectVisualization( timeBins, '2010', ['UNITED STATES'], ['Military Weapons','Civilian Weapons', 'Ammunition'], ['Military Weapons','Civilian Weapons', 'Ammunition'] );					
+	//'BOLIVIA, PLURINATIONAL STATE OF'
+	//'UNITED STATES'
+	selectVisualization( timeBins, '2010', ['BOLIVIA, PLURINATIONAL STATE OF'], ['Military Weapons','Civilian Weapons', 'Ammunition'], ['Military Weapons','Civilian Weapons', 'Ammunition'] );					
 
 
 
@@ -655,8 +610,8 @@ function animate() {
 	rotating.rotation.x = rotateX;
 	rotating.rotation.y = rotateY;	
 
-	rotating2.rotation.x = rotateX;
-	rotating2.rotation.y = rotateY;	
+	//rotating2.rotation.x = rotateX;
+	rotating2.rotation.y += 0.01;	
 	
     render();	
     		        		       
@@ -807,6 +762,9 @@ function getPickColor(){
 	highlightCountry([]);
 	rotating.remove(visualizationMesh);
 	mapUniforms['outlineLevel'].value = 0;
+	
+	shaderMaterial_Globe.transparent = false;
+	shaderMaterial_Globe.depthWrite = true;
 	lookupTexture.needsUpdate = true;
 
 	renderer.autoClear = false;
@@ -837,6 +795,8 @@ function getPickColor(){
 	gl.preserveDrawingBuffer = false;	
 
 	mapUniforms['outlineLevel'].value = 1;
+	shaderMaterial_Globe.transparent = true;
+	shaderMaterial_Globe.depthWrite = false;
 	rotating.add(visualizationMesh);
 
 
