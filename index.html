@@ -4,6 +4,9 @@
 		<title>Interactive Globe: International Student Statistic &amp; Exports</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1">
+		<link href='http://fonts.googleapis.com/css?family=Fredericka+the+Great' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Grand+Hotel' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Shadows+Into+Light' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="style.css">
 
 	</head>
@@ -330,10 +333,10 @@
 		</script>
 
 
-		<!-- All other hud can go here-->
+<!-- All other hud can go here-->
         <div id="hudHeader" class="overlayCountries noPointer">
-            <h1 class="noPointer">International Student Statistic — Imports & Exports
-                <div class="subtitle">An interactive visualization of government-authorized small arms and ammunition transfers from 1992 to 2010. </div>
+            <h1 class="noPointer" style ="font-family: Fredericka the Great, cursive; font-size: 60px">Global<br> <mark>International</mark><br> Study
+                <div class="subtitle" style="font-family: Shadows Into Light, cursive; font-size: 14px">An <mark style="background-color:#FF9DFF;"> interactive visualization</mark> of global international study progress <br> from 1940 to 2013. </div>
 			</h1>
         </div>
 
@@ -344,7 +347,8 @@
             <input type="button" value="+" class="zoomBtn zoomInBtn armsBtn pointer noMapDrag">
             <input type="button" value="ABOUT" class="aboutBtn armsBtn pointer"><br class="clear" />
         </div>
-        <div id="history" class="overlayCountries noPointer">
+    
+       <div id="history" class="overlayCountries noPointer">
             <div class="graph">
                 <div class="close"></div>
                 <div class="labels">
@@ -352,17 +356,16 @@
                     <div class="exports">EXPORTS</div>
                     <div class="imports">IMPORTS</div><br class="clear" />
                 </div>
+            
                 <div class="container noPointer"></div>
             </div>
+
             <ul class="timeline pointer">
-                <li>1992</li>
-                <li>93</li>
-                <li>94</li>
-                <li>95</li>
-                <li>96</li>
-                <li>97</li>
-                <li>98</li>
-                <li>99</li>
+                <li>1940</li>
+                <li>60</li>
+                <li>70</li>
+                <li>80</li>
+                <li>90</li>
                 <li>2000</li>
                 <li>01</li>
                 <li>02</li>
@@ -373,17 +376,21 @@
                 <li>07</li>
                 <li>08</li>
                 <li>09</li>
-                <li>2010</li>
+                <li>10</li>
+                <li>11</li>
+                <li>12</li>
+                <li>2013</li>
                 <div id="handle" class="noMapDrag"></div>
             </ul>
         </div>
         <div id="graphIcon" class="overlayCountries"></div>
         <div id="importExportBtns" class="overlayCountries">
-            <div class="typeLabels">
+         <!--   <div class="typeLabels">
                 <div class="mil">Military</div>
                 <div class="civ">Civilian</div>
                 <div class="ammo">Ammo</div><br class="clear">
             </div>
+        -->
             <div class="imports imex">
                 <div class="mil"><div class="check"></div></div>
                 <div class="civ"><div class="check"></div></div>
@@ -397,11 +404,13 @@
                 <div class="label">Exports</div><br class="clear">
             </div>
             <br class="clear" />
+        
         </div>
+    
 
         <div id="aboutContainer" class='overlayCountries'>
             <div class="arrowUp"></div>
-            <div id="aboutBox">
+<!--            <div id="aboutBox">
                 <div class="title">Information about the data</div>
                 <div class="text">
                     This data visualization was produced by Google as part of the <a href="http://www.google.com/ideas" target="_blank">Google Ideas</a> INFO (Illicit Networks, Forces in Opposition) Summit with support from the <a href="http://igarape.org.br/" target="_blank">Igarape Institute</a> and data provided by the <a href="http://www.prio.no/" target="_blank">Peace Research Institute Oslo (PRIO)</a> small arms database. The visualization includes >1 million individual import and export data points from annual custom reports and maps the transfer of small arms, light weapons and ammunition across 250 nation states and territories around the world between 1992 and 2010.
@@ -410,8 +419,11 @@
                 	<br>
                     For more info, please see the <a href="http://igarape.org.br/armsglobe" target="_blank">FAQs</a>.
                 </div>
+            -->
             </div>
+
         </div>
+  
     </div>
 	</body>
 </html>
