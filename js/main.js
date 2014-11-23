@@ -321,6 +321,17 @@ function initScene() {
 		
 	});
 	
+	var uniforms_InsideObj = {
+		
+	};
+	var shaderMaterial_InsideObj = new THREE.ShaderMaterial( {
+
+		//uniforms: 		uniforms_Country,
+		// attributes:     attributes,
+		vertexShader:   document.getElementById( 'insideObjVertexShader' ).textContent,
+		fragmentShader: document.getElementById( 'insideObjFragmentShader' ).textContent,	
+	});
+	
 	var uniforms_Flag = {
 		'flag': { type: 't', value: 0, texture: flagTexture  },
 	};
@@ -519,11 +530,8 @@ function initScene() {
 	
 	//var face = new THREE.Face3();
 	
-	/*cube = new THREE.Mesh( new THREE.CubeGeometry( 150, 150, 150 ), shaderMaterial_Country );
-	//cube.rotation.x = Math.PI/6;
-	//cube.translateX = 1000;
-	cube.translateY = 100;
-	globeMesh.add( cube );	*/
+	var cube = new THREE.Mesh( new THREE.CubeGeometry( 50, 50, 50 ), shaderMaterial_InsideObj );
+	globeMesh.add( cube );	
 
 	
 	
