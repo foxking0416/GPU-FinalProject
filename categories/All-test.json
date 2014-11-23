@@ -1,0 +1,24 @@
+{"timeBins": 
+[{"data": 
+[
+{"i": "United States", "wc": "mil", "e": "Burundi", "v": 124}, 
+{"i": "United States", "wc": "mil", "e": "Ethiopia", "v": 1463},
+{"i": "United States", "wc": "ammo", "e": "Malawi", "v": 252}, 
+{"i": "Zambia", "wc": "ammo", "e": "Zimbabwe", "v": 23300}, 
+{"i": "United States", "wc": "mil", "e": "Australia", "v": 58142}, 
+{"i": "Indonesia", "wc": "mil", "e": "Austria", "v": 1412190}, 
+{"i": "New Zealand", "wc": "mil", "e": "Austria", "v": 1296}, 
+{"i": "Switzerland", "wc": "mil", "e": "Austria", "v": 66412}, 
+{"i": "Tunisia", "wc": "mil", "e": "Austria", "v": 581163}, 
+{"i": "United States", "wc": "mil", "e": "Austria", "v": 87748},
+{"i": "Australia", "wc": "mil", "e": "Belgium", "v": 1466}, 
+{"i": "Brazil", "wc": "mil", "e": "Belgium", "v": 6718}, 
+{"i": "Indonesia", "wc": "mil", "e": "Belgium", "v": 66809}],
+"t": 2013},
+{"data": 
+[
+{"i": "Algeria", "wc": "mil", "e": "Australia", "v": 2479}, 
+{"i": "New Zealand", "wc": "mil", "e": "Australia", "v": 1986},
+{"i": "Malawi", "wc": "ammo", "e": "Zambia", "v": 1547}, 
+{"i": "Zambia", "wc": "ammo", "e": "Zimbabwe", "v": 233}], "t": 2012}
+]}
