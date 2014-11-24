@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 	<head>
-		<title>Interactive Globe: Global International Study</title>
+		<title>Interactive Globe: International Student Statistic &amp; Exports</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1">
 		<link href='http://fonts.googleapis.com/css?family=Fredericka+the+Great' rel='stylesheet' type='text/css'>
@@ -9,13 +9,12 @@
 		<link href='http://fonts.googleapis.com/css?family=Shadows+Into+Light' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="style.css">
 
-
 	</head>
 
 	<body onload="start()" id="dataviz" class="">
 		<div id="wrapper">
 		<div id="loading">
-			<h2>Loading Data. Please wait...</h2>
+			<h2>I AM LOADING...</h2>
 		</div>
 
 		<div >
@@ -24,6 +23,8 @@
 			<!--<span id="detailText" class="detail">
 			</span>--></td></tr></table>
 		</div>
+		<!-- ra -->
+		<div id="country_name"> </div>
 
 		<div id="visualization" >
 			<!-- 2D overlay elements go in here -->
@@ -77,7 +78,6 @@
 				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
 				gl_PointSize = size;
-
 				gl_Position = projectionMatrix * mvPosition;
 
 			}
@@ -93,7 +93,6 @@
 			void main() {
 
 				gl_FragColor = vec4( color * vColor, 1.0 );
-				//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
 				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
 				
 			}
@@ -101,71 +100,179 @@
 
 		
 		<script id="globeVertexShader" type="x-shader/x-vertex">
-			varying vec3 vNormal;
-			varying vec2 vUv;
+			//projectionMatrix
+			//modelViewMatrix
+			//normalMatrix: like u_InvTrans?
+		
+			uniform sampler2D earthBump;
+			varying mat3 u_InvTrans;
+			varying vec3 vNormal;		// surface normal in camera coordinates
+			varying vec2 vUv; 			//the same as v_Texcoord
+			varying vec3 v_Position; 	// position in camera coordinates
+			varying vec3 v_positionMC;	// position in model coordinates
 			void main() {
-				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0);
+			
+				float height = texture2D(earthBump, uv).r;
+				u_InvTrans = normalMatrix;
 				vNormal = normalize( normalMatrix * normal );
 				vUv = uv;
+				v_Position = (modelViewMatrix * vec4(vec3( position.x, position.y, position.z) + 0.05 * height * vec3(position) , 1.0)).xyz;
+				v_positionMC = normalize( vec3( position.x, position.y, position.z) + 0.05 * height * vec3(position));
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(vec3( position.x, position.y, position.z) + 0.05 * height * vec3(position) , 1.0); //  + 1.0 * height * vec3( position)
+				
 			}
 		</script>
 
 		<script id="globeFragmentShader" type="x-shader/x-fragment">
+			//uniform vec3 u_CameraSpaceDirLight;
 			uniform sampler2D mapIndex;
 			uniform sampler2D lookup;
 			uniform sampler2D outline;
+			uniform sampler2D earthMap;
+			uniform sampler2D earthLight;
+			uniform sampler2D earthBump;
+			uniform sampler2D earthSpec;
 			uniform float outlineLevel;
-			varying vec3 vNormal;
-			varying vec2 vUv;
+			varying mat3 u_InvTrans;
+			varying vec3 v_Position;	// position in camera coordinates
+			varying vec3 v_positionMC;  // position in model coordinates
+			varying vec3 vNormal; 		// surface normal in camera coordinates
+			varying vec2 vUv;			// the same as v_Texcoord
+			
+			mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
+			
 			void main() {
+				
+				
+				float earthSpec = texture2D(earthSpec, vUv).r;	
+				float centerHeight = texture2D(earthBump, vUv).r;
+				float rightHeight = texture2D(earthBump, vUv+ vec2(1.0/1024.0, 0.0)).r;
+				float topHeight = texture2D(earthBump, vUv+ vec2(0.0, 1.0/512.0)).r;
+				vec3 perturbeNormal = normalize(vec3(centerHeight - rightHeight, centerHeight - topHeight, 0.2));
+				perturbeNormal.x = -perturbeNormal.x;
+				mat3 transformMatrix = eastNorthUpToEyeCoordinates(v_positionMC, vNormal);
+				vec3 bumpNormal = transformMatrix * perturbeNormal;
+				bumpNormal = normalize(bumpNormal);
+				
+				
+				vec3 normalBumpOffNoiseOff = normalize(vNormal);
+				
+				// normalized eye-to-position vector in camera coordinates
+				vec3 eyeToPosition = normalize(v_Position);
+				
+				vec3 u_CameraSpaceDirLight = vec3(1.0, 0.0, 1.0);
+				float diffuse = clamp(dot(u_CameraSpaceDirLight, bumpNormal), -1.0, 1.0);
+				float diffuseForDayAndNight = clamp(dot(u_CameraSpaceDirLight, normalBumpOffNoiseOff), -1.0, 1.0);
+				
+				vec3 toReflectedLight = reflect(-u_CameraSpaceDirLight, bumpNormal);
+				float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
+				specular = pow(specular, 2.0);
+				specular = 0.0;
+				
+				vec3 earthColor = texture2D(earthMap, vUv ).rgb;
+				vec3 nightColor = texture2D(earthLight, vUv).rgb;
+				
+				float gammaCorrect = 1.5 / 1.2; //gamma correct by 1/1.2
+				nightColor = pow(nightColor,vec3(gammaCorrect));
+				
+				float rimFactor = dot(vNormal, normalize(vec3(v_Position.x, v_Position.y, v_Position.z))) + 0.4;
+				vec3 rimColor = clamp( vec3(rimFactor / 2.0, rimFactor, rimFactor), vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
+				vec3 finalDayColor = 2.5 * ((0.6 * diffuse) + (0.7 * specular * earthSpec)) * earthColor + rimColor;
+				vec3 finalNightColor = 2.0 * nightColor + rimColor;
+				
+				vec4 mapIndexColor = texture2D( mapIndex, vUv );
+				float indexedColor = mapIndexColor.x;
+				vec2 lookupUV = vec2( indexedColor, 0.0 );
+				vec4 lookupColor = texture2D( lookup, lookupUV );	
+				float mask = lookupColor.x + (1.0 - outlineLevel) * indexedColor;
+				mask = clamp(mask, 0.0, 1.0);
+				float outlineColor = 0.8 * texture2D( outline, vUv ).x * outlineLevel;
+				float maskAndOutline = mask + outlineColor;
+				
 
-				vec4 mapColor = texture2D( mapIndex, vUv );
-				float indexedColor = mapColor.x;
-				vec2 lookupUV = vec2( indexedColor, 0. );
-				vec4 lookupColor = texture2D( lookup, lookupUV );
-				float mask = lookupColor.x + (1.-outlineLevel) * indexedColor;
-				mask = clamp(mask,0.,1.);
-				float outlineColor = texture2D( outline, vUv ).x * outlineLevel;
-				float diffuse = mask + outlineColor;
-				gl_FragColor = vec4( vec3(diffuse), 1.0  );
+						
+				//gl_FragColor = vec4( vec3(maskAndOutline), 1.0  );
+				//gl_FragColor = vec4( earthColor, 1.0 )* 0.6 * outlineLevel + vec4( vec3(maskAndOutline), 1.0  );
+				//perturbeNormal = normalize(perturbeNormal);
+				//vec3 test= normalize(vNormal);
+				//gl_FragColor = vec4( abs(test.x),abs(test.y),abs(test.z), 1.0 );
+				//gl_FragColor = vec4( bumpNormal, 1.0 );
+				//gl_FragColor = vec4( vec3(diffuse), 1.0  );
+				//gl_FragColor = vec4( vec3(outlineColor), 1.0  );
 				//gl_FragColor = vec4( mapColor );
 				//gl_FragColor = vec4( lookupColor );
-				// gl_FragColor = vec4(texture2D( lookup, vUv ).xyz,1.);
-				//gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+				//gl_FragColor = vec4(texture2D( lookup, vUv ).xyz,1.);
+				vec3 color;
+				if(diffuseForDayAndNight > 0.1)//Day
+					color = finalDayColor;
+				else if(diffuseForDayAndNight < -0.1)//Night
+					color = finalNightColor;
+				else
+					color = mix(finalNightColor,
+								finalDayColor,  			    
+								(diffuseForDayAndNight+0.1) /0.2 );
+				if(vNormal.b < 0.0)
+					color = vec3(0.0, 0.0, 0.0);
+								
+								//vNormal, eyeToPosition
+				gl_FragColor = vec4( color, 1.0 )* 0.5 * outlineLevel + vec4( vec3(maskAndOutline), 1.0  );
+				//gl_FragColor = vec4( rimColor, 1.0 );
+				//gl_FragColor = vec4(  normalize(vec3(v_Position.x, v_Position.y,  v_Position.z)), 1.0 );
 			}
+			
+			mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC)
+			{
+				// normalized surface tangent in model coordinates
+				vec3 tangentMC = normalize(vec3(-positionMC.z, positionMC.x, 0.0)); 
+				// normalized surface tangent in eye coordiantes 
+				vec3 tangentEC = normalize(u_InvTrans * tangentMC); // use normalMatrix to replace u_InvTrans ?
+				// normalized surface bitangent in eye coordinates
+				vec3 bitangentEC = normalize(cross(normalEC, tangentEC));
+
+				return mat3(
+					tangentEC.x,   tangentEC.y,   tangentEC.z,
+					bitangentEC.x, bitangentEC.y, bitangentEC.z,
+					normalEC.x,    normalEC.y,    normalEC.z);
+			}
+			
 		</script>
 		
-		<script id="cubeVertexShader" type="x-shader/x-vertex">
+		<script id="countryVertexShader" type="x-shader/x-vertex">
 			varying vec3 vNormal;
 			varying vec2 vUv;
 			void main() {
 				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0);
-				gl_Position += vec4(830.0, 0.0, 0.0,1.0);
+				gl_Position += vec4(1000.0, 0.0, 0.0,1.0);
 				vNormal = normalize( normalMatrix * normal );
+				//vNormal = normalize( normal );
 				vUv = uv;
 			}
 		</script>
 
-		<script id="cubeFragmentShader" type="x-shader/x-fragment">
-			uniform sampler2D mapIndex;
-			uniform sampler2D lookup;
-			uniform sampler2D outline;
-			uniform sampler2D flag;
-			uniform float outlineLevel;
+		<script id="countryFragmentShader" type="x-shader/x-fragment">
+
 			varying vec3 vNormal;
 			varying vec2 vUv;
 			void main() {
-				vec4 flagColor = texture2D( flag, vUv );
-				vec4 mapColor = texture2D( mapIndex, vUv );
-				float indexedColor = mapColor.x;
-				vec2 lookupUV = vec2( indexedColor, 0. );
-				vec4 lookupColor = texture2D( lookup, lookupUV );
-				float mask = lookupColor.x + (1.-outlineLevel) * indexedColor;
-				mask = clamp(mask,0.,1.);
-				float outlineColor = texture2D( outline, vUv ).x * outlineLevel;
-				float diffuse = mask + outlineColor;
-				gl_FragColor = vec4(1.0,1.0,1.0,1.0);
-				//gl_FragColor = vec4( flagColor );
+
+				vec3 lightColor = vec3(1.0, 1.0, 1.0);	
+				vec3 lightDir = vec3(0.0, 0.0, 10.0);
+				lightDir = normalize(lightDir);
+				//vec3 lightDir = normalize((u_modelview * vec4(lightPos,1.0)).xyz - position);
+
+				//vec3 toReflectedLight = reflect(-lightDir, normal);
+				//vec3 eyeToPosition = normalize(position);
+
+				float diffuse = clamp(dot(lightDir, vNormal),0.0,1.0);
+				//float specular = max(dot(toReflectedLight, -eyeToPosition), 0.0);
+				//specular = pow(specular, 5.0);
+
+
+				//vec3 finalColor =  0.5 * diffuse *texture2D(u_colorTex, v_texcoord).rgb + 0.5 * specular * lightColor;
+
+				//gl_FragColor = vec4(1.0,1.0,1.0,1.0);
+				gl_FragColor = vec4(diffuse, diffuse, diffuse,1.0);
+				
 			}
 		</script>
 
@@ -181,25 +288,35 @@
 		</script>
 		
 		<script id="FlagFragmentShader" type="x-shader/x-fragment">
-			uniform sampler2D mapIndex;
-			uniform sampler2D lookup;
-			uniform sampler2D outline;
 			uniform sampler2D flag;
-			uniform float outlineLevel;
 			varying vec3 vNormal;
 			varying vec2 vUv;
 			void main() {
 				vec4 flagColor = texture2D( flag, vUv );
-				vec4 mapColor = texture2D( mapIndex, vUv );
-				float indexedColor = mapColor.x;
-				vec2 lookupUV = vec2( indexedColor, 0. );
-				vec4 lookupColor = texture2D( lookup, lookupUV );
-				float mask = lookupColor.x + (1.-outlineLevel) * indexedColor;
-				mask = clamp(mask,0.,1.);
-				float outlineColor = texture2D( outline, vUv ).x * outlineLevel;
-				float diffuse = mask + outlineColor;
-
 				gl_FragColor = vec4( flagColor );
+			}
+		</script>
+		
+		<script id="insideObjVertexShader" type="x-shader/x-vertex">
+			varying vec3 vNormal;
+			varying vec2 vUv;
+			void main() {
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0);
+				vNormal = normalize( normalMatrix * normal );
+				vUv = uv;
+			}
+		</script>
+		
+		<script id="insideObjFragmentShader" type="x-shader/x-fragment">
+			varying vec3 vNormal;
+			varying vec2 vUv;
+			void main() {
+				vec3 lightDir = vec3(10.0, 0.0, 10.0);
+				lightDir = normalize(lightDir);
+
+				float diffuse = clamp(dot(lightDir, vNormal),0.0,1.0);
+				gl_FragColor = vec4( 1.0,1.0,1.0,1.0 );
+				gl_FragColor = vec4( vec3(diffuse) * 0.5, 1.0 );
 			}
 		</script>
 		
@@ -218,28 +335,28 @@
 		</script>
 
 
-		<!-- All other hud can go here-->
+<!-- All other hud can go here-->
         <div id="hudHeader" class="overlayCountries noPointer">
             <h1 class="noPointer" style ="font-family: Fredericka the Great, cursive; font-size: 60px">Global<br> <mark>International</mark><br> Study
                 <div class="subtitle" style="font-family: Shadows Into Light, cursive; font-size: 14px">An <mark style="background-color:#FF9DFF;"> interactive visualization</mark> of global international study progress <br> from 1940 to 2013. </div>
 			</h1>
         </div>
 
-		<div class="overlayCountries noPointer" id="hudButtons">
-            <input type="button" value="SEARCH" class="searchBtn armsBtn pointer">
+	<!--	<div class="overlayCountries noPointer" id="hudButtons">
+            <input type="button" value="SEARCH" class="searchBtn armsBtn pointer"> 
             <input type="text" name="country" class="countryTextInput pointer noMapDrag" value="UNITED STATES">
             <input type="button" value="—" class="zoomBtn zoomOutBtn armsBtn pointer noMapDrag">
             <input type="button" value="+" class="zoomBtn zoomInBtn armsBtn pointer noMapDrag">
             <input type="button" value="ABOUT" class="aboutBtn armsBtn pointer"><br class="clear" />
         </div>
-    
+    -->
        <div id="history" class="overlayCountries noPointer">
             <div class="graph">
                 <div class="close"></div>
                 <div class="labels">
                     <div class="change">RELATIVE PERCENT CHANGE</div>
-                    <div class="exports">EXPORTS</div>
-                    <div class="imports">IMPORTS</div><br class="clear" />
+                    <div class="exports">International Students</div>
+                    <div class="imports">Study Abroad</div><br class="clear" />
                 </div>
             
                 <div class="container noPointer"></div>
@@ -280,13 +397,13 @@
                 <div class="mil"><div class="check"></div></div>
                 <div class="civ"><div class="check"></div></div>
                 <div class="ammo"><div class="check"></div></div>
-                <div class="label">Imports</div><br class="clear">
+             <!--   <div class="label">Imports</div><br class="clear"> -->
             </div>
             <div class="exports imex">
                 <div class="mil"><div class="check"></div></div>
                 <div class="civ"><div class="check"></div></div>
                 <div class="ammo"><div class="check"></div></div>
-                <div class="label">Exports</div><br class="clear">
+            <!--    <div class="label">Exports</div><br class="clear"> -->
             </div>
             <br class="clear" />
         
