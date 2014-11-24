@@ -591,7 +591,7 @@ function initScene() {
 	buildGUI();
 	//'BOLIVIA, PLURINATIONAL STATE OF'
 	//'UNITED STATES'
-	selectVisualization( timeBins, '2010', ['BOLIVIA, PLURINATIONAL STATE OF'], ['Military Weapons','Civilian Weapons', 'Ammunition'], ['Military Weapons','Civilian Weapons', 'Ammunition'] );					
+	selectVisualization( timeBins, '2013', ['UNITED STATES'], ['Military Weapons','Civilian Weapons', 'Ammunition'], ['Military Weapons','Civilian Weapons', 'Ammunition'] );					
 
 
 

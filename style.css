@@ -66,9 +66,21 @@ h1 { font-family:'RopaSans'; font-weight:normal; }
 h2 { font-family:'RopaSans'; font-weight:normal; }
 li { list-style-type:none; }
 
+
+ #country_name {
+        color: white;
+        position: absolute;
+        font-size: 18px;
+        top: 120px;
+        right: 150px;
+        border-radius: 3px;
+        background-color: darkOrange;
+        padding: 10px;
+      }
+
 #wrapper {
     display:block;
-    float:left;
+    float:center;
  /*   min-width:1280px;*/
 }
 
@@ -123,10 +135,10 @@ li { list-style-type:none; }
     top: 50%;
     left: 50%;
     margin-top: -38px;
-    margin-left: -380px;
+    margin-left: -50px;
     color: white;
     padding: 16px 30px;
-    width: 700px;
+    width: 150px;
     height: 45px;
     line-height: 11px;
 }
@@ -332,7 +344,7 @@ Bar graph on left
     padding:                0;
     padding-bottom:         15px;
     padding-top:            22px;
-    color:                  white;
+    color:                  pink;
     font-size:              12px;
     font-family:            'Roboto';
     width:                  668px;

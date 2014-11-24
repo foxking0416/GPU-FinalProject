@@ -56,7 +56,7 @@ var d3Graphs = {
         $("#hudHeader, #hudButtons").show();
         $("#history").show();
         $("#graphIcon").show();
-        $("#importExportBtns").show();
+        //$("#importExportBtns").show();
         $("#graphIcon").click(d3Graphs.graphIconClick);
         $("#history .close").click(d3Graphs.closeHistogram);
         $("#history ul li").click(d3Graphs.clickTimeline);
@@ -102,7 +102,7 @@ var d3Graphs = {
         if(year < 100) {
             year = (year * 1) + 1900
         }
-        var index = year - 1992;
+        var index = year - 1995;
         var leftPos = d3Graphs.handleLeftOffset + d3Graphs.handleInterval * index;
         $("#handle").css('left',leftPos+"px");
         d3Graphs.updateViz();
@@ -168,12 +168,13 @@ var d3Graphs = {
         yearOffset = yearOffset.substr(0,yearOffset.length-2);
         yearOffset -= d3Graphs.handleLeftOffset;
         yearOffset /= d3Graphs.handleInterval;
-        var year = yearOffset + 1992;
+        var year = yearOffset + 1995;
         
-        var country = $("#hudButtons .countryTextInput").val().toUpperCase();
+        var country = "UNITED STATES";
+       /* var country = $("#hudButtons .countryTextInput").val().toUpperCase();
         if(typeof countryData[country] == 'undefined') {
             return;
-        }
+        }*/
         
         //exports first
         var exportArray = []
@@ -358,7 +359,7 @@ var d3Graphs = {
         });
 		ticks.exit().remove();
         //tick labels
-        /*var tickLabels = this.histogramSVG.selectAll("text.tickLblLeft").data(tickData);
+       /* var tickLabels = this.histogramSVG.selectAll("text.tickLblLeft").data(tickData);
         tickLabels.enter().append('svg:text').attr('class','tickLbl tickLblLeft').attr('text-anchor','end');
         tickLabels.attr('x', d3Graphs.histogramLeftPadding-3).attr('y',function(d) {
             return d3Graphs.histogramYScale(d) + d3Graphs.histogramVertPadding + 4;
@@ -566,11 +567,12 @@ var d3Graphs = {
 		
 		
 		//******************Test*********************//
-		importRects.enter().append('rect').attr('class', function(d) {
+		/*importRects.enter().append('rect').attr('class', function(d) {
             return 'import '+d.type;
         }).attr('y',midY ).attr('height',this.barWidth);
         
         importRects.attr('x',10.0).attr('width',this.barGraphWidth);
+        */
 		
 		//******************Test*********************//
 		
@@ -617,7 +619,7 @@ var d3Graphs = {
             var labelBGYPos = -1;
             var labelWidth = -1;
             var importLabelBG = d3.select(importLabelBGArray[i]);
-            if(pieceHeight < smallLabelSize) {
+           /* if(pieceHeight < smallLabelSize) {
                 //just add number
                 //console.log("small label");
                 var numericLabel = importLabel.append('text').text(function(d) {
@@ -675,6 +677,7 @@ var d3Graphs = {
                 importLabelBG.attr('x',-labelWidth).attr('y',labelBGYPos).attr('width',labelWidth).attr('height',labelHeight)
                     .attr('transform',importLabel.attr('transform'));
             }
+            */
         }
         //export labels
         var exportLabelBGs = this.barGraphSVG.selectAll("rect.barGraphLabelBG.exportBG").data(exportArray);
@@ -698,7 +701,7 @@ var d3Graphs = {
         exportLabels.selectAll("*").remove();
         var exportLabelArray = exportLabels[0];
         var exportLabelBGArray = exportLabelBGs[0];
-        for(var i = 0; i < exportLabelArray.length; i++) {
+        /*for(var i = 0; i < exportLabelArray.length; i++) {
             var exportLabelE = exportLabelArray[i];
             var exportLabel = d3.select(exportLabelE);
             var data = exportArray[i];
@@ -765,8 +768,9 @@ var d3Graphs = {
                     .attr('transform',exportLabel.attr('transform'));
             }
         }
+        */
         //over all numeric Total Import/Export labels
-        var importsVisible = $("#importExportBtns .imports .check").not(".inactive").length != 0;
+      /*  var importsVisible = $("#importExportBtns .imports .check").not(".inactive").length != 0;
         var exportsVisible = $("#importExportBtns .exports .check").not(".inactive").length != 0;
         var importTotalLabel = this.barGraphSVG.selectAll('text.totalLabel').data([1]);
         importTotalLabel.enter().append('text').attr('x',midX).attr('text-anchor','end')
@@ -784,7 +788,8 @@ var d3Graphs = {
         var exportLabel = this.barGraphSVG.selectAll('text.exportLabel').data([1]);
         exportLabel.enter().append('text').attr('x',midX+10).text('EXPORTS')
             .attr('class','exportLabel').attr('y', this.barGraphHeight - this.barGraphBottomPadding + 45);
-        exportLabel.attr('visibility',exportsVisible ? "visible":"hidden")        
+        exportLabel.attr('visibility',exportsVisible ? "visible":"hidden")    
+        */    
     },
     dragHandleStart: function(event) {
         console.log('start');

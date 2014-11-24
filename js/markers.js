@@ -9,7 +9,16 @@ function onMarkerHover( event ){
 	// if( event.target.style.visibility == 'visible' )
 	// 	console.log('clicked on something!!');				
 }
-
+//ra
+function showCountryName(countryName){
+	countryName = countryName.toUpperCase();
+	var country = countryData[countryName];
+	if( country === undefined )
+		return;
+	var pos = document.getElementById( 'country_name' );
+	pos.innerHTML = countryName;
+}
+///////////////////
 function attachMarkerToCountry( countryName, importance ){
 	//	look up the name to mesh
 	countryName = countryName.toUpperCase();
