@@ -339,7 +339,7 @@ var d3Graphs = {
             tickData.push(0);
         }
         //tick lines
-        /*var ticks = this.histogramSVG.selectAll('line.tick').data(tickData);
+        var ticks = this.histogramSVG.selectAll('line.tick').data(tickData);
         ticks.enter().append('svg:line').attr('class','tick');
         ticks.attr('y1',function(d) {
             return d3Graphs.histogramYScale(d) + d3Graphs.histogramVertPadding;
@@ -359,7 +359,7 @@ var d3Graphs = {
         });
 		ticks.exit().remove();
         //tick labels
-        var tickLabels = this.histogramSVG.selectAll("text.tickLblLeft").data(tickData);
+       /* var tickLabels = this.histogramSVG.selectAll("text.tickLblLeft").data(tickData);
         tickLabels.enter().append('svg:text').attr('class','tickLbl tickLblLeft').attr('text-anchor','end');
         tickLabels.attr('x', d3Graphs.histogramLeftPadding-3).attr('y',function(d) {
             return d3Graphs.histogramYScale(d) + d3Graphs.histogramVertPadding + 4;
