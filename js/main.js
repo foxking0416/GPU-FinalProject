@@ -770,9 +770,9 @@ function highlightCountry( countries ){
 
 		var mapColor = countryData[countries[i]].mapColor;
 		// var fillCSS = '#ff0000';
-		var fillCSS = '#333333';
+		var fillCSS = '#333366';
 		if( countryCode === selectedCountryCode )
-			fillCSS = '#eeeeee'
+			fillCSS = '#cc0033'
 		// if( mapColor !== undefined ){
 		// 	var k = map( mapColor, 0, 200000000, 0, 255 );
 		// 	k = Math.floor( constrain( k, 0, 255 ) );
