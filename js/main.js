@@ -473,13 +473,34 @@ function initScene() {
 	
 	var boundCube = new THREE.Mesh( new THREE.CubeGeometry( 100, 100, 100 ), shaderMaterial_Flag );
 	flagSphereMesh.add( boundCube );	
-	/*var virtuslSphere = new THREE.Mesh( new THREE.SphereGeometry( 50, 40, 40 ), shaderMaterial_Flag );	//100 is radius, 40 is segments in width, 40 is segments in height
-	virtuslSphere.doubleSided = true;
-	virtuslSphere.rotation.x = Math.PI;				
-	virtuslSphere.rotation.y = -Math.PI/2;
-	virtuslSphere.rotation.z = Math.PI;
-	virtuslSphere.id = "virtual";	
-	flagSphereMesh.add( virtuslSphere );*/	
+	
+	
+	
+	/*var manager = new THREE.LoadingManager();
+	manager.onProgress = function ( item, loaded, total ) {
+		console.log( item, loaded, total );
+	};*/
+				
+	/*var onProgress = function ( xhr ) {
+		if ( xhr.lengthComputable ) {
+			var percentComplete = xhr.loaded / xhr.total * 100;
+			console.log( Math.round(percentComplete, 2) + '% downloaded' );
+		}
+	};
+
+	
+	var onError = function ( xhr ) {};
+	var loader = new THREE.OBJLoader( manager );
+	loader.load( 'obj/male02/male02.obj', function ( object ) {
+					object.traverse( function ( child ) {
+						if ( child instanceof THREE.Mesh ) {
+							child.material.map = texture;
+						}
+					} );
+		//object.position.y = - 80;
+		scene.add( object );
+	}, onProgress, onError );*/
+	
 	
 	/*var extrudePath = new THREE.Path();
 	extrudePath.moveTo( 0, 0 );
