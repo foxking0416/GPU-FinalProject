@@ -170,8 +170,11 @@ var d3Graphs = {
         yearOffset /= d3Graphs.handleInterval;
         var year = yearOffset + 1995;
         
-        var country = "UNITED STATES";
-       /* var country = $("#hudButtons .countryTextInput").val().toUpperCase();
+        //var country = "UNITED STATES";
+		//var test = $("#country_name .innerHTML");
+		var pos = document.getElementById( 'country_name' );
+		var country = pos.innerHTML;
+        /*var country = $("#hudButtons .countryTextInput").val().toUpperCase();
         if(typeof countryData[country] == 'undefined') {
             return;
         }*/

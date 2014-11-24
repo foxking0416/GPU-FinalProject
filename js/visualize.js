@@ -259,18 +259,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 
 	
 	
-	linesGeo.colors = lineColors;
-	var splineOutline = new THREE.Line( 
-		linesGeo, 
-		new THREE.LineBasicMaterial( 
-		{ 	color: 0xffffff, opacity: 1.0, blending: 
-			THREE.AdditiveBlending, transparent:true, 
-			depthWrite: false, vertexColors: true, 
-			linewidth: 1
-		} )
-		,THREE.LinePieces 
-	);
-	splineOutline.renderDepth = false;
+
 
 
 	attributes = {
@@ -298,13 +287,21 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 		// sizeAttenuation: true,
 	});
 
-
+	linesGeo.colors = lineColors;
+	var splineOutline = new THREE.Line( 
+		linesGeo, 
+		new THREE.LineBasicMaterial( 
+		{ 	color: 0xffffff, opacity: 1.0, blending: 
+			THREE.AdditiveBlending, transparent:true, 
+			depthWrite: false, vertexColors: true, 
+			linewidth: 1
+		} )
+		,THREE.LinePieces 
+	);
+	splineOutline.renderDepth = false;
 
 	var particleGraphic = THREE.ImageUtils.loadTexture("images/map_mask.png");
-	var particleMat = new THREE.ParticleBasicMaterial( { map: particleGraphic, color: 0xffffff, size: 60, 
-														blending: THREE.NormalBlending, transparent:true, 
-														depthWrite: false, vertexColors: true,
-														sizeAttenuation: true } );
+
 	particlesGeo.colors = particleColors;
 	var pSystem = new THREE.ParticleSystem( particlesGeo, shaderMaterial );
 	pSystem.dynamic = true;

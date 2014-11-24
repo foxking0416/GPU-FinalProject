@@ -292,7 +292,6 @@ function initScene() {
 	shaderMaterial_Globe = new THREE.ShaderMaterial( {
 
 		uniforms: 		uniforms_Globe,
-		// attributes:     attributes,
 		vertexShader:   document.getElementById( 'globeVertexShader' ).textContent,
 		fragmentShader: document.getElementById( 'globeFragmentShader' ).textContent,
 
@@ -300,11 +299,6 @@ function initScene() {
 		depthWrite: 	false,
 		transparent:	true,
 		
-		/*opacity: 0.5,
-		blending: 		THREE.AdditiveBlending, //
-		depthTest: 		true,
-		depthWrite: 	false,
-		transparent:	true,*/
 	});
 	
 	
@@ -343,7 +337,7 @@ function initScene() {
 		fragmentShader: document.getElementById( 'FlagFragmentShader' ).textContent,
 		// sizeAttenuation: true,
 		
-		opacity: 0.5,
+		//opacity: 0.5,
 		blending: 		THREE.MultiplyBlending,//MultiplyBlending
 		depthTest: 		true,
 		depthWrite: 	false,
