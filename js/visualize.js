@@ -255,15 +255,6 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 	}
 
 
-		
-
-	
-
-	
-	
-
-
-
 	attributes = {
 		size: {	type: 'f', value: [] },
 		customColor: { type: 'c', value: [] }
