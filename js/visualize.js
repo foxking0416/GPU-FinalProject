@@ -347,8 +347,16 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 function selectVisualization( linearData, year, countries, exportCategories, importCategories ){
 	//	we're only doing one country for now so...
 	var cName = countries[0].toUpperCase();
+	
 	//ra
-		showCountryName(cName);
+	var countryName = cName.toUpperCase();
+	var country = countryData[countryName];
+	if( country === undefined )
+		return;
+	var pos = document.getElementById( 'country_name' );
+	pos.innerHTML = countryName;
+		
+		
 	$("#hudButtons .countryTextInput").val(cName);
 	previouslySelectedCountry = selectedCountry;
 	selectedCountry = countryData[countries[0].toUpperCase()];
@@ -380,11 +388,6 @@ function selectVisualization( linearData, year, countries, exportCategories, imp
 		country.mapColor = 0;
 	}
 
-	//	clear markers
-	for( var i in selectableCountries ){
-		removeMarkerFromCountry( selectableCountries[i] );
-	}
-
 	//	clear children
 	while( visualizationMesh.children.length > 0 ){
 		var c = visualizationMesh.children[0];
@@ -408,9 +411,7 @@ function selectVisualization( linearData, year, countries, exportCategories, imp
 
 	for( var i in mesh.affectedCountries ){
 		var countryName = mesh.affectedCountries[i];
-		var country = countryData[countryName];
-		attachMarkerToCountry( countryName, country.mapColor );
-		
+		var country = countryData[countryName];	
 	}
 
 	// console.log( mesh.affectedCountries );

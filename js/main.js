@@ -2,15 +2,6 @@ var masterContainer = document.getElementById('visualization');
 
 var overlay = document.getElementById('visualization');
 
-var mapIndexedImage;
-var mapOutlineImage;
-var flagImage;
-var earthMapImage;
-var earthLightImage;
-var earthBumpImage;
-var earthSpecImage;
-
-
 //	where in html to hold all our things
 var glContainer = document.getElementById( 'glContainer' );
 
@@ -23,13 +14,8 @@ var camera, scene, renderer, controls;
 var pinsBase, pinsBaseMat;
 var lookupCanvas
 var lookupTexture;
-var backTexture;
-var worldCanvas;
-var sphere;
-var cube;
 var globeMesh;
 var countryMesh;
-var flagSphereMesh;
 var visualizationMesh;							
 
 var mapUniforms;
@@ -71,13 +57,6 @@ for( var i in weaponLookup ){
 	reverseWeaponLookup[code] = name;
 }	    	
 
-//	A list of category colors
-var categoryColors = {
-	'mil' : 0xdd380c,
-	'civ' : 0x3dba00,
-	'ammo' : 0x154492,
-}
-
 var exportColor = 0xffff33;
 var importColor = 0x9900cc;
 
@@ -87,13 +66,6 @@ var previouslySelectedCountry = null;
 
 //	contains info about what year, what countries, categories, etc that's being visualized
 var selectionData;
-
-//	when the app is idle this will be true
-var idle = false;
-
-//	for svg loading
-//	deprecated, not using svg loading anymore
-var assetList = [];
 
 
 function start( e ){	
@@ -168,7 +140,7 @@ function initScene() {
 	countryMesh = new THREE.Object3D();
 	scene.add(countryMesh);
 	
-	flagSphereMesh = new THREE.Object3D();
+	var flagSphereMesh = new THREE.Object3D();
 	scene.add(flagSphereMesh);
 	
 	lookupCanvas = document.createElement('canvas');	
@@ -248,7 +220,7 @@ function initScene() {
 
 
 						
-	sphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial_Globe );	//100 is radius, 40 is segments in width, 40 is segments in height
+	var sphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial_Globe );	//100 is radius, 40 is segments in width, 40 is segments in height
 	sphere.doubleSided = true;
 	sphere.rotation.x = Math.PI;				
 	sphere.rotation.y = -Math.PI/2;
@@ -483,8 +455,6 @@ function initScene() {
 	document.addEventListener( 'mousemove', onDocumentMouseMove, true );
 	document.addEventListener( 'windowResize', onDocumentResize, false );
 
-	//masterContainer.addEventListener( 'mousedown', onDocumentMouseDown, true );	
-	//masterContainer.addEventListener( 'mouseup', onDocumentMouseUp, false );	
 	document.addEventListener( 'mousedown', onDocumentMouseDown, true );	
 	document.addEventListener( 'mouseup', onDocumentMouseUp, false );	
 	
