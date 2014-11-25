@@ -5,21 +5,50 @@
  * @author angelxuanchang
  */
 
-THREE.OBJLoader = function () {};
+THREE.OBJMTLLoader = function () {};
 
-THREE.OBJLoader.prototype = {
+THREE.OBJMTLLoader.prototype = {
 
-	constructor: THREE.OBJLoader,
+	constructor: THREE.OBJMTLLoader,
 
-	load: function ( url, onLoad, onProgress, onError ) {
+	load: function ( url, mtlurl, onLoad, onProgress, onError ) {
 
 		var scope = this;
 
-		var loader = new THREE.XHRLoader( scope.manager );
-    loader.setCrossOrigin( this.crossOrigin );
-    loader.load( url, function (text) {
-      onLoad (scope.parse(text) );
-    } );
+		var mtlLoader = new THREE.MTLLoader( url.substr( 0, url.lastIndexOf( "/" ) + 1 ) );
+		mtlLoader.load( mtlurl, function ( materials ) {
+
+			var materialsCreator = materials;
+			materialsCreator.preload();
+
+			var loader = new THREE.XHRLoader( scope.manager );
+			loader.setCrossOrigin( this.crossOrigin );
+			loader.load( url, function ( text ) {
+
+				var object = scope.parse( text );
+
+				object.traverse( function ( object ) {
+
+					if ( object instanceof THREE.Mesh ) {
+
+						if ( object.material.name ) {
+
+							var material = materialsCreator.create( object.material.name );
+
+							if ( material ) object.material = material;
+
+						}
+
+					}
+
+				} );
+
+				onLoad( object );
+
+			} );
+
+		} );
+
 	},
 
 	/**
@@ -29,7 +58,7 @@ THREE.OBJLoader.prototype = {
 	 * @return {THREE.Object3D} - Object3D (with default material)
 	 */
 
-	parse: function ( data ) {
+	parse: function ( data, mtllibCallback ) {
 
 		function vector( x, y, z ) {
 
@@ -302,6 +331,14 @@ THREE.OBJLoader.prototype = {
 
 				// mtl file
 
+				if ( mtllibCallback ) {
+
+					var mtlfile = line.substring( 7 );
+					mtlfile = mtlfile.trim();
+					mtllibCallback( mtlfile );
+
+				}
+
 			} else if ( /^s /.test( line ) ) {
 
 				// Smooth shading
@@ -323,4 +360,4 @@ THREE.OBJLoader.prototype = {
 
 };
 
-THREE.EventDispatcher.prototype.apply( THREE.OBJLoader.prototype );
+THREE.EventDispatcher.prototype.apply( THREE.OBJMTLLoader.prototype );

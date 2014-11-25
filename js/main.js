@@ -227,89 +227,17 @@ function initScene() {
 	globeMesh.add( sphere );	
 	
 	
-	var americaPts = [];
-	americaPts.push( new THREE.Vector2 ( 6.0, 2.0 ) );
-	americaPts.push( new THREE.Vector2 ( 6.0, 4.6 ) );
-	americaPts.push( new THREE.Vector2 ( 3.2, 3.9 ) );
-	americaPts.push( new THREE.Vector2 ( 3.4, 6.8 ) );
-	americaPts.push( new THREE.Vector2 ( 1.8, 10.6 ) );
-	americaPts.push( new THREE.Vector2 ( 0.0, 14.3 ) );
-	americaPts.push( new THREE.Vector2 ( 0.2, 16.3 ) );
-	americaPts.push( new THREE.Vector2 ( -1.1, 18.2 ) );
-	americaPts.push( new THREE.Vector2 ( -0.8, 21.1 ) );
-	americaPts.push( new THREE.Vector2 ( 0.5, 23.9 ) );
-	americaPts.push( new THREE.Vector2 ( -0.1, 26.2 ) );
-	americaPts.push( new THREE.Vector2 ( 1.3, 28.9 ) );
-	americaPts.push( new THREE.Vector2 ( 1.5, 30.3 ) );
-	americaPts.push( new THREE.Vector2 ( 3.0, 31.5 ) );
-	americaPts.push( new THREE.Vector2 ( 5.6, 34.4 ) );
-	americaPts.push( new THREE.Vector2 ( 5.8, 35.9 ) );
-	americaPts.push( new THREE.Vector2 ( 9.0, 36.1 ) );
-	americaPts.push( new THREE.Vector2 ( 3.0, 31.5 ) );
-	americaPts.push( new THREE.Vector2 ( 12.2, 38.5 ) );
-	americaPts.push( new THREE.Vector2 ( 16.7, 39.9 ) );
-	americaPts.push( new THREE.Vector2 ( 21.7, 40.1 ) );
-	americaPts.push( new THREE.Vector2 ( 27.1, 45.9 ) );
-	americaPts.push( new THREE.Vector2 ( 28.2, 44.3 ) );
-	americaPts.push( new THREE.Vector2 ( 30.0, 44.6 ) );
-	americaPts.push( new THREE.Vector2 ( 33.7, 51.8 ) );
-	americaPts.push( new THREE.Vector2 ( 37.4, 52.5 ) );
-	americaPts.push( new THREE.Vector2 ( 37.1, 49.1 ) );
-	americaPts.push( new THREE.Vector2 ( 40.4, 46.3 ) );
-	americaPts.push( new THREE.Vector2 ( 45.4, 45.4 ) );
-	americaPts.push( new THREE.Vector2 ( 48.8, 45.8 ) );
-	americaPts.push( new THREE.Vector2 ( 48.8, 43.8 ) );
-	americaPts.push( new THREE.Vector2 ( 56.0, 43.4 ) );
-	americaPts.push( new THREE.Vector2 ( 57.1, 44.5 ) );
-	americaPts.push( new THREE.Vector2 ( 58.9, 43.4 ) );
-	americaPts.push( new THREE.Vector2 ( 61.7, 46.2 ) );
-	americaPts.push( new THREE.Vector2 ( 63.8, 50.3 ) );
-	americaPts.push( new THREE.Vector2 ( 66.2, 51.8 ) );
-	americaPts.push( new THREE.Vector2 ( 66.7, 48.4 ) );
-	americaPts.push( new THREE.Vector2 ( 63.0, 42.1 ) );
-	americaPts.push( new THREE.Vector2 ( 63.6, 38.1 ) );
-	americaPts.push( new THREE.Vector2 ( 69.4, 33.0 ) );
-	americaPts.push( new THREE.Vector2 ( 70.8, 30.8 ) );
-	americaPts.push( new THREE.Vector2 ( 69.7, 25.4 ) );
-	americaPts.push( new THREE.Vector2 ( 71.4, 20.7 ) );
-	americaPts.push( new THREE.Vector2 ( 75.2, 18.3 ) );
-	americaPts.push( new THREE.Vector2 ( 74.4, 14.5 ) );
-	americaPts.push( new THREE.Vector2 ( 78.1, 11.1 ) );
-	americaPts.push( new THREE.Vector2 ( 75.9, 6.5 ) );
-	americaPts.push( new THREE.Vector2 ( 73.9, 7.0 ) );
-	americaPts.push( new THREE.Vector2 ( 72.4, 12.1 ) );
-	americaPts.push( new THREE.Vector2 ( 67.7, 13.5 ) );
-	americaPts.push( new THREE.Vector2 ( 66.5, 16.5 ) );
-	americaPts.push( new THREE.Vector2 ( 62.8, 16.9 ) );
-	americaPts.push( new THREE.Vector2 ( 58.1, 21.7 ) );
-	americaPts.push( new THREE.Vector2 ( 58.4, 18.2 ) );
-	americaPts.push( new THREE.Vector2 ( 56.1, 16.9 ) );
-	americaPts.push( new THREE.Vector2 ( 56.0, 14.0 ) );
-	americaPts.push( new THREE.Vector2 ( 53.6, 16.2 ) );
-	americaPts.push( new THREE.Vector2 ( 53.1, 19.9 ) );
-	americaPts.push( new THREE.Vector2 ( 51.9, 21.9 ) );
-	americaPts.push( new THREE.Vector2 ( 50.3, 19.7 ) );
-	americaPts.push( new THREE.Vector2 ( 50.8, 14.4 ) );
-	americaPts.push( new THREE.Vector2 ( 54.6, 12.4 ) );
-	americaPts.push( new THREE.Vector2 ( 52.5, 11.5 ) );
-	americaPts.push( new THREE.Vector2 ( 48.1, 12.4 ) );
-	americaPts.push( new THREE.Vector2 ( 45.1, 12.3 ) );
-	americaPts.push( new THREE.Vector2 ( 47.0, 9.8 ) );
-	americaPts.push( new THREE.Vector2 ( 37.1, 7.8 ) );
-	americaPts.push( new THREE.Vector2 ( 29.4, 7.2 ) );
-	americaPts.push( new THREE.Vector2 ( 21.8, 6.4 ) );
-	americaPts.push( new THREE.Vector2 ( 13.6, 4.9 ) );
-	americaPts.push( new THREE.Vector2 ( 6.0, 2.0 ) );
-	for(var i = 0; i < americaPts.length; ++i){
-		americaPts[i] = new THREE.Vector2 (americaPts[i].x - 40, 30 - americaPts[i].y);
+	var country2dPoints = getCountry2DPoints();
+	for(var i = 0; i < country2dPoints.length; ++i){
+		country2dPoints[i] = new THREE.Vector2 (country2dPoints[i].x - 40, 30 - country2dPoints[i].y);
 	}
 	
 	
-	var americanShape = new THREE.Shape( americaPts );
-	var american3d = new THREE.ExtrudeGeometry( americanShape, { amount: 20, bevelEnabled: false} );
-	var americanPoints = americanShape.createPointsGeometry();
-	var mesh = THREE.SceneUtils.createMultiMaterialObject( american3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
-	var extrudeGeo = new THREE.Mesh( american3d, shaderMaterial_Country );
+	var countryShape = new THREE.Shape( country2dPoints );
+	var country3d = new THREE.ExtrudeGeometry( countryShape, { amount: 20, bevelEnabled: false} );
+	var americanPoints = countryShape.createPointsGeometry();
+	var mesh = THREE.SceneUtils.createMultiMaterialObject( country3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
+	var extrudeGeo = new THREE.Mesh( country3d, shaderMaterial_Country );
 	countryMesh.add( extrudeGeo );
 	
 	var boundCube = new THREE.Mesh( new THREE.CubeGeometry( 100, 100, 100 ), shaderMaterial_Flag );
@@ -317,32 +245,43 @@ function initScene() {
 	
 	
 	
-	/*var manager = new THREE.LoadingManager();
-	manager.onProgress = function ( item, loaded, total ) {
+	var manager = new THREE.LoadingManager();
+		manager.onProgress = function ( item, loaded, total ) {
 		console.log( item, loaded, total );
-	};*/
-				
-	/*var onProgress = function ( xhr ) {
-		if ( xhr.lengthComputable ) {
-			var percentComplete = xhr.loaded / xhr.total * 100;
-			console.log( Math.round(percentComplete, 2) + '% downloaded' );
-		}
 	};
+				
+	// model
+	var loader = new THREE.OBJLoader( manager );
+	loader.load( 'model/ship.obj', function ( object ) {
+
+		object.traverse( function ( child ) {
+
+			if ( child instanceof THREE.Mesh ) {
+
+				//child.material.map = texture;
+			}
+		} );
+
+		object.position.x = - 60;
+		object.rotation.x = 20* Math.PI / 180;
+		object.rotation.z = 20* Math.PI / 180;
+		object.scale.x = 10;
+		object.scale.y = 10;
+		object.scale.z = 10;
+		obj = object
+		globeMesh.add( obj );
+
+	} );
+	
+	var ambient = new THREE.AmbientLight( 0x101030 );
+	scene.add( ambient );
+	
+	var directionalLight = new THREE.DirectionalLight( 0xffeedd );
+				directionalLight.position.set( 0, 0, 1 );
+				scene.add( directionalLight );
 
 	
-	var onError = function ( xhr ) {};
-	var loader = new THREE.OBJLoader( manager );
-	loader.load( 'obj/male02/male02.obj', function ( object ) {
-					object.traverse( function ( child ) {
-						if ( child instanceof THREE.Mesh ) {
-							child.material.map = texture;
-						}
-					} );
-		//object.position.y = - 80;
-		scene.add( object );
-	}, onProgress, onError );*/
-	
-	
+	var a = 0;
 	/*var extrudePath = new THREE.Path();
 	extrudePath.moveTo( 0, 0 );
 	extrudePath.lineTo( 1.0, 1.0 );
@@ -393,7 +332,7 @@ function initScene() {
 	//var face = new THREE.Face3();
 	
 	var cube = new THREE.Mesh( new THREE.CubeGeometry( 50, 50, 50 ), shaderMaterial_InsideObj );
-	globeMesh.add( cube );	
+	//globeMesh.add( cube );	
 
 	
 	
