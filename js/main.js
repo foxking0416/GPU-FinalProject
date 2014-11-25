@@ -180,11 +180,12 @@ function initScene() {
 	lookupTexture.minFilter = THREE.NearestFilter;
 	lookupTexture.needsUpdate = true;
 
-	
-
+	var mapIndexTexture = THREE.ImageUtils.loadTexture( "images/map_indexed.png" );
+	mapIndexTexture.magFilter = THREE.NearestFilter;
+	mapIndexTexture.minFilter = THREE.NearestFilter;
 
 	var uniforms_Globe = {
-		'mapIndex': { type: 't', value: THREE.ImageUtils.loadTexture( "images/map_indexed.png" ) },		
+		'mapIndex': { type: 't', value: mapIndexTexture },		
 		'lookup': { type: 't', value: lookupTexture },
 		'outline': { type: 't', value: THREE.ImageUtils.loadTexture( "images/map_outline.png" ) },
 		'earthMap': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthmap1024Tran.png" ) },
@@ -202,10 +203,11 @@ function initScene() {
 		vertexShader:   document.getElementById( 'globeVertexShader' ).textContent,
 		fragmentShader: document.getElementById( 'globeFragmentShader' ).textContent,
 
+		
 		blending: 		THREE.AdditiveBlending, 
 		depthWrite: 	false,
 		transparent:	true,
-		
+		side:           THREE.DoubleSide,
 	});
 	
 	
@@ -253,31 +255,6 @@ function initScene() {
 	sphere.rotation.z = Math.PI;
 	sphere.id = "base";	
 	globeMesh.add( sphere );	
-	
-	var extrudeSettings = {	amount: 20,  bevelEnabled: false, steps: 2 };
-	var extrudePath = new THREE.Path();
-	extrudePath.moveTo( 0, 0 );
-	extrudePath.lineTo( 1.0, 1.0 );
-	extrudePath.quadraticCurveTo( 8.0, 6.0, 16.0, 1.0 );
-	extrudePath.quadraticCurveTo( 24.0, -4.0, 32.0, 1.0 );
-	
-
-	//extrudeSettings.extrudePath = extrudePath;
-
-	
-	
-	/*var triangleShape = new THREE.Shape();
-	triangleShape.moveTo(  8.0, 2.0 );
-	triangleShape.lineTo(  4.0, 8.0 );
-	triangleShape.lineTo( 12.0, 8.0 );
-	triangleShape.lineTo(  8.0, 2.0 ); 
-	var triangle3d = triangleShape.extrude( extrudeSettings );
-	var trianglePoints = triangleShape.createPointsGeometry();
-	var triangleSpacedPoints = triangleShape.createSpacedPointsGeometry();
-	var mesh = THREE.SceneUtils.createMultiMaterialObject( triangle3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
-	var extrudeGeo = new THREE.Mesh( triangle3d, shaderMaterial_Country );
-	globeMesh.add( mesh );*/
-
 	
 	
 	var americaPts = [];
@@ -528,7 +505,7 @@ function initScene() {
 	camera.position.z = 1400;
 	camera.position.y = 0;
 	//camera.lookAt(scene.width/2, scene.height/2);	
-	scene.add( camera );	  
+	//scene.add( camera );	  
 
 	var windowResize = THREEx.WindowResize(renderer, camera)		
 }
@@ -595,10 +572,6 @@ function animate() {
 		}
 	);	*/
 
-	/*for( var i in markers ){
-		var marker = markers[i];
-		marker.update();
-	}	*/	
 
 }
 
@@ -656,11 +629,7 @@ function highlightCountry( countries ){
 	ctx.fillStyle = 'rgb(' + oceanFill + ',' + oceanFill + ',' + oceanFill +')';
 	ctx.fillRect( 0, 0, 1, 1 );
 
-	// for( var i = 0; i<255; i++ ){
-	// 	var fillCSS = 'rgb(' + i + ',' + 0 + ',' + i + ')';
-	// 	ctx.fillStyle = fillCSS;
-	// 	ctx.fillRect( i, 0, 1, 1 );
-	// }
+
 
 	var selectedCountryCode = selectedCountry.countryCode;
 	
@@ -669,15 +638,10 @@ function highlightCountry( countries ){
 		var colorIndex = countryColorMap[ countryCode ];
 
 		var mapColor = countryData[countries[i]].mapColor;
-		// var fillCSS = '#ff0000';
 		var fillCSS = '#333366';
 		if( countryCode === selectedCountryCode )
 			fillCSS = '#cc0033'
-		// if( mapColor !== undefined ){
-		// 	var k = map( mapColor, 0, 200000000, 0, 255 );
-		// 	k = Math.floor( constrain( k, 0, 255 ) );
-		// 	fillCSS = 'rgb(' + k + ',' + k + ',' + k + ')';
-		// }
+
 		ctx.fillStyle = fillCSS;
 		ctx.fillRect( colorIndex, 0, 1, 1 );
 	}
