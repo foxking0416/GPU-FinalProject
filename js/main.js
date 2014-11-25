@@ -21,9 +21,7 @@ var visualizationMesh;
 var mapUniforms;
 var shaderMaterial_Globe;
 
-//	contains the data loaded from the arms data file
-//	contains a list of years, followed by trades within that year
-//	properties for each "trade" is: e - exporter, i - importer, v - value (USD), wc - weapons code (see table)
+
 var timeBins;
 
 //	contains latlon data for each country
@@ -50,11 +48,11 @@ var weaponLookup = {
 };
 
 //	a list of the reverse for easy lookup
-var reverseWeaponLookup = new Object();
+var reverseStatisticLookup = new Object();
 for( var i in weaponLookup ){
 	var name = i;
 	var code = weaponLookup[i];
-	reverseWeaponLookup[code] = name;
+	reverseStatisticLookup[code] = name;
 }	    	
 
 var exportColor = 0xffff33;
@@ -594,9 +592,7 @@ function highlightCountry( countries ){
 	//	all non-countries were being pointed to 10 - bolivia
 	//	the fact that it didn't select was because bolivia shows up as an invalid country due to country name mismatch
 	//	...
-	var pickMask = countries.length == 0 ? 0 : 1;
-	var oceanFill = 0 * pickMask;
-	ctx.fillStyle = 'rgb(' + oceanFill + ',' + oceanFill + ',' + oceanFill +')';
+	ctx.fillStyle = 'rgb(' + 0 + ',' + 0 + ',' + 0 +')';
 	ctx.fillRect( 0, 0, 1, 1 );
 
 
@@ -632,7 +628,7 @@ function getHistoricalData( country ){
 		var value = {imports: 0, exports:0};
 		for( var s in yearBin ){
 			var set = yearBin[s];
-			var categoryName = reverseWeaponLookup[set.wc];
+			var categoryName = reverseStatisticLookup[set.wc];
 
 			var exporterCountryName = set.e.toUpperCase();
 			var importerCountryName = set.i.toUpperCase();			
@@ -653,7 +649,7 @@ function getHistoricalData( country ){
 		}
 		history.push(value);
 	}
-	// console.log(history);
+
 	return history;
 }
 
