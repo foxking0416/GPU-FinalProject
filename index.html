@@ -37,9 +37,7 @@
 		<script src="js/Detector.js"></script>
 		<script src="js/Tween.js"></script>
 		<script src="js/dat.gui.min.js"></script>			<!--Library-->
-		<script src="js/Three.js"></script>					<!--Library-->
-		<!--<script src="js/three.min.js"></script>					<!--Library-->
-		<!--<script src="js/threen.js"></script>	<!--Library-->
+		<script src="js/Three2.js"></script>					<!--Library-->
 		<script src="js/THREEx.KeyboardState.js"></script>	<!--Library-->
 		<script src="js/THREEx.WindowResize.js"></script>	<!--Library-->
 		<script src="js/Stats.js"></script>					<!--Library-->
@@ -183,7 +181,7 @@
 				vec4 mapIndexColor = texture2D( mapIndex, vUv );
 				float indexedColor = mapIndexColor.x;
 				vec2 lookupUV = vec2( indexedColor, 0.0 );
-				vec3 lookupColor = texture2D( lookup, lookupUV ).rgb;	
+				vec3 lookupColor = vec3(0.0,0.0,0.0);//texture2D( lookup, lookupUV ).rgb;	
 				vec3 mask = lookupColor + vec3((1.0 - outlineLevel) * indexedColor);
 				mask = clamp(mask, vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
 				vec3 outlineColor = vec3(0.8 * texture2D( outline, vUv ).x * outlineLevel);

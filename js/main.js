@@ -53,15 +53,6 @@ var countryLookup;
 var selectableYears = [];
 var selectableCountries = [];			    
 
-/*
-	930100 – military weapons, and includes some light weapons and artillery as well as machine guns and assault rifles etc.  
-	930190 – military firearms – eg assault rifles, machineguns (sub, light, heavy etc), combat shotguns, machine pistols etc
-	930200 – pistols and revolvers
-	930320 – Sporting shotguns (anything that isn’t rated as a military item).
-	930330 – Sporting rifles (basically anything that isn’t fully automatic).
-	930621 – shotgun shells
-	930630 – small caliber ammo (anything below 14.5mm which isn’t fired from a shotgun.
-*/
 
 //	a list of weapon 'codes'
 //	now they are just strings of categories
@@ -104,58 +95,27 @@ var idle = false;
 //	deprecated, not using svg loading anymore
 var assetList = [];
 
-//	TODO
-//	use underscore and ".after" to load these in order
-//	don't look at me I'm ugly
+
 function start( e ){	
 	//	detect for webgl and reject everything else
 	if ( ! Detector.webgl ) {
 		Detector.addGetWebGLMessage();
 	}
 	else{
-		//	ensure the map images are loaded first!!
-		mapIndexedImage = new Image();
-		mapIndexedImage.src = 'images/map_indexed.png';
-		mapIndexedImage.onload = function() {
-			mapOutlineImage = new Image();
-			mapOutlineImage.src = 'images/map_outline.png';
-			mapOutlineImage.onload = function(){
-				flagImage = new Image();
-				flagImage.src = 'images/Flag.png';
-				flagImage.onload = function(){
-					earthMapImage = new Image();
-					earthMapImage.src = 'images/earthmap1024Tran.png';
-					earthMapImage.onload = function(){
-						earthLightImage = new Image();
-						earthLightImage.src = 'images/earthlight1024Tran.png';
-						earthLightImage.onload = function(){
-							earthBumpImage = new Image();
-							earthBumpImage.src = 'images/earthbump1024Tran.png';
-							earthBumpImage.onload = function(){
-								earthSpecImage = new Image();
-								earthSpecImage.src = 'images/earthspec1024Tran.png';
-								earthSpecImage.onload = function(){
-									loadCountryCodes(
-										function(){
-											loadWorldPins(
-												function(){										
-													loadContentData(								
-														function(){																	
-															initScene();
-															animate();		
-														}
-													);														
-												}
-											);
-										}
-									);
-								};
-							};
-						};
-					};
-				};
-			};			
-		};		
+		loadCountryCodes(
+			function(){
+				loadWorldPins(
+					function(){										
+						loadContentData(								
+							function(){																	
+								initScene();
+								animate();		
+							}
+						);														
+					}
+				);
+			}
+		);
 	};
 }			
 
@@ -200,23 +160,7 @@ function initScene() {
     //	Let's make a scene		
 	scene = new THREE.Scene();
 	scene.matrixAutoUpdate = false;		
-	// scene.fog = new THREE.FogExp2( 0xBBBBBB, 0.00003 );		        		       
-
-	scene.add( new THREE.AmbientLight( 0x505050 ) );				
-
-	light1 = new THREE.SpotLight( 0xffffff, 30 );
-	light1.position.x = 730; 
-	light1.position.y = 520;
-	light1.position.z = 626;
-	light1.castShadow = true;
-	scene.add( light1 );
-
-	light2 = new THREE.PointLight( 0xffffff, 14.8 );
-	light2.position.x = 640;
-	light2.position.y = 500;
-	light2.position.z = 1000;
-	scene.add( light2 );				
-	
+	        		       	
 
 	globeMesh = new THREE.Object3D();
 	scene.add(globeMesh);
@@ -236,58 +180,21 @@ function initScene() {
 	lookupTexture.minFilter = THREE.NearestFilter;
 	lookupTexture.needsUpdate = true;
 
-	var indexedMapTexture = new THREE.Texture( mapIndexedImage );
-	indexedMapTexture.needsUpdate = true;
-	indexedMapTexture.magFilter = THREE.NearestFilter;
-	indexedMapTexture.minFilter = THREE.NearestFilter;
+	
 
-	var outlinedMapTexture = new THREE.Texture( mapOutlineImage );
-	outlinedMapTexture.needsUpdate = true;
-	
-	var earthMapTexture = new THREE.Texture( earthMapImage );
-	earthMapTexture.needsUpdate = true;
-	earthMapTexture.magFilter = THREE.LinearFilter;//NearestFilter
-	earthMapTexture.minFilter = THREE.LinearFilter;//NearestFilter
-	
-	var earthLightTexture = new THREE.Texture( earthLightImage );
-	earthLightTexture.needsUpdate = true;
-	earthLightTexture.magFilter = THREE.LinearFilter;
-	earthLightTexture.minFilter = THREE.LinearFilter;
-	
-	var earthSpecTexture = new THREE.Texture( earthSpecImage );
-	earthSpecTexture.needsUpdate = true;
-	earthSpecTexture.magFilter = THREE.LinearFilter;
-	earthSpecTexture.minFilter = THREE.LinearFilter;
-	
-	var earthBumpTexture = new THREE.Texture( earthBumpImage );
-	earthBumpTexture.needsUpdate = true;
-	earthBumpTexture.magFilter = THREE.LinearFilter;
-	earthBumpTexture.minFilter = THREE.LinearFilter;
-	
-	var flagTexture = new THREE.Texture( flagImage );
-	flagTexture.needsUpdate = true;
-	flagTexture.magFilter = THREE.LinearFilter;
-	flagTexture.minFilter = THREE.LinearFilter;
 
 	var uniforms_Globe = {
-		'mapIndex': { type: 't', value: 0, texture: indexedMapTexture  },		
-		'lookup': { type: 't', value: 1, texture: lookupTexture },
-		'outline': { type: 't', value: 2, texture: outlinedMapTexture },
-		'earthMap': { type: 't', value: 3, texture: earthMapTexture },
-		'earthLight': { type: 't', value: 4, texture: earthLightTexture },
-		'earthBump': { type: 't', value: 5, texture: earthBumpTexture },
-		'earthSpec': { type: 't', value: 6, texture: earthSpecTexture },
+		'mapIndex': { type: 't', value: THREE.ImageUtils.loadTexture( "images/map_indexed.png" ) },		
+		'lookup': { type: 't', value: THREE.ImageUtils.loadTexture( "images/map_indexed.png" ) },
+		'outline': { type: 't', value: THREE.ImageUtils.loadTexture( "images/map_outline.png" ) },
+		'earthMap': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthmap1024Tran.png" ) },
+		'earthLight': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthlight1024Tran.png" ) },
+		'earthBump': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthbump1024Tran.png" ) },
+		'earthSpec': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthspec1024Tran.png" ) },
 		'outlineLevel': {type: 'f', value: 1 },
 	};
 	mapUniforms = uniforms_Globe;
 
-	/*var lightdir = vec3.create([1.0, 0.0, 1.0]);
-	var lightdest = vec4.create();
-	vec3.normalize(lightdir);
-	mat4.multiplyVec4(view, [lightdir[0], lightdir[1], lightdir[2], 0.0], lightdest);
-	lightdir = vec3.createFrom(lightdest[0],lightdest[1],lightdest[2]);
-	vec3.normalize(lightdir);*/
-	
 	
 	shaderMaterial_Globe = new THREE.ShaderMaterial( {
 
@@ -302,16 +209,11 @@ function initScene() {
 	});
 	
 	
-	var uniforms_Country = {
-		'flag': { type: 't', value: 0, texture: flagTexture  },
-	};
+
 	var shaderMaterial_Country = new THREE.ShaderMaterial( {
 
-		//uniforms: 		uniforms_Country,
-		// attributes:     attributes,
 		vertexShader:   document.getElementById( 'countryVertexShader' ).textContent,
 		fragmentShader: document.getElementById( 'countryFragmentShader' ).textContent,
-		// sizeAttenuation: true,
 		
 	});
 	
@@ -321,23 +223,21 @@ function initScene() {
 	var shaderMaterial_InsideObj = new THREE.ShaderMaterial( {
 
 		//uniforms: 		uniforms_Country,
-		// attributes:     attributes,
+
 		vertexShader:   document.getElementById( 'insideObjVertexShader' ).textContent,
 		fragmentShader: document.getElementById( 'insideObjFragmentShader' ).textContent,	
 	});
 	
 	var uniforms_Flag = {
-		'flag': { type: 't', value: 0, texture: flagTexture  },
+		'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag.png" )  },
 	};
 	var shaderMaterial_Flag = new THREE.ShaderMaterial( {
 
 		uniforms: 		uniforms_Flag,
-		// attributes:     attributes,
+
 		vertexShader:   document.getElementById( 'FlagVertexShader' ).textContent,
 		fragmentShader: document.getElementById( 'FlagFragmentShader' ).textContent,
-		// sizeAttenuation: true,
-		
-		//opacity: 0.5,
+
 		blending: 		THREE.MultiplyBlending,//MultiplyBlending
 		depthTest: 		true,
 		depthWrite: 	false,
@@ -627,7 +527,7 @@ function initScene() {
     camera = new THREE.PerspectiveCamera( 12, window.innerWidth / window.innerHeight, 1, 20000 ); 		        
 	camera.position.z = 1400;
 	camera.position.y = 0;
-	camera.lookAt(scene.width/2, scene.height/2);	
+	//camera.lookAt(scene.width/2, scene.height/2);	
 	scene.add( camera );	  
 
 	var windowResize = THREEx.WindowResize(renderer, camera)		

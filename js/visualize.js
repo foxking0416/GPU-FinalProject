@@ -106,7 +106,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 			
 			var normal = (new THREE.Vector3()).sub(points[points.length-1], points[0]);
 			var curveDir = (new THREE.Vector3()).sub(points[1], points[0]);
-			var tangent = normal.clone().crossSelf(curveDir.clone());
+			var tangent = normal.clone().cross(curveDir.clone());
 			tangent.normalize();
 			var spiralRadius = 1;
 			var spiralPoints = [];
@@ -116,14 +116,14 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 				var eachCurveDir = (new THREE.Vector3()).sub(points[i+1], points[i]);
 				var segmentDis = eachCurveDir.length();
 				eachCurveDir.normalize();
-				var lat = eachCurveDir.clone().crossSelf(tangent.clone());
+				var lat = eachCurveDir.clone().cross(tangent.clone());
 				
 				
 				for(var j = 0; j < circularSeg; ++j){
 					var pTan = tangent.clone().multiplyScalar(spiralRadius * Math.cos(2 * Math.PI / circularSeg * j));
 					var pLat = lat.clone().multiplyScalar(spiralRadius * Math.sin(2 * Math.PI / circularSeg * j));
 					var pCur = eachCurveDir.clone().multiplyScalar(segmentDis / circularSeg * j);
-					var p = points[i].clone().addSelf(pTan).clone().addSelf(pLat).clone().addSelf(pCur);
+					var p = points[i].clone().add(pTan).clone().add(pLat).clone().add(pCur);
 					spiralPoints.push( p );
 				}
 			}
@@ -272,7 +272,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 	uniforms = {
 		amplitude: { type: "f", value: 1.0 },
 		color:     { type: "c", value: new THREE.Color( 0xffffff ) },
-		texture:   { type: "t", value: 0, texture: THREE.ImageUtils.loadTexture( "images/particleA.png" ) },
+		texture:   { type: "t", value: THREE.ImageUtils.loadTexture( "images/particleA.png" ) },
 	};
 
 	var shaderMaterial = new THREE.ShaderMaterial( {
@@ -341,7 +341,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 			
 
 			particle.copy( currentPoint );
-			particle.lerpSelf( nextPoint, particle.lerpN );			
+			particle.lerp( nextPoint, particle.lerpN );			
 		}
 		this.geometry.verticesNeedUpdate = true;
 	};		

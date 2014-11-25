@@ -10,13 +10,13 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 	//	end of the line
 	var end = importer.center;
 	
-	var distanceBetweenCountryCenter = end.clone().subSelf(start).length();		
-	//var distanceBetweenCountryCenter = start.distanceTo(end);
+	//var distanceBetweenCountryCenter = end.clone().sub(start).length();		
+	var distanceBetweenCountryCenter = start.distanceTo(end);
 	var distanceHalf = distanceBetweenCountryCenter * 0.5;
 	
 	//	midpoint for the curve
-	var mid = start.clone().lerpSelf(end, 0.5);	
-	//var mid = start.clone().lerp(end,0.5);	
+	
+	var mid = start.clone().lerp(end,0.5);	
 	var midLength = mid.length()
 	mid.normalize();
 	mid.multiplyScalar( midLength + distanceBetweenCountryCenter * 0.7 );			
@@ -25,25 +25,10 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 	var normal = (new THREE.Vector3()).sub(end, start);
 	normal.normalize();
 
-	/*				     
-				The curve looks like this:
-				
-				midStartAnchor---- mid ----- midEndAnchor
-			  /											  \
-			 /											   \
-			/												\
-	start/anchor 										 end/anchor
-
-		splineCurveA							splineCurveB
-	*/
-
-
 
 	var startAnchor = start;
-	var midStartAnchor = mid.clone().addSelf( normal.clone().multiplyScalar( -distanceHalf ) );					
-	var midEndAnchor = mid.clone().addSelf( normal.clone().multiplyScalar( distanceHalf ) );
-	//var midStartAnchor = mid.clone().add( normal.clone().multiplyScalar( -distanceHalf ) );					
-	//var midEndAnchor = mid.clone().add( normal.clone().multiplyScalar( distanceHalf ) );
+	var midStartAnchor = mid.clone().add( normal.clone().multiplyScalar( -distanceHalf ) );					
+	var midEndAnchor = mid.clone().add( normal.clone().multiplyScalar( distanceHalf ) );
 	
 	var endAnchor = end;
 
@@ -57,13 +42,13 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 	//	collect the vertices
 	var points = splineCurveA.getPoints( vertexCountDesired );
 
-	//	remove the very last point since it will be duplicated on the next half of the curve
+
 	points = points.splice(0,points.length-1);
 	points = points.concat( splineCurveB.getPoints( vertexCountDesired ) );
 
 
 	var curveDir = (new THREE.Vector3()).sub(points[1], points[0]);
-	var tangent = normal.clone().crossSelf(curveDir.clone());
+	var tangent = normal.clone().cross(curveDir.clone());
 	tangent.normalize();
 	var spiralRadius = 2;
 	var spiralPoints = [];
@@ -87,13 +72,13 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 			eachCurveDir = (new THREE.Vector3()).sub(points[i+1], points[i]);
 		var segmentDis = eachCurveDir.length();
 		eachCurveDir.normalize();
-		var lat = eachCurveDir.clone().crossSelf(tangent.clone());
+		var lat = eachCurveDir.clone().cross(tangent.clone());
 		
 		
 		for(var j = 0; j < circularSeg; ++j){
 			var pTan = tangent.clone().multiplyScalar(spiralRadius * Math.cos(2 * Math.PI / circularSeg * j));
 			var pLat = lat.clone().multiplyScalar(spiralRadius * Math.sin(2 * Math.PI / circularSeg * j));
-			var p = points[i].clone().addSelf(pTan).clone().addSelf(pLat);
+			var p = points[i].clone().add(pTan).clone().add(pLat);
 			tubePoints.push( p );
 		}
 	}*/
