@@ -9,8 +9,7 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 	var start = exporter.center;
 	//	end of the line
 	var end = importer.center;
-	
-	//var distanceBetweenCountryCenter = end.clone().sub(start).length();		
+		
 	var distanceBetweenCountryCenter = start.distanceTo(end);
 	var distanceHalf = distanceBetweenCountryCenter * 0.5;
 	
@@ -22,7 +21,7 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 	mid.multiplyScalar( midLength + distanceBetweenCountryCenter * 0.7 );			
 
 	//	the normal from start to end
-	var normal = (new THREE.Vector3()).sub(end, start);
+	var normal = (new THREE.Vector3()).subVectors(end, start);
 	normal.normalize();
 
 
@@ -47,7 +46,7 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 	points = points.concat( splineCurveB.getPoints( vertexCountDesired ) );
 
 
-	var curveDir = (new THREE.Vector3()).sub(points[1], points[0]);
+	var curveDir = (new THREE.Vector3()).subVectors(points[1], points[0]);
 	var tangent = normal.clone().cross(curveDir.clone());
 	tangent.normalize();
 	var spiralRadius = 2;

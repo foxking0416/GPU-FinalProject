@@ -185,7 +185,7 @@ function initScene() {
 
 	var uniforms_Globe = {
 		'mapIndex': { type: 't', value: THREE.ImageUtils.loadTexture( "images/map_indexed.png" ) },		
-		'lookup': { type: 't', value: THREE.ImageUtils.loadTexture( "images/map_indexed.png" ) },
+		'lookup': { type: 't', value: lookupTexture },
 		'outline': { type: 't', value: THREE.ImageUtils.loadTexture( "images/map_outline.png" ) },
 		'earthMap': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthmap1024Tran.png" ) },
 		'earthLight': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthlight1024Tran.png" ) },

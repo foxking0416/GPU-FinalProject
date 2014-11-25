@@ -104,8 +104,8 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 				
 			var points = set.lineGeometry.vertices;//assembly the curve
 			
-			var normal = (new THREE.Vector3()).sub(points[points.length-1], points[0]);
-			var curveDir = (new THREE.Vector3()).sub(points[1], points[0]);
+			var normal = (new THREE.Vector3()).subVectors(points[points.length-1], points[0]);
+			var curveDir = (new THREE.Vector3()).subVectors(points[1], points[0]);
 			var tangent = normal.clone().cross(curveDir.clone());
 			tangent.normalize();
 			var spiralRadius = 1;
@@ -113,7 +113,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 			var circularSeg = 6;
 			
 			for(var i = 0; i < points.length-1; ++i){
-				var eachCurveDir = (new THREE.Vector3()).sub(points[i+1], points[i]);
+				var eachCurveDir = (new THREE.Vector3()).subVectors(points[i+1], points[i]);
 				var segmentDis = eachCurveDir.length();
 				eachCurveDir.normalize();
 				var lat = eachCurveDir.clone().cross(tangent.clone());
