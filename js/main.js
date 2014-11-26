@@ -217,7 +217,6 @@ function initScene() {
 
 						
 	var sphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial_Globe );	//100 is radius, 40 is segments in width, 40 is segments in height
-	sphere.doubleSided = true;
 	sphere.rotation.x = Math.PI;				
 	sphere.rotation.y = -Math.PI/2;
 	sphere.rotation.z = Math.PI;
@@ -267,7 +266,7 @@ function initScene() {
 		object.scale.y = 10;
 		object.scale.z = 10;
 		obj = object
-		globeMesh.add( obj );
+		//globeMesh.add( obj );
 
 	} );
 	
@@ -280,10 +279,7 @@ function initScene() {
 
 	
 	
-	/*var geometry = new THREE.CylinderGeometry( 50, 50, 20, 32 );
-	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-	var cylinder = new THREE.Mesh( geometry, material );
-	globeMesh.add( cylinder );*/
+
 
 	
 	/*var linesGeo = new THREE.Geometry();
@@ -315,8 +311,28 @@ function initScene() {
 	
 	//var face = new THREE.Face3();
 	
-	var cube = new THREE.Mesh( new THREE.CubeGeometry( 50, 50, 50 ), shaderMaterial_InsideObj );
-	//globeMesh.add( cube );	
+	var mats = [];
+        mats.push(new THREE.MeshBasicMaterial({ color: 0x009e60 }));
+        mats.push(new THREE.MeshBasicMaterial({ color: 0x009e60 }));
+        mats.push(new THREE.MeshBasicMaterial({ color: 0x0051ba }));
+        mats.push(new THREE.MeshBasicMaterial({ color: 0x0051ba }));
+        mats.push(new THREE.MeshBasicMaterial({ color: 0xffd500 }));
+        mats.push(new THREE.MeshBasicMaterial({ color: 0xffd500 }));
+       /* mats.push(new THREE.MeshBasicMaterial({ color: 0xff5800 }));
+        mats.push(new THREE.MeshBasicMaterial({ color: 0xff5800 }));*/
+       /* mats.push(new THREE.MeshBasicMaterial({ color: 0xC41E3A }));
+        mats.push(new THREE.MeshBasicMaterial({ color: 0xC41E3A }));
+        mats.push(new THREE.MeshBasicMaterial({ color: 0xffffff }));
+        mats.push(new THREE.MeshBasicMaterial({ color: 0xffffff }));*/
+	var faceMaterial = new THREE.MeshFaceMaterial(mats);
+	
+	var geometry = new THREE.CylinderGeometry( 50, 50, 20, 32 );
+	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+	var cylinder = new THREE.Mesh( geometry, faceMaterial );
+	//globeMesh.add( cylinder );
+	
+	var cube = new THREE.Mesh( new THREE.CubeGeometry( 50, 50, 50 ), faceMaterial );//shaderMaterial_InsideObj
+	globeMesh.add( cube );	
 
 	
 	
@@ -398,6 +414,8 @@ function initScene() {
 	//camera.lookAt(scene.width/2, scene.height/2);	
 	//scene.add( camera );	  
 
+	
+	
 	var windowResize = THREEx.WindowResize(renderer, camera)		
 }
 	
@@ -449,12 +467,13 @@ function animate() {
 
 	//countryMesh.rotation.x = rotateX;
 	countryMesh.rotation.y += 0.01;	
+	//pSystem.update();
 	
     render();	
     		        		       
     requestAnimationFrame( animate );	
 
-
+	
 	/*THREE.SceneUtils.traverseHierarchy( globeMesh, 
 		function(mesh) {
 			if (mesh.update !== undefined) {

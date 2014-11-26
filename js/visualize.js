@@ -58,6 +58,24 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 	
 	var dataVisualizationMesh = new THREE.Object3D();
 
+	uniforms_Tube = {
+		texture:   { type: "t", value: THREE.ImageUtils.loadTexture( "images/particleA.png" ) },
+	};
+
+	
+	var shaderMaterial_Tube = new THREE.ShaderMaterial( {
+
+		uniforms: 		uniforms_Tube,
+		vertexShader:   document.getElementById( 'tubeVertexshader' ).textContent,
+		fragmentShader: document.getElementById( 'tubeFragmentshader' ).textContent,
+
+		blending: 		THREE.AdditiveBlending,
+		transparent:	true,
+		depthWrite: 	false,
+		depthTest: 		true,
+	});
+	
+	
 	//	go through the data from year, and find all relevant geometries
 	for( i in bin ){
 		var set = bin[i];
@@ -183,8 +201,12 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 				false  					//closed
 			);
 			
-			var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-			var tube = new THREE.Mesh( tubeGeometry, material );
+			var material = new THREE.MeshBasicMaterial( {color: 0x555555, 
+														 blending:	THREE.AdditiveBlending,
+														 transparent:	true,
+														 depthWrite: 	false,
+														 depthTest: 		true,} );
+			var tube = new THREE.Mesh( tubeGeometry, shaderMaterial_Tube  );//shaderMaterial_Tube
 			
 			dataVisualizationMesh.add( tube );
 			
@@ -238,12 +260,12 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 
 	
 
-	attributes = {
+	attributes_Particle = {
 		size: {	type: 'f', value: [] },
 		customColor: { type: 'c', value: [] }
 	};
 
-	uniforms = {
+	uniforms_Particle = {
 		amplitude: { type: "f", value: 1.0 },
 		color:     { type: "c", value: new THREE.Color( 0xffffff ) },
 		texture:   { type: "t", value: THREE.ImageUtils.loadTexture( "images/particleA.png" ) },
@@ -251,10 +273,10 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 
 	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
 
-		uniforms: 		uniforms,
-		attributes:     attributes,
-		vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+		uniforms: 		uniforms_Particle,
+		attributes:     attributes_Particle,
+		vertexShader:   document.getElementById( 'pointVertexshader' ).textContent,
+		fragmentShader: document.getElementById( 'pointFragmentshader' ).textContent,
 
 		blending: 		THREE.AdditiveBlending,
 		transparent:	true,
@@ -264,18 +286,18 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 
 	
 
-
+	
 	var particleGraphic = THREE.ImageUtils.loadTexture("images/map_mask.png");
 	particlesGeo.colors = particleColors;
 	var pSystem = new THREE.ParticleSystem( particlesGeo, shaderMaterial_Particle );
 	pSystem.dynamic = true;
+	pSystem.sortParticles = true;
 
-
-	
+	dataVisualizationMesh.add( pSystem );
 	
 	var vertices = pSystem.geometry.vertices;
-	var values_size = attributes.size.value;
-	var values_color = attributes.customColor.value;
+	var values_size = attributes_Particle.size.value;
+	var values_color = attributes_Particle.customColor.value;
 
 	for( var v = 0; v < vertices.length; v++ ) {		
 		values_size[ v ] = pSystem.geometry.vertices[v].size;
@@ -331,7 +353,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 	
 
 	
-	dataVisualizationMesh.add( pSystem );
+	
 	dataVisualizationMesh.affectedCountries = affectedCountries;
 	return dataVisualizationMesh;
 	
