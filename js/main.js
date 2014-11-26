@@ -165,7 +165,6 @@ function initScene() {
 		'outlineLevel': {type: 'f', value: 1 },
 	};
 	mapUniforms = uniforms_Globe;
-
 	
 	shaderMaterial_Globe = new THREE.ShaderMaterial( {
 
@@ -179,7 +178,6 @@ function initScene() {
 		transparent:	true,
 		side:           THREE.DoubleSide,
 	});
-	
 	
 
 	var shaderMaterial_Country = new THREE.ShaderMaterial( {
@@ -281,28 +279,14 @@ function initScene() {
 				scene.add( directionalLight );
 
 	
-	var a = 0;
-	/*var extrudePath = new THREE.Path();
-	extrudePath.moveTo( 0, 0 );
-	extrudePath.lineTo( 1.0, 1.0 );
-	extrudePath.quadraticCurveTo( 8.0, 6.0, 16.0, 1.0 );
-	extrudePath.quadraticCurveTo( 24.0, -4.0, 32.0, 1.0 );
-
-	extrudeSettings.extrudePath = extrudePath;
-	extrudeSettings.bevelEnabled = false;*/
-	
-	
-	
-	
-	
 	
 	/*var geometry = new THREE.CylinderGeometry( 50, 50, 20, 32 );
 	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-	var cylinder = new THREE.Mesh( geometry, shaderMaterial_Country );
+	var cylinder = new THREE.Mesh( geometry, material );
 	globeMesh.add( cylinder );*/
 
-	/*
-	var linesGeo = new THREE.Geometry();
+	
+	/*var linesGeo = new THREE.Geometry();
 	linesGeo.vertices.push(
 		new THREE.Vector3( 0, 0, 0 ),
 		new THREE.Vector3( 0, 100, 0 ),

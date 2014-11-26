@@ -46,49 +46,7 @@ function makeConnectionLineGeometry( exporter, importer, value, type ){
 	points = points.concat( splineCurveB.getPoints( vertexCountDesired ) );
 
 
-	var curveDir = (new THREE.Vector3()).subVectors(points[1], points[0]);
-	var tangent = normal.clone().cross(curveDir.clone());
-	tangent.normalize();
-	var spiralRadius = 2;
-	var spiralPoints = [];
-	var circularSeg = 6;
 	
-
-	
-	
-	//Create tube surface points
-	/*var tubePoints = [];
-	var lineGeometry = new THREE.Geometry();
-	for(var i = 0; i < points.length; ++i){
-		lineGeometry.vertices.push( new THREE.Vertex( points[i] ) );
-	
-	
-		var eachCurveDir;
-	
-		if(i === points.length-1)
-			eachCurveDir = (new THREE.Vector3()).sub(points[i], points[i-1]);
-		else
-			eachCurveDir = (new THREE.Vector3()).sub(points[i+1], points[i]);
-		var segmentDis = eachCurveDir.length();
-		eachCurveDir.normalize();
-		var lat = eachCurveDir.clone().cross(tangent.clone());
-		
-		
-		for(var j = 0; j < circularSeg; ++j){
-			var pTan = tangent.clone().multiplyScalar(spiralRadius * Math.cos(2 * Math.PI / circularSeg * j));
-			var pLat = lat.clone().multiplyScalar(spiralRadius * Math.sin(2 * Math.PI / circularSeg * j));
-			var p = points[i].clone().add(pTan).clone().add(pLat);
-			tubePoints.push( p );
-		}
-	}*/
-	
-	//spiralPoints.push( vec3_origin );
-	//points.push( vec3_origin );
-
-
-	/*var splineOutline = THREE.Curve.Utils.createLineGeometry( spiralPoints );
-	splineOutline.size = 10;
-	return splineOutline;*/
 	
 	
 	//	create a line geometry out of these
