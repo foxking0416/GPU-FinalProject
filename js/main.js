@@ -20,8 +20,12 @@ var visualizationMesh;
 
 var mapUniforms;
 var shaderMaterial_Globe;
+var uniforms_Particle2;
+var particleGeometry;
+var attributes_Particle2;
 
 
+var clock = new THREE.Clock();
 var timeBins;
 
 //	contains latlon data for each country
@@ -266,7 +270,7 @@ function initScene() {
 		object.scale.y = 10;
 		object.scale.z = 10;
 		obj = object
-		//globeMesh.add( obj );
+		globeMesh.add( obj );
 
 	} );
 	
@@ -309,7 +313,41 @@ function initScene() {
 	
 	
 	
-	//var face = new THREE.Face3();
+	particleGeometry = new THREE.Geometry();
+	for (var i = 0; i < 100; i++){
+		particleGeometry.vertices.push( new THREE.Vector3(0,0,0) );
+	}
+	
+	attributes_Particle2 = {
+		customColor:	 { type: 'c',  value: [] },
+		customOffset:	 { type: 'f',  value: [] },
+	};
+	var particleCount = particleGeometry.vertices.length
+
+	for( var v = 0; v < particleCount; v++ ) 
+	{
+		attributes_Particle2.customColor.value[ v ] = new THREE.Color().setHSL( 1 - v / particleCount, 1.0, 0.5 );
+		attributes_Particle2.customOffset.value[ v ] = 6.282 * (v / particleCount); // not really used in shaders, move elsewhere
+	}
+	
+	uniforms_Particle2 = {
+		time:      { type: "f", value: 1.0 },
+		texture:   { type: "t", value: THREE.ImageUtils.loadTexture( "images/particleA.png" ) },
+	};
+
+	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
+
+		uniforms: 		uniforms_Particle2,
+		attributes:     attributes_Particle2,
+		vertexShader:   document.getElementById( 'pointVertexshader2' ).textContent,
+		fragmentShader: document.getElementById( 'pointFragmentshader2' ).textContent,
+	});
+	
+	var particleCube = new THREE.ParticleSystem( particleGeometry, shaderMaterial_Particle );
+	particleCube.position.set(0, 85, 0);
+	particleCube.dynamic = true;
+	particleCube.sortParticles = true;
+	globeMesh.add( particleCube );
 	
 	var mats = [];
         mats.push(new THREE.MeshBasicMaterial({ color: 0x009e60 }));
@@ -318,12 +356,12 @@ function initScene() {
         mats.push(new THREE.MeshBasicMaterial({ color: 0x0051ba }));
         mats.push(new THREE.MeshBasicMaterial({ color: 0xffd500 }));
         mats.push(new THREE.MeshBasicMaterial({ color: 0xffd500 }));
-       /* mats.push(new THREE.MeshBasicMaterial({ color: 0xff5800 }));
-        mats.push(new THREE.MeshBasicMaterial({ color: 0xff5800 }));*/
-       /* mats.push(new THREE.MeshBasicMaterial({ color: 0xC41E3A }));
+        mats.push(new THREE.MeshBasicMaterial({ color: 0xff5800 }));
+        mats.push(new THREE.MeshBasicMaterial({ color: 0xff5800 }));
+        mats.push(new THREE.MeshBasicMaterial({ color: 0xC41E3A }));
         mats.push(new THREE.MeshBasicMaterial({ color: 0xC41E3A }));
         mats.push(new THREE.MeshBasicMaterial({ color: 0xffffff }));
-        mats.push(new THREE.MeshBasicMaterial({ color: 0xffffff }));*/
+        mats.push(new THREE.MeshBasicMaterial({ color: 0xffffff }));
 	var faceMaterial = new THREE.MeshFaceMaterial(mats);
 	
 	var geometry = new THREE.CylinderGeometry( 50, 50, 20, 32 );
@@ -332,7 +370,7 @@ function initScene() {
 	//globeMesh.add( cylinder );
 	
 	var cube = new THREE.Mesh( new THREE.CubeGeometry( 50, 50, 50 ), faceMaterial );//shaderMaterial_InsideObj
-	globeMesh.add( cube );	
+	//globeMesh.add( cube );	
 
 	
 	
@@ -411,16 +449,36 @@ function initScene() {
     camera = new THREE.PerspectiveCamera( 12, window.innerWidth / window.innerHeight, 1, 20000 ); 		        
 	camera.position.z = 1400;
 	camera.position.y = 0;
-	//camera.lookAt(scene.width/2, scene.height/2);	
-	//scene.add( camera );	  
 
-	
 	
 	var windowResize = THREEx.WindowResize(renderer, camera)		
 }
+function pointUpdate()
+{
 	
+	var t0 = clock.getElapsedTime();
+	uniforms_Particle2.time.value = 0.125 * t0;
+	
+	for( var v = 0; v < particleGeometry.vertices.length; v++ ) 
+	{
+		var timeOffset = uniforms_Particle2.time.value + attributes_Particle2.customOffset.value[ v ];
+		particleGeometry.vertices[v] = position(timeOffset);		
+	}
+
+}
+
+function position(t)
+{
+	return new THREE.Vector3(
+			20.0 * Math.cos(2.0 * t) * (3.0 + Math.cos(3.0 * t)),
+			20.0 * Math.sin(2.0 * t) * (3.0 + Math.cos(3.0 * t)),
+			50.0 * Math.sin(3.0 * t) );
+}
+
 
 function animate() {	
+
+	pointUpdate();
 
 	if( rotateTargetX !== undefined && rotateTargetY !== undefined ){
 
@@ -467,22 +525,18 @@ function animate() {
 
 	//countryMesh.rotation.x = rotateX;
 	countryMesh.rotation.y += 0.01;	
-	//pSystem.update();
 	
     render();	
     		        		       
     requestAnimationFrame( animate );	
 
-	
-	/*THREE.SceneUtils.traverseHierarchy( globeMesh, 
-		function(mesh) {
-			if (mesh.update !== undefined) {
-				mesh.update();
+	globeMesh.traverse(
+		function(child) {
+			if (child.update !== undefined) {
+				child.update();
 			} 
 		}
-	);	*/
-
-
+	);
 }
 
 function render() {	

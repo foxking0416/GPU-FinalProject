@@ -112,11 +112,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 				lineColors.push(lineColor);
 				lastColor = lineColor;
 			}*/
-
-			//	merge it all together
-			//THREE.GeometryUtils.merge( linesGeo, set.lineGeometry );
-
-				
+		
 			var points = set.lineGeometry.vertices;//assembly the curve
 			
 			var normal = (new THREE.Vector3()).subVectors(points[points.length-1], points[0]);
@@ -144,6 +140,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 				}
 			}
 			/*
+			//Create spiral lines
 			for(var i = 0; i < spiralPoints.length; ++i){
 				
 				if(i === 0 || i === spiralPoints.length - 1){
@@ -158,13 +155,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 				}
 			}*/
 			
-
-
-			
 			var particleColor = lastColor.clone();	
-			
-			
-			
 			//var particleCount = Math.floor(set.v / 8000 / set.lineGeometry.vertices.length) + 1;
 			var particleCount = Math.floor(set.v / 10000) + 1;
 			var psize = particleCount;
@@ -207,7 +198,6 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 														 depthWrite: 	false,
 														 depthTest: 		true,} );
 			var tube = new THREE.Mesh( tubeGeometry, shaderMaterial_Tube  );//shaderMaterial_Tube
-			
 			dataVisualizationMesh.add( tube );
 			
 			
@@ -252,8 +242,6 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 			if( importerCountry == selectedCountry || exporterCountry == selectedCountry ){
 				selectedCountry.summary.total += set.v;	
 			}
-
-
 		}		
 	}
 
@@ -286,12 +274,10 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 
 	
 
-	
-	var particleGraphic = THREE.ImageUtils.loadTexture("images/map_mask.png");
 	particlesGeo.colors = particleColors;
 	var pSystem = new THREE.ParticleSystem( particlesGeo, shaderMaterial_Particle );
 	pSystem.dynamic = true;
-	pSystem.sortParticles = true;
+	//pSystem.sortParticles = true;
 
 	dataVisualizationMesh.add( pSystem );
 	
@@ -304,8 +290,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 		values_color[ v ] = particleColors[v];
 	}
 
-	pSystem.update = function(){	
-		// var time = Date.now()									
+	pSystem.update = function(){									
 		for( var i in this.geometry.vertices ){						
 			var particle = this.geometry.vertices[i];
 			var path = particle.path;
