@@ -225,7 +225,7 @@ function initScene() {
 	sphere.rotation.y = -Math.PI/2;
 	sphere.rotation.z = Math.PI;
 	sphere.id = "base";	
-	globeMesh.add( sphere );	
+	//globeMesh.add( sphere );	
 	
 	
 	var country2dPoints = getCountry2DPoints();
@@ -270,7 +270,7 @@ function initScene() {
 		object.scale.y = 10;
 		object.scale.z = 10;
 		obj = object
-		globeMesh.add( obj );
+		//globeMesh.add( obj );
 
 	} );
 	
@@ -311,16 +311,26 @@ function initScene() {
 	
 	globeMesh.add( splineOutline3 );*/
 	
-	
+	var length = 5;
+	var vertexCollection = [];
+	vertexCollection.push(new THREE.Vector3(0, 0, 0));
+	vertexCollection.push(new THREE.Vector3(0, 0, length));
+	vertexCollection.push(new THREE.Vector3(0, length, 0));
+	vertexCollection.push(new THREE.Vector3(0, length, length));
+	vertexCollection.push(new THREE.Vector3(length, 0, 0));
+	vertexCollection.push(new THREE.Vector3(length, 0, length));
+	vertexCollection.push(new THREE.Vector3(length, length, 0));
+	vertexCollection.push(new THREE.Vector3(length, length, length));	
 	
 	particleGeometry = new THREE.Geometry();
-	for (var i = 0; i < 100; i++){
-		particleGeometry.vertices.push( new THREE.Vector3(0,0,0) );
+	for (var i = 0; i < 10; i++){
+		particleGeometry.vertices.push( new THREE.Vector3(i,0,0) );
 	}
 	
 	attributes_Particle2 = {
 		customColor:	 { type: 'c',  value: [] },
 		customOffset:	 { type: 'f',  value: [] },
+		size:	 		 { type: 'f',  value: [] },
 	};
 	var particleCount = particleGeometry.vertices.length
 
@@ -328,6 +338,7 @@ function initScene() {
 	{
 		attributes_Particle2.customColor.value[ v ] = new THREE.Color().setHSL( 1 - v / particleCount, 1.0, 0.5 );
 		attributes_Particle2.customOffset.value[ v ] = 6.282 * (v / particleCount); // not really used in shaders, move elsewhere
+		attributes_Particle2.size.value[ v ] = 20.0;
 	}
 	
 	uniforms_Particle2 = {
@@ -341,6 +352,11 @@ function initScene() {
 		attributes:     attributes_Particle2,
 		vertexShader:   document.getElementById( 'pointVertexshader2' ).textContent,
 		fragmentShader: document.getElementById( 'pointFragmentshader2' ).textContent,
+		
+		blending: 		THREE.AdditiveBlending,
+		transparent:	true,
+		depthWrite: 	false,
+		depthTest: 		true,
 	});
 	
 	var particleCube = new THREE.ParticleSystem( particleGeometry, shaderMaterial_Particle );
@@ -404,7 +420,7 @@ function initScene() {
 	console.timeEnd('buildDataVizGeometries');
 
 	visualizationMesh = new THREE.Object3D();
-	globeMesh.add(visualizationMesh);	
+	//globeMesh.add(visualizationMesh);	
 
 	buildGUI();
 	//'BOLIVIA, PLURINATIONAL STATE OF'
@@ -457,12 +473,14 @@ function pointUpdate()
 {
 	
 	var t0 = clock.getElapsedTime();
-	uniforms_Particle2.time.value = 0.125 * t0;
+	uniforms_Particle2.time.value = 2 * t0;
 	
 	for( var v = 0; v < particleGeometry.vertices.length; v++ ) 
 	{
 		var timeOffset = uniforms_Particle2.time.value + attributes_Particle2.customOffset.value[ v ];
-		particleGeometry.vertices[v] = position(timeOffset);		
+		particleGeometry.vertices[v] = position(timeOffset);	
+
+		attributes_Particle2.size.value[ v ] = 10.0 * (Math.cos(2.0 * timeOffset) + 1.1 );
 	}
 
 }
