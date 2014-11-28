@@ -65,6 +65,12 @@ var previouslySelectedCountry = null;
 //	contains info about what year, what countries, categories, etc that's being visualized
 var selectionData;
 
+var cameraCube, sceneCube;
+var skyboxMesh;
+
+
+
+
 
 function start( e ){	
 	//	detect for webgl and reject everything else
@@ -129,6 +135,7 @@ function initScene() {
 	//	-----------------------------------------------------------------------------
     //	Let's make a scene		
 	scene = new THREE.Scene();
+	sceneCube = new THREE.Scene();
 	scene.matrixAutoUpdate = false;		
 	        		       	
 
@@ -278,6 +285,34 @@ function initScene() {
 				directionalLight.position.set( 0, 0, 1 );
 				scene.add( directionalLight );
 
+	//ra, skybox
+	//ra, skybox, http://learningthreejs.com/blog/2011/08/15/lets-do-a-sky/
+
+
+var sky_urlPrefix = "texture/";
+var sky_urls = [ sky_urlPrefix + "Right.png", sky_urlPrefix + "Left.png",
+    sky_urlPrefix + "Up.png", sky_urlPrefix + "Down.png",
+    sky_urlPrefix + "Front.png", sky_urlPrefix + "Back.png" ];
+var sky_textureCube = THREE.ImageUtils.loadTextureCube( sky_urls );
+sky_textureCube.format = THREE.RGBFormat;
+
+var sky_shader = THREE.ShaderLib["cube"];
+//var sky_uniforms = THREE.UniformsUtils.clone( sky_shader.uniforms );
+//sky_uniforms['tCube'].texture= sky_textureCube;   // textureCube has been init before
+sky_shader.uniforms["tCube"].value = sky_textureCube;
+var sky_material = new THREE.ShaderMaterial({
+    fragmentShader    : sky_shader.fragmentShader,
+    vertexShader  : sky_shader.vertexShader,
+    uniforms  : sky_shader.uniforms,
+    depthWrite: false,
+	side: THREE.BackSide
+});
+
+	// build the skybox Mesh 
+	skyboxMesh = new THREE.Mesh( new THREE.BoxGeometry( 1000, 1000, 1000 ), sky_material );
+	// add it to the scene
+	scene.add( skyboxMesh );
+
 	
 	
 	/*var geometry = new THREE.CylinderGeometry( 50, 50, 20, 32 );
@@ -398,7 +433,13 @@ function initScene() {
 	//camera.lookAt(scene.width/2, scene.height/2);	
 	//scene.add( camera );	  
 
-	var windowResize = THREEx.WindowResize(renderer, camera)		
+	cameraCube = new THREE.PerspectiveCamera( 12, window.innerWidth / window.innerHeight, 1, 10000 );
+	cameraCube.position.z = 1400;
+	cameraCube.position.y = 0;
+
+	var windowResize = THREEx.WindowResize(renderer, camera);
+
+		
 }
 	
 
@@ -447,6 +488,10 @@ function animate() {
 	globeMesh.rotation.x = rotateX;
 	globeMesh.rotation.y = rotateY;	
 
+	skyboxMesh.rotation.x = rotateX;
+	skyboxMesh.rotation.y = rotateY;
+
+	//console.log("x:" + globeMesh.rotation.x + "  y:"+globeMesh.rotation.y);
 	//countryMesh.rotation.x = rotateX;
 	countryMesh.rotation.y += 0.01;	
 	
@@ -469,6 +514,7 @@ function animate() {
 function render() {	
 	renderer.clear();		    					
     renderer.render( scene, camera );				
+    renderer.render( sceneCube, cameraCube );
 }		   
 
 function findCode(countryName){
