@@ -304,5 +304,9 @@ function getCountry2DPoints(){
 	countryPts.push( new THREE.Vector2 ( 31.8, 6.9 ) );
 	countryPts.push( new THREE.Vector2 ( 27.6, 2.7 ) );
 	countryPts.push( new THREE.Vector2 ( 22.3, 1.4 ) );
+	
+	//
+	
+	
 	return countryPts;
 }
