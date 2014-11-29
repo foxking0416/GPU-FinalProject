@@ -23,10 +23,11 @@ var shaderMaterial_Globe;
 var uniforms_Particle2;
 var particleGeometry;
 var attributes_Particle2;
-
+var vertexCollection;
 
 var clock = new THREE.Clock();
 var timeBins;
+var timePass = 0.0;
 
 //	contains latlon data for each country
 var latlonData;			    
@@ -225,7 +226,7 @@ function initScene() {
 	sphere.rotation.y = -Math.PI/2;
 	sphere.rotation.z = Math.PI;
 	sphere.id = "base";	
-	//globeMesh.add( sphere );	
+	globeMesh.add( sphere );	
 	
 	
 	var country2dPoints = getCountry2DPoints();
@@ -311,20 +312,51 @@ function initScene() {
 	
 	globeMesh.add( splineOutline3 );*/
 	
-	var length = 5;
-	var vertexCollection = [];
+	var length = 100;
+	vertexCollection = [];
+	vertexCollection.push(new THREE.Vector3(0, 0, 0));
+	vertexCollection.push(new THREE.Vector3(0, length, 0));
+	
 	vertexCollection.push(new THREE.Vector3(0, 0, 0));
 	vertexCollection.push(new THREE.Vector3(0, 0, length));
+	
+	vertexCollection.push(new THREE.Vector3(0, length, 0));
+	vertexCollection.push(new THREE.Vector3(length, length, 0));
+	
 	vertexCollection.push(new THREE.Vector3(0, length, 0));
 	vertexCollection.push(new THREE.Vector3(0, length, length));
+	
+	vertexCollection.push(new THREE.Vector3(length, length, 0));
+	vertexCollection.push(new THREE.Vector3(length, 0, 0));
+	
+	vertexCollection.push(new THREE.Vector3(length, length, 0));
+	vertexCollection.push(new THREE.Vector3(length, length, length));
+	
+	vertexCollection.push(new THREE.Vector3(length, 0, 0));
+	vertexCollection.push(new THREE.Vector3(0, 0, 0));
+	
 	vertexCollection.push(new THREE.Vector3(length, 0, 0));
 	vertexCollection.push(new THREE.Vector3(length, 0, length));
-	vertexCollection.push(new THREE.Vector3(length, length, 0));
-	vertexCollection.push(new THREE.Vector3(length, length, length));	
+	
+	vertexCollection.push(new THREE.Vector3(0, 0, length));
+	vertexCollection.push(new THREE.Vector3(0, length, length));
+	
+	vertexCollection.push(new THREE.Vector3(0, length, length));
+	vertexCollection.push(new THREE.Vector3(length, length, length));
+	
+	vertexCollection.push(new THREE.Vector3(length, length, length));
+	vertexCollection.push(new THREE.Vector3(length, 0, length));
+	
+	vertexCollection.push(new THREE.Vector3(length, 0, length));
+	vertexCollection.push(new THREE.Vector3(0, 0, length));
 	
 	particleGeometry = new THREE.Geometry();
-	for (var i = 0; i < 10; i++){
-		particleGeometry.vertices.push( new THREE.Vector3(i,0,0) );
+	for (var i = 0; i < vertexCollection.length; i++){
+		if(i % 2 === 0){
+			particleGeometry.vertices.push( vertexCollection[i] );
+			//particleGeometry.vertices.push( vertexCollection[i] );
+			//particleGeometry.vertices.push( vertexCollection[i] );
+		}
 	}
 	
 	attributes_Particle2 = {
@@ -420,7 +452,7 @@ function initScene() {
 	console.timeEnd('buildDataVizGeometries');
 
 	visualizationMesh = new THREE.Object3D();
-	//globeMesh.add(visualizationMesh);	
+	globeMesh.add(visualizationMesh);	
 
 	buildGUI();
 	//'BOLIVIA, PLURINATIONAL STATE OF'
@@ -473,15 +505,26 @@ function pointUpdate()
 {
 	
 	var t0 = clock.getElapsedTime();
-	uniforms_Particle2.time.value = 2 * t0;
+	//uniforms_Particle2.time.value = 2 * t0;
+	var coef = 1.0;
+	if(timePass >= 1.0)
+		timePass = 0.0;
+	
+	
 	
 	for( var v = 0; v < particleGeometry.vertices.length; v++ ) 
 	{
-		var timeOffset = uniforms_Particle2.time.value + attributes_Particle2.customOffset.value[ v ];
-		particleGeometry.vertices[v] = position(timeOffset);	
-
-		attributes_Particle2.size.value[ v ] = 10.0 * (Math.cos(2.0 * timeOffset) + 1.1 );
+		//var timeOffset = uniforms_Particle2.time.value + attributes_Particle2.customOffset.value[ v ];
+		
+		var dir = (new THREE.Vector3()).subVectors(vertexCollection[2 * v + 1], vertexCollection[2 * v]).multiplyScalar(timePass);
+		
+		//if(v % 3 ===0)
+			particleGeometry.vertices[v] = vertexCollection[2 * v].clone().add(dir);// position(timeOffset);	
+		var stop = true;
+		//attributes_Particle2.size.value[ v ] = 10.0 * (Math.cos(2.0 * timeOffset) + 1.1 );
 	}
+	
+	timePass += 0.01;
 
 }
 
