@@ -16,6 +16,7 @@ var lookupCanvas
 var lookupTexture;
 var globeMesh;
 var countryMesh;
+var flagSphereMesh;
 var visualizationMesh;							
 
 var mapUniforms;
@@ -161,7 +162,7 @@ function initScene() {
 	countryMesh = new THREE.Object3D();
 	scene.add(countryMesh);
 	
-	var flagSphereMesh = new THREE.Object3D();
+	flagSphereMesh = new THREE.Object3D();
 	scene.add(flagSphereMesh);
 	
 	lookupCanvas = document.createElement('canvas');	

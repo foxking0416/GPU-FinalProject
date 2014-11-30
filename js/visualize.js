@@ -467,3 +467,7 @@ function selectVisualization( linearData, year, countries, outboundCategories, i
     
     d3Graphs.initGraphs();
 }
+
+function selectVisualization( countries  ){
+
+}
