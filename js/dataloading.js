@@ -25,7 +25,7 @@ function loadWorldPins( callback ){
 }
 
 function loadContentData(callback){	
-	var filePath = "categories/All-test.json";
+	var filePath = "categories/All-test2.json";
 	filePath = encodeURI( filePath );
 	// console.log(filePath);
 			

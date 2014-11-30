@@ -468,6 +468,8 @@ function selectVisualization( linearData, year, countries, outboundCategories, i
     d3Graphs.initGraphs();
 }
 
-function selectVisualization( countries  ){
+function selectCountryFlag( countries ){
+}
 
+function selectCountryLand( countries ){
 }
