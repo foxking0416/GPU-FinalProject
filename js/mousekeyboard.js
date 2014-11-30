@@ -71,6 +71,8 @@ function onClick( event ){
 			var selection = selectionData;
 			selection.selectedCountry = countryName;
 			selectVisualization( timeBins, selection.selectedYear, [selection.selectedCountry], selection.getOutboundCategories(), selection.getInboundCategories() );	
+			selectCountryFlag([selection.selectedCountry]);
+			selectCountryLand([selection.selectedCountry]);
 			// console.log('selecting ' + countryName + ' from click');
 			return;
 		}

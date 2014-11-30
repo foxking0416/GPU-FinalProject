@@ -469,7 +469,125 @@ function selectVisualization( linearData, year, countries, outboundCategories, i
 }
 
 function selectCountryFlag( countries ){
+
+	var cName = countries[0].toUpperCase();
+
+	//	clear children
+	while( flagBoxMesh.children.length > 0 ){
+		var c = flagBoxMesh.children[0];
+		flagBoxMesh.remove(c);
+	}
+
+
+	var uniforms_Flag;
+	if(cName === 'UNITED STATES'){
+		uniforms_Flag = {
+			'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag_US.png" )  },
+		};
+	}
+	else if(cName === 'CHINA'){
+		uniforms_Flag = {
+			'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag_China.png" )  },
+		};
+	}
+	else if(cName === 'SOUTH KOREA'){
+		uniforms_Flag = {
+			'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag_Korea.png" )  },
+		};
+	}
+	else if(cName === 'JAPAN'){
+		uniforms_Flag = {
+			'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag_Japan.png" )  },
+		};
+	}
+	else if(cName === 'TAIWAN'){
+		uniforms_Flag = {
+			'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag_Taiwan.png" )  },
+		};
+	}
+	else if(cName === 'MEXICO'){
+		uniforms_Flag = {
+			'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag_Mexico.png" )  },
+		};
+	}
+	else if(cName === 'INDIA'){
+		uniforms_Flag = {
+			'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag_India.png" )  },
+		};
+	}
+	else if(cName === 'TURKEY'){
+		uniforms_Flag = {
+			'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag_Turkey.png" )  },
+		};
+	}
+	else if(cName === 'VIETNAM'){
+		uniforms_Flag = {
+			'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag_Vietnam.png" )  },
+		};
+	}
+	else if(cName === 'CANADA'){
+		uniforms_Flag = {
+			'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag_Canada.png" )  },
+		};
+	}
+	else if(cName === 'SAUDI ARABIA'){
+		uniforms_Flag = {
+			'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag_Arabia.png" )  },
+		};
+	}
+	
+	
+	
+	var shaderMaterial_Flag = new THREE.ShaderMaterial( {
+
+		uniforms: 		uniforms_Flag,
+
+		vertexShader:   document.getElementById( 'FlagVertexShader' ).textContent,
+		fragmentShader: document.getElementById( 'FlagFragmentShader' ).textContent,
+
+		blending: 		THREE.MultiplyBlending,//MultiplyBlending
+		depthTest: 		true,
+		depthWrite: 	false,
+		transparent:	true,
+	});
+
+	
+	var boundCube = new THREE.Mesh( new THREE.CubeGeometry( 100, 100, 100 ), shaderMaterial_Flag );
+	flagBoxMesh.add( boundCube );	
 }
 
 function selectCountryLand( countries ){
+
+	var cName = countries[0].toUpperCase();
+	//	clear children
+	while( countryMesh.children.length > 0 ){
+		var c = countryMesh.children[0];
+		countryMesh.remove(c);
+	}
+
+	var shaderMaterial_Country = new THREE.ShaderMaterial( {
+		vertexShader:   document.getElementById( 'countryVertexShader' ).textContent,
+		fragmentShader: document.getElementById( 'countryFragmentShader' ).textContent,
+	});
+
+	
+	var countryLands = getCountry2DPoints(cName);
+	for(var i = 0; i < countryLands.length; ++i){
+	
+		var country2dPoints = countryLands[i];
+		for(var j = 0; j < country2dPoints.length; ++j){
+			country2dPoints[j] = new THREE.Vector2 (country2dPoints[j].x - 40, 60 - country2dPoints[j].y);
+		}
+		var countryShape = new THREE.Shape( country2dPoints );
+		var country3d = new THREE.ExtrudeGeometry( countryShape, { amount: 5, bevelEnabled: false} );
+		//var americanPoints = countryShape.createPointsGeometry();
+		//var mesh = THREE.SceneUtils.createMultiMaterialObject( country3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
+		var extrudeGeo = new THREE.Mesh( country3d, shaderMaterial_Country );
+		countryMesh.add( extrudeGeo );
+		
+	}
+	
+	
+
+	
 }

@@ -16,7 +16,7 @@ var lookupCanvas
 var lookupTexture;
 var globeMesh;
 var countryMesh;
-var flagSphereMesh;
+var flagBoxMesh;
 var visualizationMesh;							
 
 var mapUniforms;
@@ -162,8 +162,8 @@ function initScene() {
 	countryMesh = new THREE.Object3D();
 	scene.add(countryMesh);
 	
-	flagSphereMesh = new THREE.Object3D();
-	scene.add(flagSphereMesh);
+	flagBoxMesh = new THREE.Object3D();
+	scene.add(flagBoxMesh);
 	
 	lookupCanvas = document.createElement('canvas');	
 	lookupCanvas.width = 256;
@@ -202,44 +202,7 @@ function initScene() {
 		transparent:	true,
 		side:           THREE.DoubleSide,
 	});
-	
-
-	var shaderMaterial_Country = new THREE.ShaderMaterial( {
-
-		vertexShader:   document.getElementById( 'countryVertexShader' ).textContent,
-		fragmentShader: document.getElementById( 'countryFragmentShader' ).textContent,
 		
-	});
-	
-	var uniforms_InsideObj = {
-		
-	};
-	var shaderMaterial_InsideObj = new THREE.ShaderMaterial( {
-
-		//uniforms: 		uniforms_Country,
-
-		vertexShader:   document.getElementById( 'insideObjVertexShader' ).textContent,
-		fragmentShader: document.getElementById( 'insideObjFragmentShader' ).textContent,	
-	});
-	
-	var uniforms_Flag = {
-		'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag.png" )  },
-	};
-	var shaderMaterial_Flag = new THREE.ShaderMaterial( {
-
-		uniforms: 		uniforms_Flag,
-
-		vertexShader:   document.getElementById( 'FlagVertexShader' ).textContent,
-		fragmentShader: document.getElementById( 'FlagFragmentShader' ).textContent,
-
-		blending: 		THREE.MultiplyBlending,//MultiplyBlending
-		depthTest: 		true,
-		depthWrite: 	false,
-		transparent:	true,
-	});
-
-
-						
 	var sphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial_Globe );	//100 is radius, 40 is segments in width, 40 is segments in height
 	sphere.rotation.x = Math.PI;				
 	sphere.rotation.y = -Math.PI/2;
@@ -248,21 +211,9 @@ function initScene() {
 	globeMesh.add( sphere );	
 	
 	
-	var country2dPoints = getCountry2DPoints();
-	for(var i = 0; i < country2dPoints.length; ++i){
-		country2dPoints[i] = new THREE.Vector2 (country2dPoints[i].x - 40, 60 - country2dPoints[i].y);
-	}
+
 	
-	
-	var countryShape = new THREE.Shape( country2dPoints );
-	var country3d = new THREE.ExtrudeGeometry( countryShape, { amount: 20, bevelEnabled: false} );
-	var americanPoints = countryShape.createPointsGeometry();
-	var mesh = THREE.SceneUtils.createMultiMaterialObject( country3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
-	var extrudeGeo = new THREE.Mesh( country3d, shaderMaterial_Country );
-	countryMesh.add( extrudeGeo );
-	
-	var boundCube = new THREE.Mesh( new THREE.CubeGeometry( 100, 100, 100 ), shaderMaterial_Flag );
-	flagSphereMesh.add( boundCube );	
+
 	
 	
 	
@@ -297,7 +248,7 @@ function initScene() {
 		object.scale.y = 60;
 		object.scale.z = 60;
 		obj = object
-		//globeMesh.add( obj );
+		globeMesh.add( obj );
 
 	} );
 	
@@ -353,33 +304,6 @@ var sky_material = new THREE.ShaderMaterial({
 	
 	
 
-
-	
-	/*var linesGeo = new THREE.Geometry();
-	linesGeo.vertices.push(
-		new THREE.Vector3( 0, 0, 0 ),
-		new THREE.Vector3( 0, 100, 0 ),
-		new THREE.Vector3( 100, 100, 0 ),
-		new THREE.Vector3( 100, 0, 0 )
-	);
-	var splineOutline = new THREE.Line( linesGeo, new THREE.LineBasicMaterial( {color: 0xff1100, linewidth: 10}));
-	
-	var linesGeo2 = new THREE.Geometry();
-	linesGeo2.vertices.push(
-		new THREE.Vector3( -10, 0, 0 ),
-		new THREE.Vector3( -10, 100, 0 ),
-		new THREE.Vector3( -110, 100, 0 ),
-		new THREE.Vector3( -110, 0, 0 )
-	);
-	var splineOutline2 = new THREE.Line( linesGeo2, new THREE.LineBasicMaterial( {color: 0xff1100, linewidth: 10}));
-	
-	var test = new THREE.Geometry();
-	THREE.GeometryUtils.merge(test, linesGeo);
-	THREE.GeometryUtils.merge(test, linesGeo2);
-	var splineOutline3 = new THREE.Line( test, new THREE.LineBasicMaterial( {color: 0xff1100, linewidth: 10}), THREE.LinePieces);
-	
-	globeMesh.add( splineOutline3 );*/
-	
 	var length = 100;
 	vertexCollection = [];
 	vertexCollection.push(new THREE.Vector3(0, 0, 0));
@@ -465,29 +389,6 @@ var sky_material = new THREE.ShaderMaterial({
 	particleCube.sortParticles = true;
 	globeMesh.add( particleCube );
 	
-	var mats = [];
-        mats.push(new THREE.MeshBasicMaterial({ color: 0x009e60 }));
-        mats.push(new THREE.MeshBasicMaterial({ color: 0x009e60 }));
-        mats.push(new THREE.MeshBasicMaterial({ color: 0x0051ba }));
-        mats.push(new THREE.MeshBasicMaterial({ color: 0x0051ba }));
-        mats.push(new THREE.MeshBasicMaterial({ color: 0xffd500 }));
-        mats.push(new THREE.MeshBasicMaterial({ color: 0xffd500 }));
-        mats.push(new THREE.MeshBasicMaterial({ color: 0xff5800 }));
-        mats.push(new THREE.MeshBasicMaterial({ color: 0xff5800 }));
-        mats.push(new THREE.MeshBasicMaterial({ color: 0xC41E3A }));
-        mats.push(new THREE.MeshBasicMaterial({ color: 0xC41E3A }));
-        mats.push(new THREE.MeshBasicMaterial({ color: 0xffffff }));
-        mats.push(new THREE.MeshBasicMaterial({ color: 0xffffff }));
-	var faceMaterial = new THREE.MeshFaceMaterial(mats);
-	
-	var geometry = new THREE.CylinderGeometry( 50, 50, 20, 32 );
-	var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-	var cylinder = new THREE.Mesh( geometry, faceMaterial );
-	//globeMesh.add( cylinder );
-	
-	var cube = new THREE.Mesh( new THREE.CubeGeometry( 50, 50, 50 ), faceMaterial );//shaderMaterial_InsideObj
-	//globeMesh.add( cube );	
-
 	
 	
 	for( var i in timeBins ){					
@@ -527,8 +428,8 @@ var sky_material = new THREE.ShaderMaterial({
 	//'UNITED STATES'
 	//selectVisualization( timeBins, '2013', ['UNITED STATES'], ['Military Weapons','Civilian Weapons', 'Ammunition'], ['Military Weapons','Civilian Weapons', 'Ammunition'] );	
 	selectVisualization( timeBins, '2013', ['UNITED STATES'], [ 'Total','Business_Management','Engineer', 'Design_and_Fine_Arts'], [ 'Total','Business_Management','Engineer', 'Design_and_Fine_Arts'] );					
-
-
+	selectCountryFlag(['UNITED STATES']);
+	selectCountryLand(['UNITED STATES']);
 
     //	-----------------------------------------------------------------------------
     //	Setup our renderer
