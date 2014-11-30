@@ -196,7 +196,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 														 blending:	THREE.AdditiveBlending,
 														 transparent:	true,
 														 depthWrite: 	false,
-														 depthTest: 		true,} );
+														 depthTest: 	true,} );
 			var tube = new THREE.Mesh( tubeGeometry, shaderMaterial_Tube  );//shaderMaterial_Tube
 			dataVisualizationMesh.add( tube );
 			

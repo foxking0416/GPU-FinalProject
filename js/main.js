@@ -77,7 +77,7 @@ var previouslySelectedCountry = null;
 //	contains info about what year, what countries, categories, etc that's being visualized
 var selectionData;
 
-var cameraCube, sceneCube;
+//var cameraCube, sceneCube;
 var skyboxMesh;
 
 
@@ -151,7 +151,7 @@ function initScene() {
 	//	-----------------------------------------------------------------------------
     //	Let's make a scene		
 	scene = new THREE.Scene();
-	sceneCube = new THREE.Scene();
+//	sceneCube = new THREE.Scene();
 	scene.matrixAutoUpdate = false;		
 	        		       	
 
@@ -312,10 +312,10 @@ function initScene() {
 
 
 var sky_urlPrefix = "texture/";
-var sky_urls = [ sky_urlPrefix + "Right.png", sky_urlPrefix + "Left.png",
+var sky_urls = [ sky_urlPrefix + "Left.png", sky_urlPrefix + "Right.png",
     sky_urlPrefix + "Up.png", sky_urlPrefix + "Down.png",
     sky_urlPrefix + "Front.png", sky_urlPrefix + "Back.png" ];
-var sky_textureCube = THREE.ImageUtils.loadTextureCube( sky_urls );
+/*var sky_textureCube = THREE.ImageUtils.loadTextureCube( sky_urls );
 sky_textureCube.format = THREE.RGBFormat;
 
 var sky_shader = THREE.ShaderLib["cube"];
@@ -330,8 +330,22 @@ var sky_material = new THREE.ShaderMaterial({
 	side: THREE.BackSide
 });
 
+*/
+
+	var skyGeometry = new THREE.CubeGeometry(800, 800, 800);
+
+	var materialArray = [];
+
+	for (var i = 0; i<6; i++)
+	{
+		materialArray.push(new THREE.MeshBasicMaterial({
+			map: THREE.ImageUtils.loadTexture(sky_urls[i]),
+			side: THREE.BackSide
+		}));
+	}
+	var skyMaterial = new THREE.MeshFaceMaterial( materialArray );
 	// build the skybox Mesh 
-	skyboxMesh = new THREE.Mesh( new THREE.BoxGeometry( 1000, 1000, 1000 ), sky_material );
+	skyboxMesh = new THREE.Mesh( skyGeometry, skyMaterial );
 	// add it to the scene
 	scene.add( skyboxMesh );
 
@@ -660,7 +674,7 @@ function animate() {
 function render() {	
 	renderer.clear();		    					
     renderer.render( scene, camera );				
-    renderer.render( sceneCube, cameraCube );
+//    renderer.render( sceneCube, cameraCube );
 }		   
 
 function findCode(countryName){
