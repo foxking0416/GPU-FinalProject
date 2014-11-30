@@ -75,7 +75,7 @@ function getCountry2DPoints(){
 	countryPts.push( new THREE.Vector2 ( 6.0, 2.0 ) );
 	
 	//China
-	countryPts.push( new THREE.Vector2 ( 20.9, 8.6 ) );
+	/*countryPts.push( new THREE.Vector2 ( 20.9, 8.6 ) );
 	countryPts.push( new THREE.Vector2 ( 18.9, 10.6 ) );
 	countryPts.push( new THREE.Vector2 ( 19.2, 12.3 ) );
 	countryPts.push( new THREE.Vector2 ( 18.1, 13.4 ) );
@@ -305,8 +305,139 @@ function getCountry2DPoints(){
 	countryPts.push( new THREE.Vector2 ( 27.6, 2.7 ) );
 	countryPts.push( new THREE.Vector2 ( 22.3, 1.4 ) );
 	
-	//
+	//Mexico
+	countryPts.push( new THREE.Vector2 ( 1.8, 0.0 ) );
+	countryPts.push( new THREE.Vector2 ( 2.8, 5.0 ) );
+	countryPts.push( new THREE.Vector2 ( 7.3, 12.4 ) );
+	countryPts.push( new THREE.Vector2 ( 5.0, 13.9 ) );
+	countryPts.push( new THREE.Vector2 ( 11.6, 19.6 ) );
+	countryPts.push( new THREE.Vector2 ( 11.4, 23.0 ) );
+	countryPts.push( new THREE.Vector2 ( 16.7, 28.2 ) );
+	countryPts.push( new THREE.Vector2 ( 18.3, 27.1 ) );
+	countryPts.push( new THREE.Vector2 ( 15.9, 23.4 ) );
+	countryPts.push( new THREE.Vector2 ( 11.1, 14.6 ) );
+	countryPts.push( new THREE.Vector2 ( 6.8, 7.5 ) );
+	countryPts.push( new THREE.Vector2 ( 6.5, 2.4 ) );
+	countryPts.push( new THREE.Vector2 ( 10.4, 4.7 ) );
+	countryPts.push( new THREE.Vector2 ( 14.9, 14.1 ) );
+	countryPts.push( new THREE.Vector2 ( 19.1, 18.3 ) );
+	countryPts.push( new THREE.Vector2 ( 18.7, 20.3 ) );
+	countryPts.push( new THREE.Vector2 ( 24.6, 26.0 ) );
+	countryPts.push( new THREE.Vector2 ( 29.1, 32.6 ) );
+	countryPts.push( new THREE.Vector2 ( 27.9, 35.7 ) );
+	countryPts.push( new THREE.Vector2 ( 32.4, 40.0 ) );
+	countryPts.push( new THREE.Vector2 ( 41.4, 45.2 ) );
+	countryPts.push( new THREE.Vector2 ( 52.3, 49.1 ) );
+	countryPts.push( new THREE.Vector2 ( 57.6, 47.5 ) );
+	countryPts.push( new THREE.Vector2 ( 64.2, 51.3 ) );
+	countryPts.push( new THREE.Vector2 ( 65.4, 47.2 ) );
+	countryPts.push( new THREE.Vector2 ( 68.9, 47.0 ) );
+	countryPts.push( new THREE.Vector2 ( 69.3, 45.9 ) );
+	countryPts.push( new THREE.Vector2 ( 66.8, 43.8 ) );
+	countryPts.push( new THREE.Vector2 ( 67.2, 42.6 ) );
+	countryPts.push( new THREE.Vector2 ( 72.6, 41.2 ) );
+	countryPts.push( new THREE.Vector2 ( 74.9, 39.7 ) );
+	countryPts.push( new THREE.Vector2 ( 76.1, 36.6 ) );
+	countryPts.push( new THREE.Vector2 ( 77.3, 32.8 ) );
+	countryPts.push( new THREE.Vector2 ( 76.5, 30.7 ) );
+	countryPts.push( new THREE.Vector2 ( 67.4, 38.2 ) );
+	countryPts.push( new THREE.Vector2 ( 60.7, 41.0 ) );
+	countryPts.push( new THREE.Vector2 ( 52.9, 38.6 ) );
+	countryPts.push( new THREE.Vector2 ( 48.2, 30.0 ) );
+	countryPts.push( new THREE.Vector2 ( 49.7, 20.6 ) );
+	countryPts.push( new THREE.Vector2 ( 44.9, 18.9 ) );
+	countryPts.push( new THREE.Vector2 ( 40.9, 10.9 ) );
+	countryPts.push( new THREE.Vector2 ( 36.2, 9.5 ) );
+	countryPts.push( new THREE.Vector2 ( 34.8, 11.8 ) );
+	countryPts.push( new THREE.Vector2 ( 31.2, 9.2 ) );
+	countryPts.push( new THREE.Vector2 ( 29.8, 6.5 ) );
+	countryPts.push( new THREE.Vector2 ( 26.8, 3.6 ) );
+	countryPts.push( new THREE.Vector2 ( 22.3, 3.4 ) );
+	countryPts.push( new THREE.Vector2 ( 22.4, 4.8 ) );
+	countryPts.push( new THREE.Vector2 ( 15.8, 4.4 ) );
+	countryPts.push( new THREE.Vector2 ( 1.8, 0.0 ) );
 	
+	//Japan
+	
+	//Taiwan
+	
+	//Canada
+	
+	//Vietnam
+	countryPts.push( new THREE.Vector2 ( 30.4, 11.2 ) );
+	countryPts.push( new THREE.Vector2 ( 27.1, 10.3 ) );
+	countryPts.push( new THREE.Vector2 ( 23.6, 7.2 ) );
+	countryPts.push( new THREE.Vector2 ( 23.9, 3.8 ) );
+	countryPts.push( new THREE.Vector2 ( 19.5, 2.6 ) );
+	countryPts.push( new THREE.Vector2 ( 16.8, 0.6 ) );
+	countryPts.push( new THREE.Vector2 ( 13.7, 1.3 ) );
+	countryPts.push( new THREE.Vector2 ( 13.8, 3.0 ) );
+	countryPts.push( new THREE.Vector2 ( 11.6, 3.9 ) );
+	countryPts.push( new THREE.Vector2 ( 10.6, 2.8 ) );
+	countryPts.push( new THREE.Vector2 ( 9.3, 4.9 ) );
+	countryPts.push( new THREE.Vector2 ( 7.2, 3.3 ) );
+	countryPts.push( new THREE.Vector2 ( 4.5, 5.0 ) );
+	countryPts.push( new THREE.Vector2 ( 1.6, 3.2 ) );
+	countryPts.push( new THREE.Vector2 ( 0.1, 5.5 ) );
+	countryPts.push( new THREE.Vector2 ( 3.7, 8.8 ) );
+	countryPts.push( new THREE.Vector2 ( 3.1, 12.1 ) );
+	countryPts.push( new THREE.Vector2 ( 7.5, 14.9 ) );
+	countryPts.push( new THREE.Vector2 ( 10.0, 13.9 ) );
+	countryPts.push( new THREE.Vector2 ( 14.0, 19.7 ) );
+	countryPts.push( new THREE.Vector2 ( 11.8, 21.9 ) );
+	countryPts.push( new THREE.Vector2 ( 9.0, 21.4 ) );
+	countryPts.push( new THREE.Vector2 ( 8.6, 23.6 ) );
+	countryPts.push( new THREE.Vector2 ( 15.2, 27.5 ) );
+	countryPts.push( new THREE.Vector2 ( 15.0, 29.4 ) );
+	countryPts.push( new THREE.Vector2 ( 21.8, 37.5 ) );
+	countryPts.push( new THREE.Vector2 ( 22.9, 40.7 ) );
+	countryPts.push( new THREE.Vector2 ( 24.1, 40.3 ) );
+	countryPts.push( new THREE.Vector2 ( 27.0, 42.7 ) );
+	countryPts.push( new THREE.Vector2 ( 25.9, 44.6 ) );
+	countryPts.push( new THREE.Vector2 ( 28.2, 46.6 ) );
+	countryPts.push( new THREE.Vector2 ( 26.4, 54.1 ) );
+	countryPts.push( new THREE.Vector2 ( 27.2, 60.6 ) );
+	countryPts.push( new THREE.Vector2 ( 26.4, 64.6 ) );
+	countryPts.push( new THREE.Vector2 ( 21.0, 66.2 ) );
+	countryPts.push( new THREE.Vector2 ( 21.1, 67.8 ) );
+	countryPts.push( new THREE.Vector2 ( 19.0, 67.3 ) );
+	countryPts.push( new THREE.Vector2 ( 18.0, 70.0 ) );
+	countryPts.push( new THREE.Vector2 ( 19.3, 72.7 ) );
+	countryPts.push( new THREE.Vector2 ( 16.9, 71.7 ) );
+	countryPts.push( new THREE.Vector2 ( 13.4, 72.3 ) );
+	countryPts.push( new THREE.Vector2 ( 12.2, 74.3 ) );
+	countryPts.push( new THREE.Vector2 ( 9.9, 75.5 ) );
+	countryPts.push( new THREE.Vector2 ( 13.1, 76.9 ) );
+	countryPts.push( new THREE.Vector2 ( 11.9, 80.8 ) );
+	countryPts.push( new THREE.Vector2 ( 12.2, 84.4 ) );
+	countryPts.push( new THREE.Vector2 ( 11.7, 85.9 ) );
+	countryPts.push( new THREE.Vector2 ( 14.1, 85.4 ) );
+	countryPts.push( new THREE.Vector2 ( 15.8, 82.7 ) );
+	countryPts.push( new THREE.Vector2 ( 19.3, 80.6 ) );
+	countryPts.push( new THREE.Vector2 ( 17.5, 77.7 ) );
+	countryPts.push( new THREE.Vector2 ( 20.9, 80.1 ) );
+	countryPts.push( new THREE.Vector2 ( 21.5, 79.4 ) );
+	countryPts.push( new THREE.Vector2 ( 19.5, 76.5 ) );
+	countryPts.push( new THREE.Vector2 ( 22.6, 78.5 ) );
+	countryPts.push( new THREE.Vector2 ( 23.0, 77.0 ) );
+	countryPts.push( new THREE.Vector2 ( 21.3, 76.1 ) );
+	countryPts.push( new THREE.Vector2 ( 22.9, 74.7 ) );
+	countryPts.push( new THREE.Vector2 ( 25.1, 75.6 ) );
+	countryPts.push( new THREE.Vector2 ( 35.1, 69.4 ) );
+	countryPts.push( new THREE.Vector2 ( 36.9, 60.6 ) );
+	countryPts.push( new THREE.Vector2 ( 36.5, 54.3 ) );
+	countryPts.push( new THREE.Vector2 ( 35.0, 47.3 ) );
+	countryPts.push( new THREE.Vector2 ( 31.6, 42.1 ) );
+	countryPts.push( new THREE.Vector2 ( 26.3, 38.5 ) );
+	countryPts.push( new THREE.Vector2 ( 22.6, 32.9 ) );
+	countryPts.push( new THREE.Vector2 ( 22.0, 30.8 ) );
+	countryPts.push( new THREE.Vector2 ( 17.4, 25.4 ) );
+	countryPts.push( new THREE.Vector2 ( 22.3, 18.4 ) );
+	countryPts.push( new THREE.Vector2 ( 25.0, 13.9 ) );
+	countryPts.push( new THREE.Vector2 ( 27.0, 12.3 ) );
+	countryPts.push( new THREE.Vector2 ( 30.4, 11.2 ) );*/
+	
+	//Saudi Arabia
 	
 	return countryPts;
 }
