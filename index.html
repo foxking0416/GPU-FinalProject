@@ -1,15 +1,37 @@
 <!doctype html>
 <html lang="en">
 	<head>
-		<title>Interactive Globe: International Student Statistic &amp; Exports</title>
+		<title>Interactive Globe: International Student Statistics</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1">
 		<link href='http://fonts.googleapis.com/css?family=Fredericka+the+Great' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Grand+Hotel' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Shadows+Into+Light' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="style.css">
+		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+		<link rel="stylesheet" href="radar-chart.css">
 
 	</head>
+
+	<style>
+	.radar-chart .area {
+	  fill-opacity: 0.7;
+	}
+	.radar-chart.focus .area {
+	  fill-opacity: 0.3;
+	}
+	.radar-chart.focus .area.focused {
+	  fill-opacity: 0.9;
+	}
+	.area.germany, .germany .circle {
+	  fill: #FFD700;
+	  stroke: none;
+	}
+	.area.argentina, .argentina .circle {
+	  fill: #ADD8E6;
+	  stroke: none;
+	}
+	</style>
 
 	<body onload="start()" id="dataviz" class="">
 		<div id="wrapper">
@@ -19,7 +41,8 @@
 
 		<div >
 			<table id="marker_template" class="marker" style="left:'0px';top:'0px'"><tr><td><span id="countryText" class="country">
-			</span></td><td class="detail" id="detailText">
+			</span></td><td class="detail" 
+			id="detailText">
 			<!--<span id="detailText" class="detail">
 			</span>--></td></tr></table>
 		</div>
@@ -64,6 +87,57 @@
 		<script src="js/svgtoy.js" type="text/javascript"></script>
 
 		<script src="js/ui.controls.js"></script>			<!--***********Important: draw the chart************-->
+
+		<script src="js/radar-chart.js"></script>          <!-- radar chart -->
+
+		<script>
+		RadarChart.defaultConfig.color = function() {};
+		RadarChart.defaultConfig.radius = 1;
+	
+		var data = [
+		  {
+		    className: 'germany', // optional can be used for styling
+		    axes: [
+		      {axis: "strength", value: 13}, 
+		      {axis: "intelligence", value: 6}, 
+		      {axis: "charisma", value: 5},  
+		      {axis: "dexterity", value: 9},  
+		      {axis: "luck", value: 2},
+		      {axis: "test", value: 3}
+		    ]
+		  },
+		  {
+		    className: 'argentina',
+		    axes: [
+		      {axis: "strength", value: 6}, 
+		      {axis: "intelligence", value: 7}, 
+		      {axis: "charisma", value: 10},  
+		      {axis: "dexterity", value: 13},  
+		      {axis: "luck", value: 9},
+		      {axis: "test", value: 3}
+		    ]
+		  }
+		];
+		function randomDataset() {
+		  return data.map(function(d) {
+		    return {
+		      className: d.className,
+		      axes: d.axes.map(function(axis) {
+		        return {axis: axis.axis, value: Math.ceil(Math.random() * 10)};
+		      })
+		    };
+		  });
+		}
+		
+		var chart = RadarChart.chart();
+		var cfg = chart.config(); // retrieve default config
+		var svg = d3.select('#wrapper').append('svg')
+		  .attr('width', cfg.w)
+		  .attr('height', cfg.h + cfg.h / 4);
+		svg.append('g').classed('single', 1).datum(randomDataset()).call(chart);
+
+		</script>
+
 
 		
 		<script id="globeVertexShader" type="x-shader/x-vertex">
@@ -399,13 +473,17 @@
             <input type="button" value="ABOUT" class="aboutBtn armsBtn pointer"><br class="clear" />
         </div>
     -->
+
        <div id="history" class="overlayCountries noPointer">
             <div class="graph">
                 <div class="close"></div>
                 <div class="labels">
                     <div class="change">RELATIVE PERCENT CHANGE</div>
-                    <div class="exports">International Students</div>
-                    <div class="imports">Study Abroad</div><br class="clear" />
+                    <!--<div class="exports">Study Abroad</div>
+                    <div class="imports">International Students</div><br class="clear" />
+                -->
+                	<div class="outbound">Study Abroad</div>
+                    <div class="inbound">International Students</div><br class="clear" />
                 </div>
             
                 <div class="container noPointer"></div>
@@ -443,15 +521,17 @@
             </div>
         -->
             <div class="imports imex">
-                <div class="mil"><div class="check"></div></div>
-                <div class="civ"><div class="check"></div></div>
-                <div class="ammo"><div class="check"></div></div>
+                <div class="bsmg"><div class="check"></div></div>
+                <div class="engr"><div class="check"></div></div>
+                <div class="dart"><div class="check"></div></div>
+                <div class="total"><div class="check"></div></div>
              <!--   <div class="label">Imports</div><br class="clear"> -->
             </div>
             <div class="exports imex">
-                <div class="mil"><div class="check"></div></div>
-                <div class="civ"><div class="check"></div></div>
-                <div class="ammo"><div class="check"></div></div>
+                <div class="bsmg"><div class="check"></div></div>
+                <div class="engr"><div class="check"></div></div>
+                <div class="dart"><div class="check"></div></div>
+                <div class="total"><div class="check"></div></div>
             <!--    <div class="label">Exports</div><br class="clear"> -->
             </div>
             <br class="clear" />

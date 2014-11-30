@@ -46,17 +46,24 @@ var selectableCountries = [];
 //	a list of weapon 'codes'
 //	now they are just strings of categories
 //	Category Name : Category Code
-var weaponLookup = {
+/*var weaponLookup = {
 	'Military Weapons' 		: 'mil',
 	'Civilian Weapons'		: 'civ',
 	'Ammunition'			: 'ammo',
+};*/
+
+var StudyAreaLookup = {
+	'Business_Management' 	: 'bsmg',
+	'Engineer'	           	: 'engr',
+	'Design_and_Fine_Arts'	: 'dart',
+	'Total'                 : 'total',
 };
 
 //	a list of the reverse for easy lookup
 var reverseStatisticLookup = new Object();
-for( var i in weaponLookup ){
+for( var i in StudyAreaLookup ){
 	var name = i;
-	var code = weaponLookup[i];
+	var code = StudyAreaLookup[i];
 	reverseStatisticLookup[code] = name;
 }	    	
 
@@ -103,30 +110,34 @@ function start( e ){
 
 
 var Selection = function(){
-	this.selectedYear = '2010';
+	this.selectedYear = '2013';
 	this.selectedCountry = 'UNITED STATES';
 
 
-	this.exportCategories = new Object();
-	this.importCategories = new Object();
-	for( var i in weaponLookup ){
-		this.exportCategories[i] = true;
-		this.importCategories[i] = true;
+	//this.exportCategories = new Object();
+	//this.importCategories = new Object();
+
+	this.outboundCategories = new Object();
+	this.inboundCategories = new Object();
+
+	for( var i in StudyAreaLookup ){
+		this.outboundCategories[i] = true;
+		this.inboundCategories[i] = true;
 	}				
 
-	this.getExportCategories = function(){
+	this.getOutboundCategories = function(){
 		var list = [];
-		for( var i in this.exportCategories ){
-			if( this.exportCategories[i] )
+		for( var i in this.outboundCategories ){
+			if( this.outboundCategories[i] )
 				list.push(i);
 		}
 		return list;
 	}		
 
-	this.getImportCategories = function(){
+	this.getInboundCategories = function(){
 		var list = [];
-		for( var i in this.importCategories ){
-			if( this.importCategories[i] )
+		for( var i in this.inboundCategories ){
+			if( this.inboundCategories[i] )
 				list.push(i);
 		}
 		return list;
@@ -238,7 +249,7 @@ function initScene() {
 	
 	var country2dPoints = getCountry2DPoints();
 	for(var i = 0; i < country2dPoints.length; ++i){
-		country2dPoints[i] = new THREE.Vector2 (country2dPoints[i].x - 40, 30 - country2dPoints[i].y);
+		country2dPoints[i] = new THREE.Vector2 (country2dPoints[i].x - 40, 60 - country2dPoints[i].y);
 	}
 	
 	
@@ -261,7 +272,7 @@ function initScene() {
 				
 	// model
 	var loader = new THREE.OBJLoader( manager );
-	loader.load( 'model/ship.obj', function ( object ) {
+	loader.load( 'model/buddha.obj', function ( object ) {
 
 		object.traverse( function ( child ) {
 
@@ -271,12 +282,19 @@ function initScene() {
 			}
 		} );
 
+	/*////// ship parameters //////
 		object.position.x = - 60;
 		object.rotation.x = 20* Math.PI / 180;
 		object.rotation.z = 20* Math.PI / 180;
 		object.scale.x = 10;
 		object.scale.y = 10;
 		object.scale.z = 10;
+	*/
+
+	////// buddha parameters ////////
+		object.scale.x = 60;
+		object.scale.y = 60;
+		object.scale.z = 60;
 		obj = object
 		//globeMesh.add( obj );
 
@@ -462,16 +480,16 @@ var sky_material = new THREE.ShaderMaterial({
 		for( var s in bin ){
 			var set = bin[s];
 
-			var exporterName = set.e.toUpperCase();
-			var importerName = set.i.toUpperCase();
+			var outCountryName = set.e.toUpperCase();
+			var inCountryName = set.i.toUpperCase();
 
 			//	let's track a list of actual countries listed in this data set
 			//	this is actually really slow... consider re-doing this with a map
-			if( $.inArray(exporterName, selectableCountries) < 0 )
-				selectableCountries.push( exporterName );
+			if( $.inArray(outCountryName, selectableCountries) < 0 )
+				selectableCountries.push( outCountryName );
 
-			if( $.inArray(importerName, selectableCountries) < 0 )
-				selectableCountries.push( importerName );
+			if( $.inArray(inCountryName, selectableCountries) < 0 )
+				selectableCountries.push( inCountryName );
 		}
 	}
 
@@ -492,7 +510,8 @@ var sky_material = new THREE.ShaderMaterial({
 	buildGUI();
 	//'BOLIVIA, PLURINATIONAL STATE OF'
 	//'UNITED STATES'
-	selectVisualization( timeBins, '2013', ['UNITED STATES'], ['Military Weapons','Civilian Weapons', 'Ammunition'], ['Military Weapons','Civilian Weapons', 'Ammunition'] );					
+	//selectVisualization( timeBins, '2013', ['UNITED STATES'], ['Military Weapons','Civilian Weapons', 'Ammunition'], ['Military Weapons','Civilian Weapons', 'Ammunition'] );	
+	selectVisualization( timeBins, '2013', ['UNITED STATES'], [ 'Total','Business_Management','Engineer', 'Design_and_Fine_Arts'], [ 'Total','Business_Management','Engineer', 'Design_and_Fine_Arts'] );					
 
 
 
@@ -716,20 +735,21 @@ function getHistoricalData( country ){
 
 	var countryName = country.countryName;
 
-	var exportCategories = selectionData.getExportCategories();
-	var importCategories = selectionData.getImportCategories();
+	var outboundCategories = selectionData.getOutboundCategories();
+	var inboundCategories = selectionData.getInboundCategories();
 
 	for( var i in timeBins ){
 		var yearBin = timeBins[i].data;		
-		var value = {imports: 0, exports:0};
+		//var value = {imports: 0, exports:0};
+		var value = {inbound: 0, outbound: 0};
 		for( var s in yearBin ){
 			var set = yearBin[s];
 			var categoryName = reverseStatisticLookup[set.wc];
 
 			var exporterCountryName = set.e.toUpperCase();
 			var importerCountryName = set.i.toUpperCase();			
-			var relevantCategory = ( countryName == exporterCountryName && $.inArray(categoryName, exportCategories ) >= 0 ) || 
-								   ( countryName == importerCountryName && $.inArray(categoryName, importCategories ) >= 0 );				
+			var relevantCategory = ( countryName == exporterCountryName && $.inArray(categoryName, outboundCategories ) >= 0 ) || 
+								   ( countryName == importerCountryName && $.inArray(categoryName, inboundCategories ) >= 0 );				
 
 			if( relevantCategory == false )
 				continue;
@@ -739,9 +759,9 @@ function getHistoricalData( country ){
 				continue;
 			
 			if( exporterCountryName == countryName )
-				value.exports += set.v;
+				value.outbound += set.v;
 			if( importerCountryName == countryName )
-				value.imports += set.v;
+				value.inbound += set.v;
 		}
 		history.push(value);
 	}

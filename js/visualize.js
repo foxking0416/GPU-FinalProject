@@ -232,15 +232,15 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 
 			if( exporterCountry == selectedCountry ){				
 				selectedCountry.summary.exported[set.wc] += set.v;
-				selectedCountry.summary.exported.total += set.v;				
+			//	selectedCountry.summary.exported.total += set.v;				
 			}		
 			if( importerCountry == selectedCountry ){
 				selectedCountry.summary.imported[set.wc] += set.v;
-				selectedCountry.summary.imported.total += set.v;
+			//	selectedCountry.summary.imported.total += set.v;
 			}
 
 			if( importerCountry == selectedCountry || exporterCountry == selectedCountry ){
-				selectedCountry.summary.total += set.v;	
+				if(set.wc == 'total') selectedCountry.summary.total += set.v;	
 			}
 		}		
 	}
@@ -344,7 +344,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 	
 }
 
-function selectVisualization( linearData, year, countries, exportCategories, importCategories ){
+function selectVisualization( linearData, year, countries, outboundCategories, inboundCategories ){
 	//	we're only doing one country for now so...
 	var cName = countries[0].toUpperCase();
 	
@@ -361,7 +361,7 @@ function selectVisualization( linearData, year, countries, exportCategories, imp
 	previouslySelectedCountry = selectedCountry;
 	selectedCountry = countryData[countries[0].toUpperCase()];
     
-	selectedCountry.summary = {
+	/*selectedCountry.summary = {
 		imported: {
 			mil: 0,
 			civ: 0,
@@ -372,6 +372,24 @@ function selectVisualization( linearData, year, countries, exportCategories, imp
 			mil: 0,
 			civ: 0,
 			ammo: 0,
+			total: 0,
+		},
+		total: 0,
+		historical: getHistoricalData(selectedCountry),
+	};
+	*/
+
+	selectedCountry.summary = {
+		imported: {
+			bsmg: 0,
+			engr: 0,
+			dart: 0,
+			total: 0,
+		},
+		exported: {
+			bsmg: 0,
+			engr: 0,
+			dart: 0,
 			total: 0,
 		},
 		total: 0,
@@ -396,7 +414,7 @@ function selectVisualization( linearData, year, countries, exportCategories, imp
 
 	//	build the mesh
 	console.time('getVisualizedMesh');
-	var mesh = getVisualizedMesh( timeBins, year, countries, exportCategories, importCategories );				
+	var mesh = getVisualizedMesh( timeBins, year, countries, outboundCategories, inboundCategories );				
 	console.timeEnd('getVisualizedMesh');
 
 	

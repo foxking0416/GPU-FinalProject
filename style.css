@@ -290,23 +290,29 @@ Bar graph on left
     left:-7px;
     opacity: 0.9;
 }
-#barGraph .import.ammo {
-	fill: 					#44B2D4;
+#barGraph .import.bsmg {
+	fill: 					#C285FF;
 }
-#barGraph .import.civ {
-	fill: 					#4679C1;
+#barGraph .import.engr {
+	fill: 					#A347FF;
 }
-#barGraph .import.mil {
-	fill:					#1658B2;
+#barGraph .import.dart {
+	fill:					#7A29CC;
 }
-#barGraph .export.ammo {
-	fill: 					#FFA90B;
+#barGraph .import.total {
+    fill:                   #B200B2;
 }
-#barGraph .export.civ {
-	fill: 					#FF7018;
+#barGraph .export.bsmg {
+	fill: 					#FFFF80;
 }
-#barGraph .export.mil {
-	fill:					#E83E0A;
+#barGraph .export.engr {
+	fill: 					#FFFF19;
+}
+#barGraph .export.dart {
+	fill:					#CCCC00;
+}
+#barGraph .export.total {
+    fill:                   #FFCC66;
 }
 #barGraph .importLabel text,#barGraph .exportLabel text {
 	fill: 					white;
@@ -392,14 +398,14 @@ Bar graph on left
     float: left;
     margin-top: 10px;
 }
-#history .labels .imports {
+#history .labels .inbound {
     float: right;
     font-family: Roboto;
     font-size: 14px;
     color:#70B4CB;
     margin-top: 10px;
 }
-#history .labels .exports {
+#history .labels .outbound {
     float: right;
     font-family: Roboto;
     font-size: 14px;
@@ -497,40 +503,40 @@ Bar graph on left
     background: #262626 url('importExportIcons.png') 0 0 no-repeat;
     margin: 6px auto;
 }
-#importExportBtns .imports .mil .check {
+#importExportBtns .imports .dart .check {
     background-position: 0px 0px;
 }
-#importExportBtns .imports .mil .check.inactive {
+#importExportBtns .imports .dart .check.inactive {
     background-position: 0px -16px;
 }
-#importExportBtns .imports .civ .check {
+#importExportBtns .imports .engr .check {
     background-position: -16px 0px;
 }
-#importExportBtns .imports .civ .check.inactive {
+#importExportBtns .imports .engr .check.inactive {
     background-position: -16px -16px;
 }
-#importExportBtns .imports .ammo .check {
+#importExportBtns .imports .bsmg .check {
     background-position: -32px 0px;
 }
-#importExportBtns .imports .ammo .check.inactive {
+#importExportBtns .imports .bsmg .check.inactive {
     background-position: -32px -16px;
 }
-#importExportBtns .exports .mil .check {
+#importExportBtns .exports .dart .check {
     background-position: -48px 0px;
 }
-#importExportBtns .exports .mil .check.inactive {
+#importExportBtns .exports .dart .check.inactive {
     background-position: -48px -16px;
 }
-#importExportBtns .exports .civ .check {
+#importExportBtns .exports .engr .check {
     background-position: -64px 0px;
 }
-#importExportBtns .exports .civ .check.inactive {
+#importExportBtns .exports .engr .check.inactive {
     background-position: -64px -16px;
 }
-#importExportBtns .exports .ammo .check {
+#importExportBtns .exports .bsmg .check {
     background-position: -80px 0px;
 }
-#importExportBtns .exports .ammo .check.inactive {
+#importExportBtns .exports .bsmg .check.inactive {
     background-position: -80px -16px;
 }
 
@@ -616,13 +622,13 @@ Bar graph on left
         margin-top: -2px;
     }
     
-    #importExportBtns .typeLabels .mil {
+    #importExportBtns .typeLabels .dart {
         margin-left: 8px;
     }
-    #importExportBtns .typeLabels .civ {
+    #importExportBtns .typeLabels .engr {
         margin-left: 2px;
     }
-    #importExportBtns .typeLabels .ammo {
+    #importExportBtns .typeLabels .bsmg {
         margin-left: -1px;
     }
 }
