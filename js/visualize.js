@@ -488,8 +488,6 @@ function selectCountryFlag( countries ){
 			'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag_US.png" )  },
 		};
 		
-		width = 
-		
 	}
 	else if(cName === 'CHINA'){
 		uniforms_Flag = {
