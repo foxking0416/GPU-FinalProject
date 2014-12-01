@@ -157,12 +157,13 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 			
 			var particleColor = lastColor.clone();	
 			//var particleCount = Math.floor(set.v / 8000 / set.lineGeometry.vertices.length) + 1;
-			var particleCount = Math.floor(set.v / 10000) + 1;
-			var psize = particleCount;
-			psize = constrain(psize, 1, 8);
-			//particleCount = constrain(particleCount, 1, 100);
-			particleCount = 12;
-			var particleSize = set.lineGeometry.size * psize;		
+			var particleCount = Math.floor(set.v / 300) + 1;
+			//var psize = particleCount;
+			//psize = constrain(psize, 1, 8);
+			particleCount = constrain(particleCount, 1, 100);
+			//particleCount = 12;
+			var particleSize = set.lineGeometry.size * 2;	
+			//var particleSize = set.lineGeometry.size * psize;		
 			for( var s=0; s < particleCount; s++ ){
 
 				var desiredIndex = s / particleCount * spiralPoints.length;
@@ -557,7 +558,7 @@ function selectCountryFlag( countries ){
 	});
 
 	
-	var boundCube = new THREE.Mesh( new THREE.CubeGeometry( 100, 100, 100 ), shaderMaterial_Flag );
+	var boundCube = new THREE.Mesh( new THREE.CubeGeometry( 60, 60, 60 ), shaderMaterial_Flag );
 	flagBoxMesh.add( boundCube );	
 }
 

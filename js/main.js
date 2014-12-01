@@ -83,8 +83,11 @@ var selectionData;
 //var cameraCube, sceneCube;
 var skyboxMesh;
 
-
-
+var manager = new THREE.LoadingManager();
+manager.onProgress = function ( item, loaded, total ) {
+      //  console.log( item, loaded, total );
+};
+var loader = new THREE.OBJLoader( manager );
 
 
 function start( e ){	
@@ -205,48 +208,52 @@ function initScene() {
 		side:           THREE.DoubleSide,
 	});
 		
+
 	var globeSphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial_Globe );	//100 is radius, 40 is segments in width, 40 is segments in height
 	globeSphere.rotation.x = Math.PI;				
 	globeSphere.rotation.y = -Math.PI/2;
 	globeSphere.rotation.z = Math.PI;
 	globeSphere.id = "base";	
 	globeMesh.add( globeSphere );	
+
 	
-	
-	var manager = new THREE.LoadingManager();
+	/*var manager = new THREE.LoadingManager();
 		manager.onProgress = function ( item, loaded, total ) {
 		console.log( item, loaded, total );
 	};
-				
-	// model
-	var loader = new THREE.OBJLoader( manager );
-	loader.load( 'model/buddha.obj', function ( object ) {
 
-		object.traverse( function ( child ) {
+	function showBsmgModel(){
+		// model
+		var loader = new THREE.OBJLoader( manager );
+		loader.load( 'model/buddha.obj', function ( object ) {
 
-			if ( child instanceof THREE.Mesh ) {
+			object.traverse( function ( child ) {
 
-				//child.material.map = texture;
-			}
+				if ( child instanceof THREE.Mesh ) {
+
+					//child.material.map = texture;
+				}
+			} );
+
+		////// ship parameters //////
+			object.position.x = - 60;
+			object.rotation.x = 20* Math.PI / 180;
+			object.rotation.z = 20* Math.PI / 180;
+			object.scale.x = 10;
+			object.scale.y = 10;
+			object.scale.z = 10;
+		
+
+		////// buddha parameters ////////
+			object.scale.x = 60;
+			object.scale.y = 60;
+			object.scale.z = 60;
+			obj = object
+			globeMesh.add( obj );
+
 		} );
-
-	/*////// ship parameters //////
-		object.position.x = - 60;
-		object.rotation.x = 20* Math.PI / 180;
-		object.rotation.z = 20* Math.PI / 180;
-		object.scale.x = 10;
-		object.scale.y = 10;
-		object.scale.z = 10;
-	*/
-
-	////// buddha parameters ////////
-		object.scale.x = 60;
-		object.scale.y = 60;
-		object.scale.z = 60;
-		obj = object
-		globeMesh.add( obj );
-
-	} );
+	};			
+*/
 	
 	var ambient = new THREE.AmbientLight( 0x101030 );
 	//scene.add( ambient );
@@ -260,9 +267,13 @@ function initScene() {
 
 
 var sky_urlPrefix = "texture/";
-var sky_urls = [ sky_urlPrefix + "Left.png", sky_urlPrefix + "Right.png",
-    sky_urlPrefix + "Up.png", sky_urlPrefix + "Down.png",
-    sky_urlPrefix + "Front.png", sky_urlPrefix + "Back.png" ];
+var sky_urlarea = "n_";
+var sky_urlPostfix = ".png";
+var sky_urls = [ sky_urlPrefix + sky_urlarea + "left" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "right" + sky_urlPostfix,
+    sky_urlPrefix + sky_urlarea + "up" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "down" + sky_urlPostfix,
+    sky_urlPrefix + sky_urlarea + "front" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "back" + sky_urlPostfix ];
+
+
 /*var sky_textureCube = THREE.ImageUtils.loadTextureCube( sky_urls );
 sky_textureCube.format = THREE.RGBFormat;
 

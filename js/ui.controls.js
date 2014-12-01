@@ -10,6 +10,8 @@ d3.selection.prototype.moveToFront = function() {
     }); 
 }; 
 
+
+
 var d3Graphs = {
     barGraphWidth: 500,
 	barGraphHeight: 500,
@@ -71,6 +73,9 @@ var d3Graphs = {
         $("#hudButtons .countryTextInput").keyup(d3Graphs.countryKeyUp);
         $("#hudButtons .countryTextInput").focus(d3Graphs.countryFocus);
         $("#hudButtons .aboutBtn").click(d3Graphs.toggleAboutBox);
+        $("#hudButtons .dartBtn").click(d3Graphs.showDart);
+        $("#hudButtons .bsmgBtn").click(d3Graphs.showBsmg);
+        $("#hudButtons .engrBtn").click(d3Graphs.showEngr);
         $(document).on("click",".ui-autocomplete li",d3Graphs.menuItemClick);
         $(window).resize(d3Graphs.windowResizeCB);
         $(".zoomBtn").mousedown(d3Graphs.zoomBtnClick);
@@ -95,7 +100,98 @@ var d3Graphs = {
         camera.scale.z = constrain( camera.scale.z, 0.8, 5.0 );
     },
     toggleAboutBox:function() {
+        
         $("#aboutContainer").toggle();
+    },
+    showDart:function() {
+        
+        while( globeMesh.children.length > 3 ){
+        var c = globeMesh.children[3];
+        globeMesh.remove(c);
+    }
+        loader.load( 'model/buddha.obj', function ( object ) {
+
+            object.traverse( function ( child ) {
+
+                if ( child instanceof THREE.Mesh ) {
+
+                    //child.material.map = texture;
+                }
+            } );
+            object.scale.x = 60;
+            object.scale.y = 60;
+            object.scale.z = 60;
+            obj = object
+            globeMesh.add( obj );
+
+        } );
+     //   console.log("yayaya");
+    },
+    showEngr:function() {
+    /*    var manager = new THREE.LoadingManager();
+        manager.onProgress = function ( item, loaded, total ) {
+      //  console.log( item, loaded, total );
+    };*/
+        
+       while( globeMesh.children.length > 3 ){
+        var c = globeMesh.children[3];
+        globeMesh.remove(c);
+    }
+        var loader = new THREE.OBJLoader( manager );
+        loader.load( 'model/digger.obj', function ( object ) {
+
+            object.traverse( function ( child ) {
+
+                if ( child instanceof THREE.Mesh ) {
+
+                    //child.material.map = texture;
+                }
+            } );
+
+            object.scale.x = 0.35;
+            object.scale.y = 0.35;
+            object.scale.z = 0.35;
+            object.position.y -= 50;
+            object.position.x += 20;
+            object.position.z += 10;
+            obj = object
+            globeMesh.add( obj );
+
+        } );
+     //   console.log("yayaya");
+    },
+     showBsmg:function() {
+    /*    var manager = new THREE.LoadingManager();
+        manager.onProgress = function ( item, loaded, total ) {
+      //  console.log( item, loaded, total );
+    };*/
+        
+        while( globeMesh.children.length > 3 ){
+        var c = globeMesh.children[3];
+        globeMesh.remove(c);
+        }
+        var loader = new THREE.OBJLoader( manager );
+        loader.load( 'model/ship.obj', function ( object ) {
+
+            object.traverse( function ( child ) {
+
+                if ( child instanceof THREE.Mesh ) {
+
+                    //child.material.map = texture;
+                }
+            } );
+
+            object.position.x = - 60;
+            object.rotation.x = 20* Math.PI / 180;
+            object.rotation.z = 20* Math.PI / 180;
+            object.scale.x = 10;
+            object.scale.y = 10;
+            object.scale.z = 10;
+            obj = object
+            globeMesh.add( obj );
+
+        } );
+     //   console.log("yayaya");
     },
     clickTimeline:function() {
         var year = $(this).html();
@@ -124,7 +220,7 @@ var d3Graphs = {
         var hudButtonWidth = 489;
         $('#hudButtons').css('left',w - hudButtonWidth-20);        
         var importExportButtonWidth = $("#importExportBtns").width();
-        $("#importExportBtns").css('left',w-importExportButtonWidth - 20);
+        $("#importExportBtns").css('left',50);
         var barGraphHeight = 500;
         var barGraphBottomPadding = 10;
         console.log(windowHeight+ " " + barGraphHeight + " " + barGraphBottomPadding);
@@ -823,7 +919,7 @@ var d3Graphs = {
                     .attr('transform',exportLabel.attr('transform'));
             }
         }
-        
+       
         //over all numeric Total Import/Export labels
         var importsVisible = $("#importExportBtns .imports .check").not(".inactive").length != 0;
         var exportsVisible = $("#importExportBtns .exports .check").not(".inactive").length != 0;
@@ -844,7 +940,7 @@ var d3Graphs = {
         exportLabel.enter().append('text').attr('x',midX+10).text('EXPORTS')
             .attr('class','exportLabel').attr('y', this.barGraphHeight - this.barGraphBottomPadding + 45);
         exportLabel.attr('visibility',exportsVisible ? "visible":"hidden")    
-        */
+         */
             
     },
     dragHandleStart: function(event) {
@@ -881,6 +977,6 @@ function abbreviateNumber(value) {
         if (shortValue % 1 != 0)  shortNum = shortValue.toFixed(1);
         newValue = shortValue+suffixes[suffixNum];
     }
-    return '$' + newValue;
+    return newValue;
 }
 

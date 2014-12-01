@@ -57,6 +57,8 @@
 			</div>
 		</div>
 
+		
+
 		<script src="js/Detector.js"></script>
 		<script src="js/Tween.js"></script>
 		<script src="js/dat.gui.min.js"></script>			<!--Library-->
@@ -461,19 +463,29 @@
         <div id="hudHeader" class="overlayCountries noPointer">
             <h1 class="noPointer" style ="font-family: Fredericka the Great, cursive; font-size: 60px">Global<br> <mark>International</mark><br> Study
                 <div class="subtitle" style="font-family: Shadows Into Light, cursive; font-size: 14px">An <mark style="background-color:#FF9DFF;"> interactive visualization</mark> of global international study progress <br> from 1940 to 2013. </div>
+                
 			</h1>
         </div>
 
 		<div id="country_name"> </div>
 		
-	<!--	<div class="overlayCountries noPointer" id="hudButtons">
-            <input type="button" value="SEARCH" class="searchBtn armsBtn pointer"> 
+
+
+		
+		<div class="overlayCountries noPointer" id="hudButtons">
+			
+   			<input type="button" value="Fine Arts" class="dartBtn armsBtn pointer">
+   			<input type="button" value="Business" class="bsmgBtn armsBtn pointer">
+   			<input type="button" value="Engineer" class="engrBtn armsBtn pointer">
+			
+            <!--<input type="button" value="SEARCH" class="searchBtn armsBtn pointer"> 
             <input type="text" name="country" class="countryTextInput pointer noMapDrag" value="UNITED STATES">
             <input type="button" value="—" class="zoomBtn zoomOutBtn armsBtn pointer noMapDrag">
             <input type="button" value="+" class="zoomBtn zoomInBtn armsBtn pointer noMapDrag">
-            <input type="button" value="ABOUT" class="aboutBtn armsBtn pointer"><br class="clear" />
+            <input type="button" value="ABOUT" class="aboutBtn armsBtn pointer">--><br class="clear" />
+            
         </div>
-    -->
+  
 
        <div id="history" class="overlayCountries noPointer">
             <div class="graph">
@@ -515,25 +527,26 @@
         </div>
         <div id="graphIcon" class="overlayCountries"></div>
         <div id="importExportBtns" class="overlayCountries">
-         <!--   <div class="typeLabels">
-                <div class="mil">Military</div>
-                <div class="civ">Civilian</div>
-                <div class="ammo">Ammo</div><br class="clear">
+            <div class="typeLabels">
+                <div class="bsmg">Business Management</div>
+                <div class="engr">Engineer</div>
+                <div class="dart">Design and Fine Arts</div>
+                <div class="total">Total</div><br class="clear">
             </div>
-        -->
+        
             <div class="imports imex">
                 <div class="bsmg"><div class="check"></div></div>
                 <div class="engr"><div class="check"></div></div>
                 <div class="dart"><div class="check"></div></div>
                 <div class="total"><div class="check"></div></div>
-             <!--   <div class="label">Imports</div><br class="clear"> -->
+                <div class="label">International Students</div><br class="clear"> 
             </div>
             <div class="exports imex">
                 <div class="bsmg"><div class="check"></div></div>
                 <div class="engr"><div class="check"></div></div>
                 <div class="dart"><div class="check"></div></div>
                 <div class="total"><div class="check"></div></div>
-            <!--    <div class="label">Exports</div><br class="clear"> -->
+                <div class="label">Study Abroad</div><br class="clear">
             </div>
             <br class="clear" />
         
