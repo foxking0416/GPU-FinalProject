@@ -104,7 +104,11 @@ var d3Graphs = {
         $("#aboutContainer").toggle();
     },
     showDart:function() {
-      
+        
+        while( globeMesh.children.length > 3 ){
+        var c = globeMesh.children[3];
+        globeMesh.remove(c);
+    }
         loader.load( 'model/buddha.obj', function ( object ) {
 
             object.traverse( function ( child ) {
@@ -129,7 +133,10 @@ var d3Graphs = {
       //  console.log( item, loaded, total );
     };*/
         
-        scene.remove(loader);
+       while( globeMesh.children.length > 3 ){
+        var c = globeMesh.children[3];
+        globeMesh.remove(c);
+    }
         var loader = new THREE.OBJLoader( manager );
         loader.load( 'model/digger.obj', function ( object ) {
 
@@ -159,7 +166,10 @@ var d3Graphs = {
       //  console.log( item, loaded, total );
     };*/
         
-        scene.remove(loader);
+        while( globeMesh.children.length > 3 ){
+        var c = globeMesh.children[3];
+        globeMesh.remove(c);
+        }
         var loader = new THREE.OBJLoader( manager );
         loader.load( 'model/ship.obj', function ( object ) {
 
