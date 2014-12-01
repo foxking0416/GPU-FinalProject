@@ -349,7 +349,7 @@
 [
 {"i": "United States", "wc": "total", "e": "South Africa", "v": 1669}, 
 {"i": "United States", "wc": "total", "e": "China", "v": 157558}, 
-{"i": "United States", "wc": "engr", "e": "Japan", "v": 21290},
+{"i": "United States", "wc": "total", "e": "Japan", "v": 21290},
 {"i": "United States", "wc": "total", "e": "South Korea", "v": 73351}, 
 {"i": "United States", "wc": "total", "e": "India", "v": 103895}, 
 {"i": "United States", "wc": "engr", "e": "Malaysia", "v": 6735},
@@ -438,7 +438,8 @@
 {"i": "United States", "wc": "dart", "e": "China", "v": 11544}, 
 {"i": "United States", "wc": "bsmg", "e": "China", "v": 68323},
 {"i": "United States", "wc": "bsmg", "e": "China", "v": 71621},
-{"i": "United States", "wc": "engr", "e": "Japan", "v": 19568}, 
+{"i": "United States", "wc": "total", "e": "Japan", "v": 19568}, 
+{"i": "United States", "wc": "dart", "e": "Japan", "v": 1568},
 {"i": "United States", "wc": "bsmg", "e": "South Korea", "v": 40627},
 {"i": "United States", "wc": "engr", "e": "South Korea", "v": 22627},  
 {"i": "United States", "wc": "total", "e": "South Korea", "v": 70627}, 

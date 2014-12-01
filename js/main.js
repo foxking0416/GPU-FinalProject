@@ -81,8 +81,11 @@ var selectionData;
 //var cameraCube, sceneCube;
 var skyboxMesh;
 
-
-
+var manager = new THREE.LoadingManager();
+manager.onProgress = function ( item, loaded, total ) {
+      //  console.log( item, loaded, total );
+};
+var loader = new THREE.OBJLoader( manager );
 
 
 function start( e ){	
@@ -212,45 +215,48 @@ function initScene() {
 	
 	
 
-	
+
+
 
 	
 	
-	
-	var manager = new THREE.LoadingManager();
+	/*var manager = new THREE.LoadingManager();
 		manager.onProgress = function ( item, loaded, total ) {
 		console.log( item, loaded, total );
 	};
-				
-	// model
-	var loader = new THREE.OBJLoader( manager );
-	loader.load( 'model/buddha.obj', function ( object ) {
 
-		object.traverse( function ( child ) {
+	function showBsmgModel(){
+		// model
+		var loader = new THREE.OBJLoader( manager );
+		loader.load( 'model/buddha.obj', function ( object ) {
 
-			if ( child instanceof THREE.Mesh ) {
+			object.traverse( function ( child ) {
 
-				//child.material.map = texture;
-			}
+				if ( child instanceof THREE.Mesh ) {
+
+					//child.material.map = texture;
+				}
+			} );
+
+		////// ship parameters //////
+			object.position.x = - 60;
+			object.rotation.x = 20* Math.PI / 180;
+			object.rotation.z = 20* Math.PI / 180;
+			object.scale.x = 10;
+			object.scale.y = 10;
+			object.scale.z = 10;
+		
+
+		////// buddha parameters ////////
+			object.scale.x = 60;
+			object.scale.y = 60;
+			object.scale.z = 60;
+			obj = object
+			globeMesh.add( obj );
+
 		} );
-
-	/*////// ship parameters //////
-		object.position.x = - 60;
-		object.rotation.x = 20* Math.PI / 180;
-		object.rotation.z = 20* Math.PI / 180;
-		object.scale.x = 10;
-		object.scale.y = 10;
-		object.scale.z = 10;
-	*/
-
-	////// buddha parameters ////////
-		object.scale.x = 60;
-		object.scale.y = 60;
-		object.scale.z = 60;
-		obj = object
-		globeMesh.add( obj );
-
-	} );
+	};			
+*/
 	
 	var ambient = new THREE.AmbientLight( 0x101030 );
 	scene.add( ambient );

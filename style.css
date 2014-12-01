@@ -214,7 +214,7 @@ Elements to control the title and country selector
 #hudButtons {
     display: none;
     position: absolute;
-    top: 20px;    
+    bottom: 80px;    
 
     width: 489px;
 }
@@ -259,6 +259,26 @@ Elements to control the title and country selector
 #hudButtons .zoomOutBtn {
     font-size:              17px;
 }
+
+#hudButtons .bsmgBtn {
+    display:                block;
+    clear:                  both;
+    margin-left:           20px;
+    width:                  76px;
+}
+#hudButtons .dartBtn {
+    display:                block;
+    clear:                  both;
+    margin-left:           100px;
+    width:                  76px;
+}
+#hudButtons .engrBtn {
+    display:                block;
+    clear:                  both;
+    margin-left:           180px;
+    width:                  76px;
+}
+
 .ui-autocomplete {
     position: absolute;
 }
