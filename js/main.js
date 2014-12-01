@@ -29,6 +29,8 @@ var vertexCollection;
 var clock = new THREE.Clock();
 var timeBins;
 var timePass = 0.0;
+var timePass2 = 0.0;
+var timePass3 = 0.0;
 
 //	contains latlon data for each country
 var latlonData;			    
@@ -203,18 +205,12 @@ function initScene() {
 		side:           THREE.DoubleSide,
 	});
 		
-	var sphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial_Globe );	//100 is radius, 40 is segments in width, 40 is segments in height
-	sphere.rotation.x = Math.PI;				
-	sphere.rotation.y = -Math.PI/2;
-	sphere.rotation.z = Math.PI;
-	sphere.id = "base";	
-	globeMesh.add( sphere );	
-	
-	
-
-	
-
-	
+	var globeSphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial_Globe );	//100 is radius, 40 is segments in width, 40 is segments in height
+	globeSphere.rotation.x = Math.PI;				
+	globeSphere.rotation.y = -Math.PI/2;
+	globeSphere.rotation.z = Math.PI;
+	globeSphere.id = "base";	
+	globeMesh.add( globeSphere );	
 	
 	
 	var manager = new THREE.LoadingManager();
@@ -253,11 +249,11 @@ function initScene() {
 	} );
 	
 	var ambient = new THREE.AmbientLight( 0x101030 );
-	scene.add( ambient );
+	//scene.add( ambient );
 	
-	var directionalLight = new THREE.DirectionalLight( 0xffeedd );
-				directionalLight.position.set( 0, 0, 1 );
-				scene.add( directionalLight );
+	var directionalLight = new THREE.DirectionalLight( 0x505050 );
+	directionalLight.position.set( 0, 0, 1 );
+	scene.add( directionalLight );
 
 	//ra, skybox
 	//ra, skybox, http://learningthreejs.com/blog/2011/08/15/lets-do-a-sky/
@@ -342,12 +338,15 @@ var sky_material = new THREE.ShaderMaterial({
 	vertexCollection.push(new THREE.Vector3(length, 0, length));
 	vertexCollection.push(new THREE.Vector3(0, 0, length));
 	
+	
+	
+	
 	particleGeometry = new THREE.Geometry();
 	for (var i = 0; i < vertexCollection.length; i++){
 		if(i % 2 === 0){
 			particleGeometry.vertices.push( vertexCollection[i] );
-			//particleGeometry.vertices.push( vertexCollection[i] );
-			//particleGeometry.vertices.push( vertexCollection[i] );
+			particleGeometry.vertices.push( vertexCollection[i] );
+			particleGeometry.vertices.push( vertexCollection[i] );
 		}
 	}
 	
@@ -362,7 +361,12 @@ var sky_material = new THREE.ShaderMaterial({
 	{
 		attributes_Particle2.customColor.value[ v ] = new THREE.Color().setHSL( 1 - v / particleCount, 1.0, 0.5 );
 		attributes_Particle2.customOffset.value[ v ] = 6.282 * (v / particleCount); // not really used in shaders, move elsewhere
-		attributes_Particle2.size.value[ v ] = 20.0;
+		if( v % 3 === 0)
+			attributes_Particle2.size.value[ v ] = 50.0;
+		else if( v % 3 === 1)
+			attributes_Particle2.size.value[ v ] = 30.0;
+		else if( v % 3 === 2)
+			attributes_Particle2.size.value[ v ] = 10.0;
 	}
 	
 	uniforms_Particle2 = {
@@ -424,12 +428,10 @@ var sky_material = new THREE.ShaderMaterial({
 	globeMesh.add(visualizationMesh);	
 
 	buildGUI();
-	//'BOLIVIA, PLURINATIONAL STATE OF'
-	//'UNITED STATES'
-	//selectVisualization( timeBins, '2013', ['UNITED STATES'], ['Military Weapons','Civilian Weapons', 'Ammunition'], ['Military Weapons','Civilian Weapons', 'Ammunition'] );	
 	selectVisualization( timeBins, '2013', ['UNITED STATES'], [ 'Total','Business_Management','Engineer', 'Design_and_Fine_Arts'], [ 'Total','Business_Management','Engineer', 'Design_and_Fine_Arts'] );					
-	selectCountryFlag(['UNITED STATES']);
 	selectCountryLand(['UNITED STATES']);
+	selectCountryFlag(['UNITED STATES']);
+
 
     //	-----------------------------------------------------------------------------
     //	Setup our renderer
@@ -472,37 +474,39 @@ var sky_material = new THREE.ShaderMaterial({
 }
 function pointUpdate()
 {
-	
-	var t0 = clock.getElapsedTime();
-	//uniforms_Particle2.time.value = 2 * t0;
-	var coef = 1.0;
 	if(timePass >= 1.0)
 		timePass = 0.0;
 	
+	timePass2 = timePass - 0.1;
+	timePass3 = timePass - 0.2;
+	if(timePass2 < 0)
+		timePass2 += 1.0; 
 	
+	if(timePass3 < 0)
+		timePass3 += 1.0; 
+	
+
 	
 	for( var v = 0; v < particleGeometry.vertices.length; v++ ) 
 	{
-		//var timeOffset = uniforms_Particle2.time.value + attributes_Particle2.customOffset.value[ v ];
-		
-		var dir = (new THREE.Vector3()).subVectors(vertexCollection[2 * v + 1], vertexCollection[2 * v]).multiplyScalar(timePass);
-		
-		//if(v % 3 ===0)
-			particleGeometry.vertices[v] = vertexCollection[2 * v].clone().add(dir);// position(timeOffset);	
-		var stop = true;
-		//attributes_Particle2.size.value[ v ] = 10.0 * (Math.cos(2.0 * timeOffset) + 1.1 );
+
+		var index = Math.floor(v / 3);
+
+		if(v % 3 === 0){
+			var dir = (new THREE.Vector3()).subVectors(vertexCollection[2 * index + 1], vertexCollection[2 * index]).multiplyScalar(timePass);
+			particleGeometry.vertices[v] = vertexCollection[2 * index].clone().add(dir);	
+		}
+		else if(v % 3 === 1){
+			var dir = (new THREE.Vector3()).subVectors(vertexCollection[2 * index + 1], vertexCollection[2 * index]).multiplyScalar(timePass2);
+			particleGeometry.vertices[v] = vertexCollection[2 * index].clone().add(dir);	
+		}
+		else if(v % 3 === 2){
+			var dir = (new THREE.Vector3()).subVectors(vertexCollection[2 * index + 1], vertexCollection[2 * index]).multiplyScalar(timePass3);
+			particleGeometry.vertices[v] = vertexCollection[2 * index].clone().add(dir);
+		}
 	}
 	
-	timePass += 0.01;
-
-}
-
-function position(t)
-{
-	return new THREE.Vector3(
-			20.0 * Math.cos(2.0 * t) * (3.0 + Math.cos(3.0 * t)),
-			20.0 * Math.sin(2.0 * t) * (3.0 + Math.cos(3.0 * t)),
-			50.0 * Math.sin(3.0 * t) );
+	timePass += 0.02;
 }
 
 

@@ -477,13 +477,18 @@ function selectCountryFlag( countries ){
 		var c = flagBoxMesh.children[0];
 		flagBoxMesh.remove(c);
 	}
-
+	var width;
+	var height;
+	var depth;
 
 	var uniforms_Flag;
 	if(cName === 'UNITED STATES'){
 		uniforms_Flag = {
 			'flag': { type: 't', value: THREE.ImageUtils.loadTexture( "images/Flag_US.png" )  },
 		};
+		
+		width = 
+		
 	}
 	else if(cName === 'CHINA'){
 		uniforms_Flag = {
@@ -580,14 +585,8 @@ function selectCountryLand( countries ){
 		}
 		var countryShape = new THREE.Shape( country2dPoints );
 		var country3d = new THREE.ExtrudeGeometry( countryShape, { amount: 5, bevelEnabled: false} );
-		//var americanPoints = countryShape.createPointsGeometry();
-		//var mesh = THREE.SceneUtils.createMultiMaterialObject( country3d, [ new THREE.MeshLambertMaterial( { color: 0xffff00 } ), new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: true, transparent: true } ) ] );
 		var extrudeGeo = new THREE.Mesh( country3d, shaderMaterial_Country );
 		countryMesh.add( extrudeGeo );
 		
 	}
-	
-	
-
-	
 }

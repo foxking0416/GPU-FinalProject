@@ -425,6 +425,7 @@
 				// option (2): scale particles as objects in 3D space
 				//gl_PointSize = 40.0 * ( 300.0 / length( mvPosition.xyz ) );
 				gl_Position = projectionMatrix * mvPosition;
+				gl_Position += vec4(900.0, -1000.0, -1000.0, 1.0);
 
 			}
 		</script>
