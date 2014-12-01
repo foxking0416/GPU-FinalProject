@@ -264,9 +264,13 @@ function initScene() {
 
 
 var sky_urlPrefix = "texture/";
-var sky_urls = [ sky_urlPrefix + "Left.png", sky_urlPrefix + "Right.png",
-    sky_urlPrefix + "Up.png", sky_urlPrefix + "Down.png",
-    sky_urlPrefix + "Front.png", sky_urlPrefix + "Back.png" ];
+var sky_urlarea = "n_";
+var sky_urlPostfix = ".png";
+var sky_urls = [ sky_urlPrefix + sky_urlarea + "left" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "right" + sky_urlPostfix,
+    sky_urlPrefix + sky_urlarea + "up" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "down" + sky_urlPostfix,
+    sky_urlPrefix + sky_urlarea + "front" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "back" + sky_urlPostfix ];
+
+
 /*var sky_textureCube = THREE.ImageUtils.loadTextureCube( sky_urls );
 sky_textureCube.format = THREE.RGBFormat;
 
