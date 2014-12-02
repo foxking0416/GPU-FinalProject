@@ -19,3 +19,24 @@ Alpha Version Demo:  http://foxking0416.github.io/GPU-FinalProject/
   - Features for alpha:
     - history timeline
     - selected country name
+
+===================
+12/1/2014, Update
+
+Beta Version Demo:
+
+####Beta Features:
+* 3D Interactive Globe (Three.js + GLSL)
+  - Spiral Line Pipe
+  - Objloader
+  - Skybox
+  - Particle Animation
+  - Country Obj meshes (5 main countries)
+* 2D UI (D3.js)
+  - Bar graphs
+  - Field of study switch buttons
+  - History Diagram
+
+####Next Steps:
+* Re-design the structure of the tool -> neat and elegant interface
+* Add sand obj morphing shader for field of study
