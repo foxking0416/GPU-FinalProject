@@ -2,8 +2,6 @@ GPU-FinalProject
 ================
 11/24/2014, Update
 
-Alpha Version Demo:  http://foxking0416.github.io/GPU-FinalProject/
-
 ####Alpha Features:
 
 * 3D Interactive Globe
@@ -23,7 +21,7 @@ Alpha Version Demo:  http://foxking0416.github.io/GPU-FinalProject/
 ===================
 12/1/2014, Update
 
-Beta Version Demo:
+Beta Version Demo: http://foxking0416.github.io/GPU-FinalProject/
 
 ####Beta Features:
 * 3D Interactive Globe (Three.js + GLSL)
