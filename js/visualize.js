@@ -556,7 +556,7 @@ function selectCountryFlag( countries ){
 	});
 
 	
-	var boundCube = new THREE.Mesh( new THREE.CubeGeometry( 60, 60, 60 ), shaderMaterial_Flag );
+	var boundCube = new THREE.Mesh( new THREE.CubeGeometry( 80, 80, 80 ), shaderMaterial_Flag );
 	flagBoxMesh.add( boundCube );	
 }
 

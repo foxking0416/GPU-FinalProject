@@ -402,7 +402,7 @@ var sky_material = new THREE.ShaderMaterial({
 	particleCube.position.set(0, 85, 0);
 	particleCube.dynamic = true;
 	particleCube.sortParticles = true;
-	globeMesh.add( particleCube );
+	//globeMesh.add( particleCube );
 	
 	
 	
