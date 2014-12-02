@@ -276,7 +276,7 @@ function getVisualizedMesh( linearData, year, countries, exportCategories, impor
 	
 
 	particlesGeo.colors = particleColors;
-	var pSystem = new THREE.ParticleSystem( particlesGeo, shaderMaterial_Particle );
+	var pSystem = new THREE.PointCloud( particlesGeo, shaderMaterial_Particle );
 	pSystem.dynamic = true;
 	//pSystem.sortParticles = true;
 
@@ -556,7 +556,7 @@ function selectCountryFlag( countries ){
 	});
 
 	
-	var boundCube = new THREE.Mesh( new THREE.CubeGeometry( 80, 80, 80 ), shaderMaterial_Flag );
+	var boundCube = new THREE.Mesh( new THREE.BoxGeometry( 80, 80, 80 ), shaderMaterial_Flag );
 	flagBoxMesh.add( boundCube );	
 }
 

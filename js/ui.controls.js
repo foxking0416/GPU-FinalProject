@@ -109,22 +109,15 @@ var d3Graphs = {
         var c = globeMesh.children[3];
         globeMesh.remove(c);
     }
-        loader.load( 'model/buddha.obj', function ( object ) {
+        /*loader.load( 'model/buddha.obj', function ( object ) {
 
-            object.traverse( function ( child ) {
-
-                if ( child instanceof THREE.Mesh ) {
-
-                    //child.material.map = texture;
-                }
-            } );
             object.scale.x = 60;
             object.scale.y = 60;
             object.scale.z = 60;
             obj = object
             globeMesh.add( obj );
 
-        } );
+        } );*/
      //   console.log("yayaya");
     },
     showEngr:function() {
@@ -137,16 +130,8 @@ var d3Graphs = {
         var c = globeMesh.children[3];
         globeMesh.remove(c);
     }
-        var loader = new THREE.OBJLoader( manager );
+        /*var loader = new THREE.OBJLoader( manager );
         loader.load( 'model/digger.obj', function ( object ) {
-
-            object.traverse( function ( child ) {
-
-                if ( child instanceof THREE.Mesh ) {
-
-                    //child.material.map = texture;
-                }
-            } );
 
             object.scale.x = 0.35;
             object.scale.y = 0.35;
@@ -157,7 +142,7 @@ var d3Graphs = {
             obj = object
             globeMesh.add( obj );
 
-        } );
+        } );*/
      //   console.log("yayaya");
     },
      showBsmg:function() {
@@ -170,16 +155,9 @@ var d3Graphs = {
         var c = globeMesh.children[3];
         globeMesh.remove(c);
         }
-        var loader = new THREE.OBJLoader( manager );
+        /*var loader = new THREE.OBJLoader( manager );
         loader.load( 'model/ship.obj', function ( object ) {
 
-            object.traverse( function ( child ) {
-
-                if ( child instanceof THREE.Mesh ) {
-
-                    //child.material.map = texture;
-                }
-            } );
 
             object.position.x = - 60;
             object.rotation.x = 20* Math.PI / 180;
@@ -190,7 +168,7 @@ var d3Graphs = {
             obj = object
             globeMesh.add( obj );
 
-        } );
+        } );*/
      //   console.log("yayaya");
     },
     clickTimeline:function() {

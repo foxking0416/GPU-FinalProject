@@ -44,16 +44,8 @@ var countryLookup;
 
 var selectableYears = [];
 var selectableCountries = [];			    
+var mesh, meshes = [], clonemeshes = [];
 
-
-//	a list of weapon 'codes'
-//	now they are just strings of categories
-//	Category Name : Category Code
-/*var weaponLookup = {
-	'Military Weapons' 		: 'mil',
-	'Civilian Weapons'		: 'civ',
-	'Ammunition'			: 'ammo',
-};*/
 
 var StudyAreaLookup = {
 	'Business_Management' 	: 'bsmg',
@@ -83,12 +75,13 @@ var selectionData;
 //var cameraCube, sceneCube;
 var skyboxMesh;
 
+/*
 var manager = new THREE.LoadingManager();
 manager.onProgress = function ( item, loaded, total ) {
       //  console.log( item, loaded, total );
 };
 var loader = new THREE.OBJLoader( manager );
-
+*/
 
 function start( e ){	
 	//	detect for webgl and reject everything else
@@ -214,46 +207,56 @@ function initScene() {
 	globeSphere.rotation.y = -Math.PI/2;
 	globeSphere.rotation.z = Math.PI;
 	globeSphere.id = "base";	
-	globeMesh.add( globeSphere );	
+	//globeMesh.add( globeSphere );	
 
 	
-	/*var manager = new THREE.LoadingManager();
+	var manager = new THREE.LoadingManager();
 		manager.onProgress = function ( item, loaded, total ) {
 		console.log( item, loaded, total );
 	};
 
-	function showBsmgModel(){
+
 		// model
 		var loader = new THREE.OBJLoader( manager );
-		loader.load( 'model/buddha.obj', function ( object ) {
-
-			object.traverse( function ( child ) {
-
-				if ( child instanceof THREE.Mesh ) {
-
-					//child.material.map = texture;
-				}
-			} );
-
-		////// ship parameters //////
-			object.position.x = - 60;
-			object.rotation.x = 20* Math.PI / 180;
-			object.rotation.z = 20* Math.PI / 180;
-			object.scale.x = 10;
-			object.scale.y = 10;
-			object.scale.z = 10;
+		loader.load( 'model/digger.obj', function ( object ) {
 		
 
 		////// buddha parameters ////////
 			object.scale.x = 60;
 			object.scale.y = 60;
 			object.scale.z = 60;
-			obj = object
-			globeMesh.add( obj );
+			//obj = object
+			
+			object.children[0].geometry.dynamic = true;
+			object.children[0].geometry.verticesNeedUpdate = true;
+			
+			//globeMesh.add( object );
+			
+			
+			
+			//var position = object.attributes.position;
+			//position.needsUpdate = true;
 
+			//var p = position.array;
+			var particleSystem = new THREE.PointCloud( object.children[0].geometry, new THREE.PointCloudMaterial( { color: 0xff0000, size: 2 } ) );
+			particleSystem.scale.x = 0.35;
+			particleSystem.scale.y = 0.35;
+			particleSystem.scale.z = 0.35;
+			//globeMesh.add( particleSystem );
+			
+			
+			//var testGeometry = object.children[0].geometry.attributes.position.array;
+			createMesh( object, globeMesh, 0.35, -11000, -200,  -5000, 0x00ff44, false );
+
+			var stop = 0;
 		} );
-	};			
-*/
+
+
+	var grid = new THREE.PointCloud( new THREE.PlaneBufferGeometry( 1500, 1500, 64, 64 ), new THREE.PointCloudMaterial( { color: 0xff0000, size: 10 } ) );
+	grid.position.y = -400;
+	grid.rotation.x = - Math.PI / 2;
+	//globeMesh.add( grid );
+	
 	
 	var ambient = new THREE.AmbientLight( 0x101030 );
 	//scene.add( ambient );
@@ -266,32 +269,16 @@ function initScene() {
 	//ra, skybox, http://learningthreejs.com/blog/2011/08/15/lets-do-a-sky/
 
 
-var sky_urlPrefix = "texture/";
-var sky_urlarea = "n_";
-var sky_urlPostfix = ".png";
-var sky_urls = [ sky_urlPrefix + sky_urlarea + "left" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "right" + sky_urlPostfix,
+	var sky_urlPrefix = "texture/";
+	var sky_urlarea = "n_";
+	var sky_urlPostfix = ".png";
+	var sky_urls = [ sky_urlPrefix + sky_urlarea + "left" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "right" + sky_urlPostfix,
     sky_urlPrefix + sky_urlarea + "up" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "down" + sky_urlPostfix,
     sky_urlPrefix + sky_urlarea + "front" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "back" + sky_urlPostfix ];
 
 
-/*var sky_textureCube = THREE.ImageUtils.loadTextureCube( sky_urls );
-sky_textureCube.format = THREE.RGBFormat;
 
-var sky_shader = THREE.ShaderLib["cube"];
-//var sky_uniforms = THREE.UniformsUtils.clone( sky_shader.uniforms );
-//sky_uniforms['tCube'].texture= sky_textureCube;   // textureCube has been init before
-sky_shader.uniforms["tCube"].value = sky_textureCube;
-var sky_material = new THREE.ShaderMaterial({
-    fragmentShader    : sky_shader.fragmentShader,
-    vertexShader  : sky_shader.vertexShader,
-    uniforms  : sky_shader.uniforms,
-    depthWrite: false,
-	side: THREE.BackSide
-});
-
-*/
-
-	var skyGeometry = new THREE.CubeGeometry(800, 800, 800);
+	var skyGeometry = new THREE.BoxGeometry(800, 800, 800);
 
 	var materialArray = [];
 
@@ -306,11 +293,11 @@ var sky_material = new THREE.ShaderMaterial({
 	// build the skybox Mesh 
 	skyboxMesh = new THREE.Mesh( skyGeometry, skyMaterial );
 	// add it to the scene
-	scene.add( skyboxMesh );
+	//scene.add( skyboxMesh );
 
 	
 	
-
+/*
 	var length = 100;
 	vertexCollection = [];
 	vertexCollection.push(new THREE.Vector3(0, 0, 0));
@@ -402,7 +389,7 @@ var sky_material = new THREE.ShaderMaterial({
 	particleCube.position.set(0, 85, 0);
 	particleCube.dynamic = true;
 	particleCube.sortParticles = true;
-	//globeMesh.add( particleCube );
+	globeMesh.add( particleCube );*/
 	
 	
 	
@@ -436,7 +423,7 @@ var sky_material = new THREE.ShaderMaterial({
 	console.timeEnd('buildDataVizGeometries');
 
 	visualizationMesh = new THREE.Object3D();
-	globeMesh.add(visualizationMesh);	
+	//globeMesh.add(visualizationMesh);	
 
 	buildGUI();
 	selectVisualization( timeBins, '2013', ['UNITED STATES'], [ 'Total','Business_Management','Engineer', 'Design_and_Fine_Arts'], [ 'Total','Business_Management','Engineer', 'Design_and_Fine_Arts'] );					
@@ -483,6 +470,73 @@ var sky_material = new THREE.ShaderMaterial({
 
 
 }
+
+function createMesh( originalGeometry, scene, scale, x, y, z, color, dynamic ) {
+
+	var i, c;
+
+	//var vertices = originalGeometry.vertices;
+	//var vl = vertices.length;
+
+	var geometry = new THREE.Geometry();
+	var vertices_tmp = [];
+
+	var geometryTest = originalGeometry.children[0].geometry;
+	
+	/*for ( i = 0; i < vl; i ++ ) {
+
+		p = vertices[ i ];
+
+		geometry.vertices[ i ] = p.clone();
+		vertices_tmp[ i ] = [ p.x, p.y, p.z, 0, 0 ];
+
+	}*/
+
+	
+	if ( dynamic ) {
+		mesh = new THREE.PointCloud( geometry, new THREE.PointCloudMaterial( { size: 3, color: c } ) );
+		mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
+
+		mesh.position.x = x;
+		mesh.position.y = y;
+		mesh.position.z = z;
+
+		scene.add( mesh );
+
+		clonemeshes.push( { mesh: mesh, speed: 0.5 + Math.random() } );
+	}
+	else {
+		mesh = new THREE.PointCloud( geometryTest, new THREE.PointCloudMaterial( { size: 3, color: color } ) );
+		mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
+
+		//mesh.position.x = x;
+		//mesh.position.y = y;
+		//mesh.position.z = z;
+		scene.add( mesh );
+		//parent.add( mesh );
+
+	}
+
+	//bloader.statusDomElement.style.display = "none";
+
+	meshes.push( {
+		mesh: mesh, 
+		//vertices: geometry.vertices, 
+		//vertices_tmp: vertices_tmp, 
+		//vl: vl,
+		down: 0, 
+		up: 0, 
+		direction: 0, 
+		speed: 35, 
+		delay: Math.floor( 200 + 200 * Math.random() ),
+		started: false, 
+		start: Math.floor( 100 + 200 * Math.random() ),
+		dynamic: dynamic
+	} );
+
+}
+
+
 function pointUpdate()
 {
 	if(timePass >= 1.0)
@@ -523,7 +577,7 @@ function pointUpdate()
 
 function animate() {	
 
-	pointUpdate();
+	//pointUpdate();
 
 	if( rotateTargetX !== undefined && rotateTargetY !== undefined ){
 
