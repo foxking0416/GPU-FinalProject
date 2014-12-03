@@ -17,7 +17,8 @@ var lookupTexture;
 var globeMesh;
 var countryMesh;
 var flagBoxMesh;
-var visualizationMesh;							
+var visualizationMesh;
+var objectMesh;							
 
 var mapUniforms;
 var shaderMaterial_Globe;
@@ -29,8 +30,7 @@ var vertexCollection;
 var clock = new THREE.Clock();
 var timeBins;
 var timePass = 0.0;
-var timePass2 = 0.0;
-var timePass3 = 0.0;
+
 
 //	contains latlon data for each country
 var latlonData;			    
@@ -45,7 +45,10 @@ var countryLookup;
 var selectableYears = [];
 var selectableCountries = [];			    
 var mesh, meshes = [], clonemeshes = [];
+var meshTest;
+var bufferGeometry;
 
+var vertices_tmp;
 
 var StudyAreaLookup = {
 	'Business_Management' 	: 'bsmg',
@@ -163,6 +166,9 @@ function initScene() {
 	flagBoxMesh = new THREE.Object3D();
 	scene.add(flagBoxMesh);
 	
+	objectMesh = new THREE.Object3D();
+	scene.add(objectMesh);
+	
 	lookupCanvas = document.createElement('canvas');	
 	lookupCanvas.width = 256;
 	lookupCanvas.height = 1;
@@ -207,7 +213,7 @@ function initScene() {
 	globeSphere.rotation.y = -Math.PI/2;
 	globeSphere.rotation.z = Math.PI;
 	globeSphere.id = "base";	
-	//globeMesh.add( globeSphere );	
+	globeMesh.add( globeSphere );	
 
 	
 	var manager = new THREE.LoadingManager();
@@ -216,67 +222,62 @@ function initScene() {
 	};
 
 
-		// model
-		var loader = new THREE.OBJLoader( manager );
-		loader.load( 'model/digger.obj', function ( object ) {
+	// model
+	var loader = new THREE.OBJLoader( manager );
+	loader.load( 'model/buddha.obj', function ( object ) {
 		
 
 		////// buddha parameters ////////
-			object.scale.x = 60;
-			object.scale.y = 60;
-			object.scale.z = 60;
-			//obj = object
-			
-			object.children[0].geometry.dynamic = true;
-			object.children[0].geometry.verticesNeedUpdate = true;
-			
-			//globeMesh.add( object );
-			
-			
-			
-			//var position = object.attributes.position;
-			//position.needsUpdate = true;
+		object.scale.x = 60;
+		object.scale.y = 60;
+		object.scale.z = 60;
+		
+		object.children[0].geometry.dynamic = true;
+		object.children[0].geometry.verticesNeedUpdate = true;
+		
+		//globeMesh.add( object );
+		
+		
+		
+		//var position = object.attributes.position;
+		//position.needsUpdate = true;
 
-			//var p = position.array;
-			var particleSystem = new THREE.PointCloud( object.children[0].geometry, new THREE.PointCloudMaterial( { color: 0xff0000, size: 2 } ) );
-			particleSystem.scale.x = 0.35;
-			particleSystem.scale.y = 0.35;
-			particleSystem.scale.z = 0.35;
-			//globeMesh.add( particleSystem );
-			
-			
-			//var testGeometry = object.children[0].geometry.attributes.position.array;
-			createMesh( object, globeMesh, 0.35, -11000, -200,  -5000, 0x00ff44, false );
+		//var p = position.array;
+		//meshTest = object.children[0].geometry;
+		/*var particleSystem = new THREE.PointCloud(meshTest, new THREE.PointCloudMaterial( { color: 0xff0000, size: 2 } ) );
+		particleSystem.scale.x = 60;
+		particleSystem.scale.y = 60;
+		particleSystem.scale.z = 60;
+		particleSystem.position.x = 100;
+		scene.add( particleSystem );*/
+		/*vertices_tmp = [];
+		for(var i = 0; i < meshTest.attributes.position.array.length; i++){
+			vertices_tmp[i] = meshTest.attributes.position.array[i];
+		}*/
+		
+		//var testGeometry = object.children[0].geometry.attributes.position.array;
+		createMesh( object, 60, 0.0, 0.0, 0.0, 0x00ff44, true );
 
-			var stop = 0;
-		} );
 
+	} );
 
-	var grid = new THREE.PointCloud( new THREE.PlaneBufferGeometry( 1500, 1500, 64, 64 ), new THREE.PointCloudMaterial( { color: 0xff0000, size: 10 } ) );
-	grid.position.y = -400;
-	grid.rotation.x = - Math.PI / 2;
-	//globeMesh.add( grid );
 	
 	
-	var ambient = new THREE.AmbientLight( 0x101030 );
+	/*var ambient = new THREE.AmbientLight( 0x101030 );
 	//scene.add( ambient );
 	
 	var directionalLight = new THREE.DirectionalLight( 0x505050 );
 	directionalLight.position.set( 0, 0, 1 );
-	scene.add( directionalLight );
+	scene.add( directionalLight );*/
 
 	//ra, skybox
 	//ra, skybox, http://learningthreejs.com/blog/2011/08/15/lets-do-a-sky/
-
-
 	var sky_urlPrefix = "texture/";
 	var sky_urlarea = "n_";
 	var sky_urlPostfix = ".png";
 	var sky_urls = [ sky_urlPrefix + sky_urlarea + "left" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "right" + sky_urlPostfix,
     sky_urlPrefix + sky_urlarea + "up" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "down" + sky_urlPostfix,
     sky_urlPrefix + sky_urlarea + "front" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "back" + sky_urlPostfix ];
-
-
 
 	var skyGeometry = new THREE.BoxGeometry(800, 800, 800);
 
@@ -293,103 +294,8 @@ function initScene() {
 	// build the skybox Mesh 
 	skyboxMesh = new THREE.Mesh( skyGeometry, skyMaterial );
 	// add it to the scene
-	//scene.add( skyboxMesh );
+	scene.add( skyboxMesh );
 
-	
-	
-/*
-	var length = 100;
-	vertexCollection = [];
-	vertexCollection.push(new THREE.Vector3(0, 0, 0));
-	vertexCollection.push(new THREE.Vector3(0, length, 0));
-	
-	vertexCollection.push(new THREE.Vector3(0, 0, 0));
-	vertexCollection.push(new THREE.Vector3(0, 0, length));
-	
-	vertexCollection.push(new THREE.Vector3(0, length, 0));
-	vertexCollection.push(new THREE.Vector3(length, length, 0));
-	
-	vertexCollection.push(new THREE.Vector3(0, length, 0));
-	vertexCollection.push(new THREE.Vector3(0, length, length));
-	
-	vertexCollection.push(new THREE.Vector3(length, length, 0));
-	vertexCollection.push(new THREE.Vector3(length, 0, 0));
-	
-	vertexCollection.push(new THREE.Vector3(length, length, 0));
-	vertexCollection.push(new THREE.Vector3(length, length, length));
-	
-	vertexCollection.push(new THREE.Vector3(length, 0, 0));
-	vertexCollection.push(new THREE.Vector3(0, 0, 0));
-	
-	vertexCollection.push(new THREE.Vector3(length, 0, 0));
-	vertexCollection.push(new THREE.Vector3(length, 0, length));
-	
-	vertexCollection.push(new THREE.Vector3(0, 0, length));
-	vertexCollection.push(new THREE.Vector3(0, length, length));
-	
-	vertexCollection.push(new THREE.Vector3(0, length, length));
-	vertexCollection.push(new THREE.Vector3(length, length, length));
-	
-	vertexCollection.push(new THREE.Vector3(length, length, length));
-	vertexCollection.push(new THREE.Vector3(length, 0, length));
-	
-	vertexCollection.push(new THREE.Vector3(length, 0, length));
-	vertexCollection.push(new THREE.Vector3(0, 0, length));
-	
-	
-	
-	
-	particleGeometry = new THREE.Geometry();
-	for (var i = 0; i < vertexCollection.length; i++){
-		if(i % 2 === 0){
-			particleGeometry.vertices.push( vertexCollection[i] );
-			particleGeometry.vertices.push( vertexCollection[i] );
-			particleGeometry.vertices.push( vertexCollection[i] );
-		}
-	}
-	
-	attributes_Particle2 = {
-		customColor:	 { type: 'c',  value: [] },
-		customOffset:	 { type: 'f',  value: [] },
-		size:	 		 { type: 'f',  value: [] },
-	};
-	var particleCount = particleGeometry.vertices.length
-
-	for( var v = 0; v < particleCount; v++ ) 
-	{
-		attributes_Particle2.customColor.value[ v ] = new THREE.Color().setHSL( 1 - v / particleCount, 1.0, 0.5 );
-		attributes_Particle2.customOffset.value[ v ] = 6.282 * (v / particleCount); // not really used in shaders, move elsewhere
-		if( v % 3 === 0)
-			attributes_Particle2.size.value[ v ] = 50.0;
-		else if( v % 3 === 1)
-			attributes_Particle2.size.value[ v ] = 30.0;
-		else if( v % 3 === 2)
-			attributes_Particle2.size.value[ v ] = 10.0;
-	}
-	
-	uniforms_Particle2 = {
-		time:      { type: "f", value: 1.0 },
-		texture:   { type: "t", value: THREE.ImageUtils.loadTexture( "images/particleA.png" ) },
-	};
-
-	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
-
-		uniforms: 		uniforms_Particle2,
-		attributes:     attributes_Particle2,
-		vertexShader:   document.getElementById( 'pointVertexshader2' ).textContent,
-		fragmentShader: document.getElementById( 'pointFragmentshader2' ).textContent,
-		
-		blending: 		THREE.AdditiveBlending,
-		transparent:	true,
-		depthWrite: 	false,
-		depthTest: 		true,
-	});
-	
-	var particleCube = new THREE.ParticleSystem( particleGeometry, shaderMaterial_Particle );
-	particleCube.position.set(0, 85, 0);
-	particleCube.dynamic = true;
-	particleCube.sortParticles = true;
-	globeMesh.add( particleCube );*/
 	
 	
 	
@@ -423,7 +329,7 @@ function initScene() {
 	console.timeEnd('buildDataVizGeometries');
 
 	visualizationMesh = new THREE.Object3D();
-	//globeMesh.add(visualizationMesh);	
+	globeMesh.add(visualizationMesh);	
 
 	buildGUI();
 	selectVisualization( timeBins, '2013', ['UNITED STATES'], [ 'Total','Business_Management','Engineer', 'Design_and_Fine_Arts'], [ 'Total','Business_Management','Engineer', 'Design_and_Fine_Arts'] );					
@@ -471,55 +377,44 @@ function initScene() {
 
 }
 
-function createMesh( originalGeometry, scene, scale, x, y, z, color, dynamic ) {
+function createMesh( originalGeometry, scale, x, y, z, color, dynamic ) {
 
-	var i, c;
-
-	//var vertices = originalGeometry.vertices;
-	//var vl = vertices.length;
-
-	var geometry = new THREE.Geometry();
-	var vertices_tmp = [];
-
-	var geometryTest = originalGeometry.children[0].geometry;
+	bufferGeometry = originalGeometry.children[0].geometry;
 	
-	/*for ( i = 0; i < vl; i ++ ) {
-
-		p = vertices[ i ];
-
-		geometry.vertices[ i ] = p.clone();
-		vertices_tmp[ i ] = [ p.x, p.y, p.z, 0, 0 ];
-
-	}*/
+	
+	vertices_tmp = [];
+	for(var i = 0; i < bufferGeometry.attributes.position.array.length; i++){
+		vertices_tmp[i] = bufferGeometry.attributes.position.array[i];
+	}
 
 	
 	if ( dynamic ) {
-		mesh = new THREE.PointCloud( geometry, new THREE.PointCloudMaterial( { size: 3, color: c } ) );
+		mesh = new THREE.PointCloud( bufferGeometry, new THREE.PointCloudMaterial( { size: 3, color: color } ) );
 		mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
 
 		mesh.position.x = x;
 		mesh.position.y = y;
 		mesh.position.z = z;
 
-		scene.add( mesh );
+		objectMesh.add( mesh );
 
-		clonemeshes.push( { mesh: mesh, speed: 0.5 + Math.random() } );
+		//clonemeshes.push( { mesh: mesh, speed: 0.5 + Math.random() } );
 	}
 	else {
-		mesh = new THREE.PointCloud( geometryTest, new THREE.PointCloudMaterial( { size: 3, color: color } ) );
+		mesh = new THREE.PointCloud( bufferGeometry, new THREE.PointCloudMaterial( { size: 3, color: color } ) );
 		mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
 
-		//mesh.position.x = x;
-		//mesh.position.y = y;
-		//mesh.position.z = z;
-		scene.add( mesh );
+		mesh.position.x = x;
+		mesh.position.y = y;
+		mesh.position.z = z;
+		objectMesh.add( mesh );
 		//parent.add( mesh );
 
 	}
 
 	//bloader.statusDomElement.style.display = "none";
 
-	meshes.push( {
+	/*meshes.push( {
 		mesh: mesh, 
 		//vertices: geometry.vertices, 
 		//vertices_tmp: vertices_tmp, 
@@ -532,52 +427,178 @@ function createMesh( originalGeometry, scene, scale, x, y, z, color, dynamic ) {
 		started: false, 
 		start: Math.floor( 100 + 200 * Math.random() ),
 		dynamic: dynamic
-	} );
+	} );*/
 
 }
 
+function render_new () {
+
+	delta = 10 * clock.getDelta();
+
+	delta = delta < 2 ? delta : 2;
+
+	parent.rotation.y += -0.02 * delta;
+
+	for( j = 0, jl = clonemeshes.length; j < jl; j ++ ) {
+
+		cm = clonemeshes[ j ];
+		cm.mesh.rotation.y += -0.1 * delta * cm.speed;//Let the model rotate
+
+	}
+
+	for( j = 0, jl = meshes.length; j < jl; j ++ ) {
+
+		data = meshes[ j ];
+		mesh = data.mesh;
+		vertices = data.vertices;
+		vertices_tmp = data.vertices_tmp;
+		vl = data.vl;
+
+		if ( ! data.dynamic ) continue;
+
+		if ( data.start > 0 ) {
+
+			data.start -= 1;
+
+		} else {
+
+			if ( !data.started ) {
+
+				data.direction = -1;
+				data.started = true;
+
+			}
+		}
+		for ( i = 0; i < vl; i ++ ) {
+
+			p = vertices[ i ];
+			vt = vertices_tmp[ i ];
+
+			// falling down
+
+			if ( data.direction < 0 ) {
+
+				// var d = Math.abs( p.x - vertices_tmp[ i ][ 0 ] ) + Math.abs( p.y - vertices_tmp[ i ][ 1 ] ) + Math.abs( p.z - vertices_tmp[ i ][ 2 ] );
+				// if ( d < 200 ) {
+
+				if ( p.y > 0 ) {
+
+					// p.y += data.direction * data.speed * delta;
+
+					p.x += 1.5 * ( 0.50 - Math.random() ) * data.speed * delta;
+					p.y += 3.0 * ( 0.25 - Math.random() ) * data.speed * delta;
+					p.z += 1.5 * ( 0.50 - Math.random() ) * data.speed * delta;
+
+				} else {
+					if ( ! vt[ 3 ] ) {
+
+						vt[ 3 ] = 1;
+						data.down += 1;
+					}
+				}
+			}
+
+			// rising up
+
+			if ( data.direction > 0 ) {
+				//if ( p.y < vertices_tmp[ i ][ 1 ] ) {
+				//	p.y += data.direction * data.speed * delta;
+				d = Math.abs( p.x - vt[ 0 ] ) + Math.abs( p.y - vt[ 1 ] ) + Math.abs( p.z - vt[ 2 ] );
+
+				if ( d > 1 ) {
+
+					p.x += - ( p.x - vt[ 0 ] ) / d * data.speed * delta * ( 0.85 - Math.random() );
+					p.y += - ( p.y - vt[ 1 ] ) / d * data.speed * delta * ( 1 + Math.random() );
+					p.z += - ( p.z - vt[ 2 ] ) / d * data.speed * delta * ( 0.85 - Math.random() );
+
+				} else {
+
+					if ( ! vt[ 4 ] ) {
+						vt[ 4 ] = 1;
+						data.up += 1;
+
+					}
+				}
+			}
+		}
+		// all down
+
+		if ( data.down === vl ) {
+			if ( data.delay === 0 ) {
+				data.direction = 1;
+				data.speed = 10;
+				data.down = 0;
+				data.delay = 320;
+
+				for ( i = 0; i < vl; i ++ ) {
+
+					vertices_tmp[ i ][ 3 ] = 0;
+
+				}
+
+			} else {
+				data.delay -= 1;
+			}
+		}
+
+		// all up
+		if ( data.up === vl ) {
+			if ( data.delay === 0 ) {
+				data.direction = -1;
+				data.speed = 35;
+				data.up = 0;
+				data.delay = 120;
+
+				for ( i = 0; i < vl; i ++ ) {
+
+					vertices_tmp[ i ][ 4 ] = 0;
+
+				}
+
+			} else {
+				data.delay -= 1;
+			}
+		}
+		mesh.geometry.verticesNeedUpdate = true;
+	}
+
+	renderer.clear();
+	composer.render( 0.01 );
+}
+
+var drop = true;
 
 function pointUpdate()
 {
-	if(timePass >= 1.0)
+	if(timePass >= 1.0){
+		drop = !drop;
 		timePass = 0.0;
+	}
 	
-	timePass2 = timePass - 0.1;
-	timePass3 = timePass - 0.2;
-	if(timePass2 < 0)
-		timePass2 += 1.0; 
-	
-	if(timePass3 < 0)
-		timePass3 += 1.0; 
-	
-
-	
-	for( var v = 0; v < particleGeometry.vertices.length; v++ ) 
-	{
-
-		var index = Math.floor(v / 3);
-
-		if(v % 3 === 0){
-			var dir = (new THREE.Vector3()).subVectors(vertexCollection[2 * index + 1], vertexCollection[2 * index]).multiplyScalar(timePass);
-			particleGeometry.vertices[v] = vertexCollection[2 * index].clone().add(dir);	
+	if(bufferGeometry === undefined)
+		return;
+		
+	var p = bufferGeometry.attributes.position.array;
+	if(!drop){
+		for(j = 1; j < p.length; j += 3){
+			p[j] += (vertices_tmp[j] - p[j]) * timePass;
 		}
-		else if(v % 3 === 1){
-			var dir = (new THREE.Vector3()).subVectors(vertexCollection[2 * index + 1], vertexCollection[2 * index]).multiplyScalar(timePass2);
-			particleGeometry.vertices[v] = vertexCollection[2 * index].clone().add(dir);	
-		}
-		else if(v % 3 === 2){
-			var dir = (new THREE.Vector3()).subVectors(vertexCollection[2 * index + 1], vertexCollection[2 * index]).multiplyScalar(timePass3);
-			particleGeometry.vertices[v] = vertexCollection[2 * index].clone().add(dir);
+	}
+	else{
+		for(j = 1; j < p.length; j += 3){
+			p[j] += (0.0 - p[j]) * timePass;
 		}
 	}
 	
-	timePass += 0.02;
+	bufferGeometry.attributes.position.needsUpdate =true;
+	
+	timePass += 0.005;
 }
 
 
 function animate() {	
 
-	//pointUpdate();
+	pointUpdate();
 
 	if( rotateTargetX !== undefined && rotateTargetY !== undefined ){
 
@@ -628,7 +649,7 @@ function animate() {
 	//console.log("x:" + globeMesh.rotation.x + "  y:"+globeMesh.rotation.y);
 	//countryMesh.rotation.x = rotateX;
 	countryMesh.rotation.y += 0.01;	
-	
+	objectMesh.rotation.y += 0.01;	
     render();	
     		        		       
     requestAnimationFrame( animate );	
