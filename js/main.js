@@ -49,6 +49,7 @@ var meshTest;
 var bufferGeometry;
 
 var vertices_tmp;
+var stats;
 
 var StudyAreaLookup = {
 	'Business_Management' 	: 'bsmg',
@@ -373,11 +374,31 @@ function initScene() {
     camera = new THREE.PerspectiveCamera( 12, window.innerWidth / window.innerHeight, 1, 10000 ); 		        
 	camera.position.z = 1400;
 	camera.position.y = 0;
-
+	stats = initStats();
 
 }
 
 function createMesh( originalGeometry, scale, x, y, z, color, dynamic ) {
+
+	attributes_Particle2 = {
+		originalPosition:    { type: 'v3', value: []},
+	};
+	
+	uniforms_Particle2 = {
+		time:      { type: "f", value: 1.0 },
+		size:	   { type: "f", value: 1.0 },
+		color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
+		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
+	};
+	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
+
+		uniforms: 		uniforms_Particle2,
+		//attributes:     attributes_Particle2,
+		vertexShader:   document.getElementById( 'pointVertexshader2' ).textContent,
+		fragmentShader: document.getElementById( 'pointFragmentshader2' ).textContent,
+		
+	});
+
 
 	bufferGeometry = originalGeometry.children[0].geometry;
 	
@@ -386,48 +407,23 @@ function createMesh( originalGeometry, scale, x, y, z, color, dynamic ) {
 	for(var i = 0; i < bufferGeometry.attributes.position.array.length; i++){
 		vertices_tmp[i] = bufferGeometry.attributes.position.array[i];
 	}
+	
+	for(var i = 0; i < bufferGeometry.attributes.position.array.length; i+=3){
+		attributes_Particle2.originalPosition.value[i/3] = new THREE.Vector3( bufferGeometry.attributes.position.array[i],
+													bufferGeometry.attributes.position.array[i+1],
+													bufferGeometry.attributes.position.array[i+2]);
+	}
 
 	
-	if ( dynamic ) {
-		mesh = new THREE.PointCloud( bufferGeometry, new THREE.PointCloudMaterial( { size: 3, color: color } ) );
-		mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
 
-		mesh.position.x = x;
-		mesh.position.y = y;
-		mesh.position.z = z;
+	mesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );//new THREE.PointCloudMaterial( { size: 3, color: color } )
+	mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
 
-		objectMesh.add( mesh );
+	mesh.position.x = x;
+	mesh.position.y = y;
+	mesh.position.z = z;
 
-		//clonemeshes.push( { mesh: mesh, speed: 0.5 + Math.random() } );
-	}
-	else {
-		mesh = new THREE.PointCloud( bufferGeometry, new THREE.PointCloudMaterial( { size: 3, color: color } ) );
-		mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
-
-		mesh.position.x = x;
-		mesh.position.y = y;
-		mesh.position.z = z;
-		objectMesh.add( mesh );
-		//parent.add( mesh );
-
-	}
-
-	//bloader.statusDomElement.style.display = "none";
-
-	/*meshes.push( {
-		mesh: mesh, 
-		//vertices: geometry.vertices, 
-		//vertices_tmp: vertices_tmp, 
-		//vl: vl,
-		down: 0, 
-		up: 0, 
-		direction: 0, 
-		speed: 35, 
-		delay: Math.floor( 200 + 200 * Math.random() ),
-		started: false, 
-		start: Math.floor( 100 + 200 * Math.random() ),
-		dynamic: dynamic
-	} );*/
+	objectMesh.add( mesh );
 
 }
 
@@ -578,7 +574,7 @@ function pointUpdate()
 	if(bufferGeometry === undefined)
 		return;
 		
-	var p = bufferGeometry.attributes.position.array;
+	/*var p = bufferGeometry.attributes.position.array;
 	if(!drop){
 		for(j = 1; j < p.length; j += 3){
 			p[j] += (vertices_tmp[j] - p[j]) * timePass;
@@ -588,15 +584,17 @@ function pointUpdate()
 		for(j = 1; j < p.length; j += 3){
 			p[j] += (0.0 - p[j]) * timePass;
 		}
-	}
+	}*/
 	
-	bufferGeometry.attributes.position.needsUpdate =true;
-	
+	//bufferGeometry.attributes.position.needsUpdate =true;
+	uniforms_Particle2.time.value = timePass;
 	timePass += 0.005;
 }
 
 
 function animate() {	
+	if(stats != undefined)
+		stats.update();
 
 	pointUpdate();
 
@@ -825,4 +823,19 @@ function getPickColor(){
 		highlightCountry(affectedCountries);
 	}
 	return buf[0]; 	
+}
+
+function initStats() {
+	stats = new Stats();
+	stats.setMode(0); // 0: fps, 1: ms
+
+	// Align top-left
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.left = '0px';
+	stats.domElement.style.top = '0px';
+
+	document.body.appendChild( stats.domElement );
+
+
+	return stats;
 }

@@ -34,6 +34,8 @@
 	</style>
 
 	<body onload="start()" id="dataviz" class="">
+		<div id="Stats-output">
+		</div>
 		<div id="wrapper">
 		<div id="loading">
 			<h2>I AM LOADING...</h2>
@@ -68,7 +70,8 @@
 		
 		<script src="js/THREEx.KeyboardState.js"></script>	<!--Library-->
 		<script src="js/THREEx.WindowResize.js"></script>	<!--Library-->
-		<script src="js/Stats.js"></script>					<!--Library-->
+		<!--<script src="js/Stats.js"></script>					<!--Library-->
+		<script src="js/stats.min.js" type="text/javascript" ></script>
 		<script src="js/jquery-1.7.1.min.js"></script>		<!--Library-->
     	<script src="js/jquery-ui-1.8.21.custom.min.js"></script>		<!--Library-->
     	<script src="js/RequestAnimationFrame.js"></script>
@@ -415,35 +418,37 @@
 		
 		<script id="pointVertexshader2" type="x-shader/x-vertex" >
 			uniform float time;
-			attribute float size;
-			attribute vec3 customColor;
+			uniform float size;
+			uniform vec3 color;
+			uniform vec3 offset;
+			
+			attribute vec3 originalPosition;
+			
 			varying vec3 vColor;
 
 			void main() {
 
-				vColor = customColor; // set color associated to vertex; use later in fragment shader.
+				vColor = color; // set color associated to vertex; use later in fragment shader.
+				vec3 newPosition = position * time;
+				vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
+				//vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
-				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
-				// option (1): draw particles at constant size on screen
 				gl_PointSize = size;
-				// option (2): scale particles as objects in 3D space
-				//gl_PointSize = 40.0 * ( 300.0 / length( mvPosition.xyz ) );
-				gl_Position = projectionMatrix * mvPosition;
-				gl_Position += vec4(900.0, -1000.0, -1000.0, 1.0);
 
+				gl_Position = projectionMatrix * mvPosition;
+				//gl_Position += vec4(900.0, 0.0, 0.0, 1.0);
+				gl_Position += vec4(offset, 1.0);
 			}
 		</script>
 
 		<script id="pointFragmentshader2" type="x-shader/x-fragment" >
-			uniform sampler2D texture;
 			varying vec3 vColor; // colors associated to vertices, assigned by vertex shader
 			void main() 
 			{
 				// calculates a color for the particle
 				gl_FragColor = vec4( vColor, 1.0 );
-				// sets a white particle texture to desired color
-				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+				//gl_FragColor = vec4( 1.0,0.0,0.0, 1.0 );
 			}
 		</script>
 		
