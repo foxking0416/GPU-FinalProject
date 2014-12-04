@@ -104,30 +104,20 @@ var d3Graphs = {
         $("#aboutContainer").toggle();
     },
     showDart:function() {      
-		/*while( objectMesh.children.length > 0 ){
-			var c = objectMesh.children[0];
-			objectMesh.remove(c);
-		}*/
+
 		changeModelIndex = 0;
-		//transform = true;
 		drop = 1;
 		
     },
     showEngr:function() {       
-		/*while( objectMesh.children.length > 0 ){
-			var c = objectMesh.children[0];
-			objectMesh.remove(c);
-		}*/
+
 		changeModelIndex = 1;
-		//transform = true;
 		drop = 1;
     },
      showBsmg:function() {
-		/*while( objectMesh.children.length > 0 ){
-			var c = objectMesh.children[0];
-			objectMesh.remove(c);
-		}*/
-		
+
+		changeModelIndex = 2;
+		drop = 1;
 		
     },
     clickTimeline:function() {

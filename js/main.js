@@ -48,12 +48,11 @@ var selectableCountries = [];
 
 var buddhaMesh;
 var diggerMesh;
+var dollarMesh;
 var drop = 0;
-//var bufferGeometry;
 
-var vertices_tmp;
 var stats;
-//var lowestPt;
+
 
 var StudyAreaLookup = {
 	'Business_Management' 	: 'bsmg',
@@ -239,6 +238,12 @@ function initScene() {
 		
 		////// digger parameters ////////
 		createDiggerMesh( object, 0.35, 0.0, 0.0, 0.0, 0xff0044);
+	} );
+	
+	loader.load( 'model/dollar.obj', function ( object ) {
+		
+		////// dollar parameters ////////
+		createDollarMesh( object, 0.05, 0.0, 0.0, 0.0, 0xff0044);
 	} );
 	
 	
@@ -427,21 +432,55 @@ function createDiggerMesh( originalGeometry, scale, x, y, z, color ) {
 	diggerMesh.scale.x = diggerMesh.scale.y = diggerMesh.scale.z = scale;
 
 	diggerMesh.position.x = x;
-	diggerMesh.position.y = -50;
+	diggerMesh.position.y = -59;
 	diggerMesh.position.z = z;
 	
 }
 
-var currentModel = 0;
+function createDollarMesh( originalGeometry, scale, x, y, z, color ) {
 
-var transform = false;
+	attributes_Particle_Dollar = {
+		//originalPosition:    { type: 'v3', value: []},
+	};
+	
+	uniforms_Particle_Dollar = {
+		time:      { type: "f", value: 1.0 },
+		size:	   { type: "f", value: 1.0 },
+		color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
+		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
+		drop:      { type: 'i', value: drop},
+		lowestY:   { type: 'f', value: 1.0},
+		dropDistance: { type: 'f', value: 1.0},
+	};
+	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
+
+		uniforms: 		uniforms_Particle_Dollar,
+		//attributes:     attributes_Particle_Buddha,
+		vertexShader:   document.getElementById( 'objectPointVertexshader' ).textContent,
+		fragmentShader: document.getElementById( 'objectPointFragmentshader' ).textContent,
+		
+	});
+
+
+	var bufferGeometry = originalGeometry.children[0].geometry;
+	uniforms_Particle_Dollar.lowestY.value = 0.0;//For dollar
+	uniforms_Particle_Dollar.color.value = new THREE.Vector3(1.0, 1.0, 0.0 );
+	dollarMesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );//new THREE.PointCloudMaterial( { size: 3, color: color } )
+	dollarMesh.scale.x = dollarMesh.scale.y = dollarMesh.scale.z = scale;
+
+	dollarMesh.position.x = x;
+	dollarMesh.position.y = -57;
+	dollarMesh.position.z = z;
+	
+}
+
+
+var currentModel = 0;
 var changeModelIndex = 0;
 
 function transformObject(modelIndex){
 	if(uniforms_Particle_Buddha === undefined || uniforms_Particle_Digger === undefined)
 		return;
-	//if(!transform)
-	//	return;
 	
 	if(timePass >= 2.0){
 		timePass = 0.0;
@@ -456,38 +495,44 @@ function transformObject(modelIndex){
 				objectMesh.add( buddhaMesh );
 			else if(modelIndex === 1)
 				objectMesh.add( diggerMesh );
+			else if(modelIndex === 2)
+				objectMesh.add( dollarMesh );
 			
 			drop = 2;
 		}
 		else if(drop === 2){
-			//transform = false;
 			drop = 0;
-			//return;
 		}
 	}
 	
 	if(drop === 0){
 		uniforms_Particle_Buddha.drop.value = 0;
 		uniforms_Particle_Digger.drop.value = 0;
+		uniforms_Particle_Dollar.drop.value = 0;
 	}
 	else if(drop === 1){
 		uniforms_Particle_Buddha.drop.value = 1;
 		uniforms_Particle_Digger.drop.value = 1;
+		uniforms_Particle_Dollar.drop.value = 1;
 		uniforms_Particle_Buddha.dropDistance.value = 3 * timePass * timePass;	
 		uniforms_Particle_Digger.dropDistance.value = 500 * timePass * timePass;
+		uniforms_Particle_Dollar.dropDistance.value = 2000 * timePass * timePass;
 		timePass += 0.005;
 	}
 	else if(drop === 2){
 		uniforms_Particle_Buddha.drop.value = 2;
 		uniforms_Particle_Digger.drop.value = 2;
+		uniforms_Particle_Dollar.drop.value = 2;
 		uniforms_Particle_Buddha.dropDistance.value = 3 * (timePass -1) * (timePass-1) * (timePass-1);
 		uniforms_Particle_Digger.dropDistance.value = 500 * (timePass -1) * (timePass-1) * (timePass-1);
+		uniforms_Particle_Dollar.dropDistance.value = 2000 * (timePass -1) * (timePass-1) * (timePass-1);
 		timePass += 0.005;
 	}
 	
 
 	uniforms_Particle_Buddha.time.value = timePass;
 	uniforms_Particle_Digger.time.value = timePass;
+	uniforms_Particle_Dollar.time.value = timePass;
 
 }
 

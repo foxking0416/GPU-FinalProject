@@ -434,8 +434,8 @@
 				vColor = color; // set color associated to vertex; use later in fragment shader.
 				vec3 newPosition;
 				float offsetX;
-				if(drop == 0)
-					newPosition = vec3(position.x , position.y, position.z);
+				if(drop == 0)//nothing
+					newPosition = vec3(position.x ,position.y, position.z);
 				else if(drop == 1){//droping
 					if(position.y - dropDistance > lowestY){
 						newPosition = vec3(position.x , position.y - dropDistance, position.z);
