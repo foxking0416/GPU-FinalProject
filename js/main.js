@@ -375,15 +375,15 @@ function createBuddhaMesh( originalGeometry, scale, x, y, z, color ) {
 
 		uniforms: 		uniforms_Particle_Buddha,
 		//attributes:     attributes_Particle_Buddha,
-		vertexShader:   document.getElementById( 'pointVertexshader2' ).textContent,
-		fragmentShader: document.getElementById( 'pointFragmentshader2' ).textContent,
+		vertexShader:   document.getElementById( 'objectPointVertexshader' ).textContent,
+		fragmentShader: document.getElementById( 'objectPointFragmentshader' ).textContent,
 		
 	});
 
 
 	var bufferGeometry = originalGeometry.children[0].geometry;
 	
-	uniforms_Particle_Buddha.lowestY.value = -0.974;//Budha
+	uniforms_Particle_Buddha.lowestY.value = -0.974;//Budha 
 	uniforms_Particle_Buddha.color.value = new THREE.Vector3(0.0, 1.0, 0.0 );
 	buddhaMesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );//new THREE.PointCloudMaterial( { size: 3, color: color } )
 	buddhaMesh.scale.x = buddhaMesh.scale.y = buddhaMesh.scale.z = scale;
@@ -414,14 +414,14 @@ function createDiggerMesh( originalGeometry, scale, x, y, z, color ) {
 
 		uniforms: 		uniforms_Particle_Digger,
 		//attributes:     attributes_Particle_Buddha,
-		vertexShader:   document.getElementById( 'pointVertexshader2' ).textContent,
-		fragmentShader: document.getElementById( 'pointFragmentshader2' ).textContent,
+		vertexShader:   document.getElementById( 'objectPointVertexshader' ).textContent,
+		fragmentShader: document.getElementById( 'objectPointFragmentshader' ).textContent,
 		
 	});
 
 
 	var bufferGeometry = originalGeometry.children[0].geometry;
-	uniforms_Particle_Digger.lowestY.value = -13;//For digger
+	uniforms_Particle_Digger.lowestY.value = 0.0;//For digger
 	uniforms_Particle_Digger.color.value = new THREE.Vector3(1.0, 1.0, 0.0 );
 	diggerMesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );//new THREE.PointCloudMaterial( { size: 3, color: color } )
 	diggerMesh.scale.x = diggerMesh.scale.y = diggerMesh.scale.z = scale;
@@ -440,12 +440,21 @@ function pointUpdate()
 {
 	if(uniforms_Particle_Buddha === undefined)
 		return;
+		
+		
 
 	if(timePass >= 2.0){
 		if(currentModel === 0){
 
 			if(uniforms_Particle_Buddha.drop.value === 1){
-				uniforms_Particle_Buddha.drop.value = 0;
+				uniforms_Particle_Digger.drop.value = 0;
+				
+				while( objectMesh.children.length > 0 ){
+					var c = objectMesh.children[0];
+					objectMesh.remove(c);
+				}
+				objectMesh.add( diggerMesh );
+				currentModel = 1;
 		
 			}
 			else {
@@ -453,38 +462,35 @@ function pointUpdate()
 
 			}
 			timePass = 0.0;
-			count++;
-			
+			/*count++;
 			if(count === 2){
 				count = 0;
 				currentModel = 1;
+	
+			}*/
+		}
+		else{
+			if(uniforms_Particle_Digger.drop.value === 1){
+				uniforms_Particle_Buddha.drop.value = 0;
+
 				while( objectMesh.children.length > 0 ){
 					var c = objectMesh.children[0];
 					objectMesh.remove(c);
 				}
-				objectMesh.add( diggerMesh );
-			}
-		}
-		else{
-			if(uniforms_Particle_Digger.drop.value === 1){
-				uniforms_Particle_Digger.drop.value = 0;
-
+				objectMesh.add( buddhaMesh );
+				currentModel = 0;
 			}
 			else {
 				uniforms_Particle_Digger.drop.value = 1;
 
 			}
 			timePass = 0.0;
-			count++;
+			/*count++;
 			if(count === 2){
 				count = 0;
 				currentModel = 0;
-				while( objectMesh.children.length > 0 ){
-					var c = objectMesh.children[0];
-					objectMesh.remove(c);
-				}
-				objectMesh.add( buddhaMesh );
-			}
+
+			}*/
 		}
 	}
 
@@ -496,7 +502,7 @@ function pointUpdate()
 		if(uniforms_Particle_Buddha.drop.value === 1)
 			uniforms_Particle_Buddha.dropDistance.value = 3 * timePass * timePass;		
 		else
-			uniforms_Particle_Buddha.dropDistance.value = 3 * (timePass -1) * (timePass-1);
+			uniforms_Particle_Buddha.dropDistance.value = 3 * (timePass -1) * (timePass-1) * (timePass-1);
 		
 		uniforms_Particle_Buddha.time.value = timePass;
 		
@@ -505,7 +511,7 @@ function pointUpdate()
 		if(uniforms_Particle_Digger.drop.value === 1)
 			uniforms_Particle_Digger.dropDistance.value = 500 * timePass * timePass;
 		else
-			uniforms_Particle_Digger.dropDistance.value = 500 * (timePass -1) * (timePass-1);
+			uniforms_Particle_Digger.dropDistance.value = 500 * (timePass -1) * (timePass-1) * (timePass-1);
 		
 		uniforms_Particle_Digger.time.value = timePass;
 	}
