@@ -105,18 +105,35 @@ var d3Graphs = {
     },
     showDart:function() {      
 
+		if(changeModelIndex === 0)
+			return;
+	
 		changeModelIndex = 0;
-		drop = 1;
+		if(drop === 2)
+			timePass = 0.0;
 		
+		drop = 1;
     },
-    showEngr:function() {       
+    showEngr:function() {  
+		if(changeModelIndex === 1)
+			return;	
 
 		changeModelIndex = 1;
+		if(drop === 2)
+			timePass = 0.0;
+		
+
 		drop = 1;
     },
      showBsmg:function() {
+		if(changeModelIndex === 2)
+			return;
 
 		changeModelIndex = 2;
+		if(drop === 2)
+			timePass = 0.0;
+		
+
 		drop = 1;
 		
     },
