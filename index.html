@@ -438,14 +438,23 @@
 					if(position.y - dropDistance > lowestY){
 						newPosition = vec3(position.x , position.y - dropDistance, position.z);
 					}
-					else 
-						newPosition = vec3(position.x , lowestY, position.z);
+					else {
+						if(time > 1.0)
+							newPosition = vec3(position.x + (0.0 - position.x) * (time - 1.0) , lowestY, position.z + (0.0 - position.z) * (time - 1.0));
+						else
+							newPosition = vec3(position.x , lowestY, position.z);
+					}
 				}
 				else{//rising
-					if(lowestY + dropDistance < position.y)
-						newPosition = vec3(position.x, lowestY + dropDistance, position.z);
-					else 
-						newPosition = vec3(position.x, position.y, position.z);
+					if(time < 1.0){
+						newPosition = vec3(0.0 + (position.x - 0.0) * (time) , lowestY, 0.0 + (position.z - 0.0) * (time));
+					}
+					else{
+						if(lowestY + dropDistance < position.y)
+							newPosition = vec3(position.x, lowestY + dropDistance, position.z);
+						else 
+							newPosition = vec3(position.x, position.y, position.z);
+					}
 				}
 				vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
 				//vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
