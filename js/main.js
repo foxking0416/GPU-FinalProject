@@ -48,7 +48,7 @@ var selectableCountries = [];
 
 var buddhaMesh;
 var diggerMesh;
-
+var drop = 0;
 //var bufferGeometry;
 
 var vertices_tmp;
@@ -367,7 +367,7 @@ function createBuddhaMesh( originalGeometry, scale, x, y, z, color ) {
 		size:	   { type: "f", value: 1.0 },
 		color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
 		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
-		drop:      { type: 'i', value: 1},
+		drop:      { type: 'i', value: drop},
 		lowestY:   { type: 'f', value: 1.0},
 		dropDistance: { type: 'f', value: 1.0},
 	};
@@ -406,7 +406,7 @@ function createDiggerMesh( originalGeometry, scale, x, y, z, color ) {
 		size:	   { type: "f", value: 1.0 },
 		color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
 		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
-		drop:      { type: 'i', value: 1},
+		drop:      { type: 'i', value: drop},
 		lowestY:   { type: 'f', value: 1.0},
 		dropDistance: { type: 'f', value: 1.0},
 	};
@@ -433,11 +433,70 @@ function createDiggerMesh( originalGeometry, scale, x, y, z, color ) {
 }
 
 var currentModel = 0;
-var drop = true;
-var count = 0;
+
+var transform = false;
+var changeModelIndex = 0;
+
+function transformObject(modelIndex){
+	if(uniforms_Particle_Buddha === undefined || uniforms_Particle_Digger === undefined)
+		return;
+	//if(!transform)
+	//	return;
+	
+	if(timePass >= 2.0){
+		timePass = 0.0;
+		
+		if(drop === 1){
+			while( objectMesh.children.length > 0 ){
+				var c = objectMesh.children[0];
+				objectMesh.remove(c);
+			}
+			
+			if(modelIndex === 0)
+				objectMesh.add( buddhaMesh );
+			else if(modelIndex === 1)
+				objectMesh.add( diggerMesh );
+			
+			drop = 2;
+		}
+		else if(drop === 2){
+			//transform = false;
+			drop = 0;
+			//return;
+		}
+	}
+	
+	if(drop === 0){
+		uniforms_Particle_Buddha.drop.value = 0;
+		uniforms_Particle_Digger.drop.value = 0;
+	}
+	else if(drop === 1){
+		uniforms_Particle_Buddha.drop.value = 1;
+		uniforms_Particle_Digger.drop.value = 1;
+		uniforms_Particle_Buddha.dropDistance.value = 3 * timePass * timePass;	
+		uniforms_Particle_Digger.dropDistance.value = 500 * timePass * timePass;
+		timePass += 0.005;
+	}
+	else if(drop === 2){
+		uniforms_Particle_Buddha.drop.value = 2;
+		uniforms_Particle_Digger.drop.value = 2;
+		uniforms_Particle_Buddha.dropDistance.value = 3 * (timePass -1) * (timePass-1) * (timePass-1);
+		uniforms_Particle_Digger.dropDistance.value = 500 * (timePass -1) * (timePass-1) * (timePass-1);
+		timePass += 0.005;
+	}
+	
+
+	uniforms_Particle_Buddha.time.value = timePass;
+	uniforms_Particle_Digger.time.value = timePass;
+
+}
 
 function pointUpdate()
 {
+
+	if(transform === false)
+		return;
+
 	if(uniforms_Particle_Buddha === undefined)
 		return;
 		
@@ -462,12 +521,6 @@ function pointUpdate()
 
 			}
 			timePass = 0.0;
-			/*count++;
-			if(count === 2){
-				count = 0;
-				currentModel = 1;
-	
-			}*/
 		}
 		else{
 			if(uniforms_Particle_Digger.drop.value === 1){
@@ -485,12 +538,6 @@ function pointUpdate()
 
 			}
 			timePass = 0.0;
-			/*count++;
-			if(count === 2){
-				count = 0;
-				currentModel = 0;
-
-			}*/
 		}
 	}
 
@@ -523,7 +570,8 @@ function animate() {
 	if(stats != undefined)
 		stats.update();
 
-	pointUpdate();
+	transformObject(changeModelIndex);
+	//pointUpdate();
 
 	if( rotateTargetX !== undefined && rotateTargetY !== undefined ){
 

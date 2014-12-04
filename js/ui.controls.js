@@ -103,73 +103,32 @@ var d3Graphs = {
         
         $("#aboutContainer").toggle();
     },
-    showDart:function() {
-        
-        while( globeMesh.children.length > 3 ){
-        var c = globeMesh.children[3];
-        globeMesh.remove(c);
-    }
-        /*loader.load( 'model/buddha.obj', function ( object ) {
-
-            object.scale.x = 60;
-            object.scale.y = 60;
-            object.scale.z = 60;
-            obj = object
-            globeMesh.add( obj );
-
-        } );*/
-     //   console.log("yayaya");
+    showDart:function() {      
+		/*while( objectMesh.children.length > 0 ){
+			var c = objectMesh.children[0];
+			objectMesh.remove(c);
+		}*/
+		changeModelIndex = 0;
+		//transform = true;
+		drop = 1;
+		
     },
-    showEngr:function() {
-    /*    var manager = new THREE.LoadingManager();
-        manager.onProgress = function ( item, loaded, total ) {
-      //  console.log( item, loaded, total );
-    };*/
-        
-       while( globeMesh.children.length > 3 ){
-        var c = globeMesh.children[3];
-        globeMesh.remove(c);
-    }
-        /*var loader = new THREE.OBJLoader( manager );
-        loader.load( 'model/digger.obj', function ( object ) {
-
-            object.scale.x = 0.35;
-            object.scale.y = 0.35;
-            object.scale.z = 0.35;
-            object.position.y -= 50;
-            object.position.x += 20;
-            object.position.z += 10;
-            obj = object
-            globeMesh.add( obj );
-
-        } );*/
-     //   console.log("yayaya");
+    showEngr:function() {       
+		/*while( objectMesh.children.length > 0 ){
+			var c = objectMesh.children[0];
+			objectMesh.remove(c);
+		}*/
+		changeModelIndex = 1;
+		//transform = true;
+		drop = 1;
     },
      showBsmg:function() {
-    /*    var manager = new THREE.LoadingManager();
-        manager.onProgress = function ( item, loaded, total ) {
-      //  console.log( item, loaded, total );
-    };*/
-        
-        while( globeMesh.children.length > 3 ){
-        var c = globeMesh.children[3];
-        globeMesh.remove(c);
-        }
-        /*var loader = new THREE.OBJLoader( manager );
-        loader.load( 'model/ship.obj', function ( object ) {
-
-
-            object.position.x = - 60;
-            object.rotation.x = 20* Math.PI / 180;
-            object.rotation.z = 20* Math.PI / 180;
-            object.scale.x = 10;
-            object.scale.y = 10;
-            object.scale.z = 10;
-            obj = object
-            globeMesh.add( obj );
-
-        } );*/
-     //   console.log("yayaya");
+		/*while( objectMesh.children.length > 0 ){
+			var c = objectMesh.children[0];
+			objectMesh.remove(c);
+		}*/
+		
+		
     },
     clickTimeline:function() {
         var year = $(this).html();
