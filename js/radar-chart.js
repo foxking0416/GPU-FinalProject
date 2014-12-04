@@ -1,8 +1,8 @@
 var RadarChart = {
   defaultConfig: {
     containerClass: 'radar-chart',
-    w: 500,
-    h: 500,
+    w: 200,
+    h: 200,
     factor: 0.95,
     factorLegend: 1,
     levels: 3,
@@ -14,7 +14,7 @@ var RadarChart = {
     axisLine: true,
     axisText: true,
     circles: true,
-    radius: 3,
+    radius: 2,
     axisJoin: function(d, i) {
       return d.className || i;
     },
