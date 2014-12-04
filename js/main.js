@@ -364,13 +364,14 @@ function initScene() {
 function createBuddhaMesh( originalGeometry, scale, x, y, z, color ) {
 
 	attributes_Particle_Buddha = {
-		//originalPosition:    { type: 'v3', value: []},
+		blow:                  { type: 'f', value: []},
+		customColor:		   { type: 'v3', value: []},
 	};
 	
 	uniforms_Particle_Buddha = {
 		time:      { type: "f", value: 1.0 },
 		size:	   { type: "f", value: 1.0 },
-		color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
+		//color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
 		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
 		drop:      { type: 'i', value: drop},
 		lowestY:   { type: 'f', value: 1.0},
@@ -379,7 +380,7 @@ function createBuddhaMesh( originalGeometry, scale, x, y, z, color ) {
 	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
 
 		uniforms: 		uniforms_Particle_Buddha,
-		//attributes:     attributes_Particle_Buddha,
+		attributes:     attributes_Particle_Buddha,
 		vertexShader:   document.getElementById( 'objectPointVertexshader' ).textContent,
 		fragmentShader: document.getElementById( 'objectPointFragmentshader' ).textContent,
 		
@@ -387,9 +388,27 @@ function createBuddhaMesh( originalGeometry, scale, x, y, z, color ) {
 
 
 	var bufferGeometry = originalGeometry.children[0].geometry;
+	var customColor = [];
+	var blow = [];
+	for(var i = 0; i < bufferGeometry.attributes.position.length; i+=3){
+
+		customColor[i] = 1.0;
+		customColor[i+1] = 0.0;
+		customColor[i+2] = 1.0;		
+		if(i < bufferGeometry.attributes.position.length / 2)
+			blow[i/3] = 0.0;
+		else 
+			blow[i/3] = 1.0;
+	}
+	
+	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
+	bufferGeometry.attributes.customColor.needsUpdate = true;
+	
+	bufferGeometry.addAttribute( 'blow', new THREE.BufferAttribute( new Float32Array( blow ), 1 ) );
+	bufferGeometry.attributes.blow.needsUpdate = true;
 	
 	uniforms_Particle_Buddha.lowestY.value = -0.974;//Budha 
-	uniforms_Particle_Buddha.color.value = new THREE.Vector3(0.0, 1.0, 0.0 );
+	//uniforms_Particle_Buddha.color.value = new THREE.Vector3(0.0, 1.0, 0.0 );
 	buddhaMesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );//new THREE.PointCloudMaterial( { size: 3, color: color } )
 	buddhaMesh.scale.x = buddhaMesh.scale.y = buddhaMesh.scale.z = scale;
 
@@ -403,13 +422,14 @@ function createBuddhaMesh( originalGeometry, scale, x, y, z, color ) {
 function createDiggerMesh( originalGeometry, scale, x, y, z, color ) {
 
 	attributes_Particle_Digger = {
-		//originalPosition:    { type: 'v3', value: []},
+		blow:                  { type: 'f', value: []},
+		customColor:		   { type: 'v3', value: []},
 	};
 	
 	uniforms_Particle_Digger = {
 		time:      { type: "f", value: 1.0 },
 		size:	   { type: "f", value: 1.0 },
-		color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
+		//color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
 		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
 		drop:      { type: 'i', value: drop},
 		lowestY:   { type: 'f', value: 1.0},
@@ -418,7 +438,7 @@ function createDiggerMesh( originalGeometry, scale, x, y, z, color ) {
 	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
 
 		uniforms: 		uniforms_Particle_Digger,
-		//attributes:     attributes_Particle_Buddha,
+		attributes:     attributes_Particle_Digger,
 		vertexShader:   document.getElementById( 'objectPointVertexshader' ).textContent,
 		fragmentShader: document.getElementById( 'objectPointFragmentshader' ).textContent,
 		
@@ -426,8 +446,24 @@ function createDiggerMesh( originalGeometry, scale, x, y, z, color ) {
 
 
 	var bufferGeometry = originalGeometry.children[0].geometry;
+	var customColor = [];
+	var blow = [];
+	for(var i = 0; i < bufferGeometry.attributes.position.length; i+=3){
+
+		customColor[i] = 1.0;
+		customColor[i+1] = 0.0;
+		customColor[i+2] = 1.0;		
+		blow[i/3] = 0.0;
+	}
+	
+	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
+	bufferGeometry.attributes.customColor.needsUpdate = true;
+	
+	bufferGeometry.addAttribute( 'blow', new THREE.BufferAttribute( new Float32Array( blow ), 1 ) );
+	bufferGeometry.attributes.blow.needsUpdate = true;
+	
 	uniforms_Particle_Digger.lowestY.value = 0.0;//For digger
-	uniforms_Particle_Digger.color.value = new THREE.Vector3(1.0, 1.0, 0.0 );
+	//uniforms_Particle_Digger.color.value = new THREE.Vector3(1.0, 1.0, 0.0 );
 	diggerMesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );//new THREE.PointCloudMaterial( { size: 3, color: color } )
 	diggerMesh.scale.x = diggerMesh.scale.y = diggerMesh.scale.z = scale;
 
@@ -440,13 +476,14 @@ function createDiggerMesh( originalGeometry, scale, x, y, z, color ) {
 function createDollarMesh( originalGeometry, scale, x, y, z, color ) {
 
 	attributes_Particle_Dollar = {
-		//originalPosition:    { type: 'v3', value: []},
+		blow:                  { type: 'f', value: []},
+		customColor:		   { type: 'v3', value: []},
 	};
 	
 	uniforms_Particle_Dollar = {
 		time:      { type: "f", value: 1.0 },
 		size:	   { type: "f", value: 1.0 },
-		color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
+		//color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
 		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
 		drop:      { type: 'i', value: drop},
 		lowestY:   { type: 'f', value: 1.0},
@@ -455,7 +492,7 @@ function createDollarMesh( originalGeometry, scale, x, y, z, color ) {
 	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
 
 		uniforms: 		uniforms_Particle_Dollar,
-		//attributes:     attributes_Particle_Buddha,
+		attributes:     attributes_Particle_Dollar,
 		vertexShader:   document.getElementById( 'objectPointVertexshader' ).textContent,
 		fragmentShader: document.getElementById( 'objectPointFragmentshader' ).textContent,
 		
@@ -463,8 +500,25 @@ function createDollarMesh( originalGeometry, scale, x, y, z, color ) {
 
 
 	var bufferGeometry = originalGeometry.children[0].geometry;
+	var customColor = [];
+	var blow = [];
+	for(var i = 0; i < bufferGeometry.attributes.position.length; i+=3){
+
+		customColor[i] = 1.0;
+		customColor[i+1] = 0.0;
+		customColor[i+2] = 1.0;		
+		blow[i/3] = 0.0;
+	}
+	
+	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
+	bufferGeometry.attributes.customColor.needsUpdate = true;
+	
+	bufferGeometry.addAttribute( 'blow', new THREE.BufferAttribute( new Float32Array( blow ), 1 ) );
+	bufferGeometry.attributes.blow.needsUpdate = true;
+	
+	
 	uniforms_Particle_Dollar.lowestY.value = 0.0;//For dollar
-	uniforms_Particle_Dollar.color.value = new THREE.Vector3(1.0, 1.0, 0.0 );
+	//uniforms_Particle_Dollar.color.value = new THREE.Vector3(1.0, 1.0, 0.0 );
 	dollarMesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );//new THREE.PointCloudMaterial( { size: 3, color: color } )
 	dollarMesh.scale.x = dollarMesh.scale.y = dollarMesh.scale.z = scale;
 
