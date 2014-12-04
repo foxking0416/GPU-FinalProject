@@ -50,6 +50,7 @@ var bufferGeometry;
 
 var vertices_tmp;
 var stats;
+var lowestPt;
 
 var StudyAreaLookup = {
 	'Business_Management' 	: 'bsmg',
@@ -227,39 +228,8 @@ function initScene() {
 	var loader = new THREE.OBJLoader( manager );
 	loader.load( 'model/buddha.obj', function ( object ) {
 		
-
 		////// buddha parameters ////////
-		object.scale.x = 60;
-		object.scale.y = 60;
-		object.scale.z = 60;
-		
-		object.children[0].geometry.dynamic = true;
-		object.children[0].geometry.verticesNeedUpdate = true;
-		
-		//globeMesh.add( object );
-		
-		
-		
-		//var position = object.attributes.position;
-		//position.needsUpdate = true;
-
-		//var p = position.array;
-		//meshTest = object.children[0].geometry;
-		/*var particleSystem = new THREE.PointCloud(meshTest, new THREE.PointCloudMaterial( { color: 0xff0000, size: 2 } ) );
-		particleSystem.scale.x = 60;
-		particleSystem.scale.y = 60;
-		particleSystem.scale.z = 60;
-		particleSystem.position.x = 100;
-		scene.add( particleSystem );*/
-		/*vertices_tmp = [];
-		for(var i = 0; i < meshTest.attributes.position.array.length; i++){
-			vertices_tmp[i] = meshTest.attributes.position.array[i];
-		}*/
-		
-		//var testGeometry = object.children[0].geometry.attributes.position.array;
 		createMesh( object, 60, 0.0, 0.0, 0.0, 0x00ff44, true );
-
-
 	} );
 
 	
@@ -390,6 +360,8 @@ function createMesh( originalGeometry, scale, x, y, z, color, dynamic ) {
 		color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
 		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
 		drop:      { type: 'i', value: 1},
+		lowestY:   { type: 'f', value: 1.0},
+		dropDistance: { type: 'f', value: 1.0},
 	};
 	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
 
@@ -404,18 +376,27 @@ function createMesh( originalGeometry, scale, x, y, z, color, dynamic ) {
 	bufferGeometry = originalGeometry.children[0].geometry;
 	
 	
-	vertices_tmp = [];
+	/*vertices_tmp = [];
 	for(var i = 0; i < bufferGeometry.attributes.position.array.length; i++){
 		vertices_tmp[i] = bufferGeometry.attributes.position.array[i];
-	}
+	}*/
 	
 	for(var i = 0; i < bufferGeometry.attributes.position.array.length; i+=3){
 		attributes_Particle2.originalPosition.value[i/3] = new THREE.Vector3( bufferGeometry.attributes.position.array[i],
 													bufferGeometry.attributes.position.array[i+1],
 													bufferGeometry.attributes.position.array[i+2]);
 	}
-
 	
+	
+	for(var i = 0; i < bufferGeometry.attributes.position.array.length; i++){		
+		if(i === 1)
+			lowestPt = bufferGeometry.attributes.position.array[i];
+		else{
+			if(bufferGeometry.attributes.position.array[i] < lowestPt)
+				lowestPt = bufferGeometry.attributes.position.array[i];
+		}
+	}
+	uniforms_Particle2.lowestY.value = lowestPt;
 
 	mesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );//new THREE.PointCloudMaterial( { size: 3, color: color } )
 	mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
@@ -591,6 +572,10 @@ function pointUpdate()
 	}*/
 	
 	//bufferGeometry.attributes.position.needsUpdate =true;
+	
+	
+	
+	uniforms_Particle2.dropDistance.value = 3 * timePass * timePass;
 	uniforms_Particle2.time.value = timePass;
 	timePass += 0.005;
 }

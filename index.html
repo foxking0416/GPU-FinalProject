@@ -419,6 +419,8 @@
 		<script id="pointVertexshader2" type="x-shader/x-vertex" >
 			uniform float time;
 			uniform float size;
+			uniform float lowestY;
+			uniform float dropDistance;
 			uniform vec3 color;
 			uniform vec3 offset;
 			uniform int drop;
@@ -431,10 +433,20 @@
 
 				vColor = color; // set color associated to vertex; use later in fragment shader.
 				vec3 newPosition;
-				//if(drop === 1)
-				//	newPosition = position * time;
-				//else
-					newPosition = vec3(position.x, position.y * time, position.z);
+				float offsetX;
+				if(drop == 1){//droping
+					if(position.y - dropDistance > lowestY){
+						newPosition = vec3(position.x , position.y - dropDistance, position.z);
+					}
+					else 
+						newPosition = vec3(position.x , lowestY, position.z);
+				}
+				else{//rising
+					if(lowestY + dropDistance < position.y)
+						newPosition = vec3(position.x, lowestY + dropDistance, position.z);
+					else 
+						newPosition = vec3(position.x, position.y, position.z);
+				}
 				vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
 				//vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
