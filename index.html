@@ -421,6 +421,7 @@
 			uniform float size;
 			uniform vec3 color;
 			uniform vec3 offset;
+			uniform int drop;
 			
 			attribute vec3 originalPosition;
 			
@@ -429,7 +430,11 @@
 			void main() {
 
 				vColor = color; // set color associated to vertex; use later in fragment shader.
-				vec3 newPosition = position * time;
+				vec3 newPosition;
+				//if(drop === 1)
+				//	newPosition = position * time;
+				//else
+					newPosition = vec3(position.x, position.y * time, position.z);
 				vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
 				//vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 

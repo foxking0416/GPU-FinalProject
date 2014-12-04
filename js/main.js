@@ -389,6 +389,7 @@ function createMesh( originalGeometry, scale, x, y, z, color, dynamic ) {
 		size:	   { type: "f", value: 1.0 },
 		color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
 		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
+		drop:      { type: 'i', value: 1},
 	};
 	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
 
@@ -567,7 +568,10 @@ var drop = true;
 function pointUpdate()
 {
 	if(timePass >= 1.0){
-		drop = !drop;
+		if(uniforms_Particle2.drop.value === 1)
+			uniforms_Particle2.drop.value = 0;
+		else 
+			uniforms_Particle2.drop.value = 1;
 		timePass = 0.0;
 	}
 	
