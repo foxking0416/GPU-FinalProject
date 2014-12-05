@@ -372,6 +372,7 @@ function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, 
 		blowTime:              { type: 'f', value: []},
 		requireTimeToDrop:     { type: 'f', value: []},
 		customColor:		   { type: 'v3', value: []},
+		blowDirection:         { type: 'v3', value: []},
 	};
 	
 	var uniforms_Particle = {
@@ -385,7 +386,7 @@ function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, 
 		offset:    	  { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
 
 		drop:         { type: 'i', value: drop},
-
+		
 
 	};
 	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
@@ -404,33 +405,40 @@ function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, 
 	var blow = [];
 	var blowTime = [];
 	var requireTimeToDrop = [];
+	var blowDirection = [];
 	
-	var low;
+	var lowest;
 	
 	for(var i = 0; i < bufferGeometry.attributes.position.length; i+=3){
 		
 		if(i === 0)
-			low = bufferGeometry.attributes.position.array[1];
+			lowest = bufferGeometry.attributes.position.array[1];
 		else{
-			if(bufferGeometry.attributes.position.array[i+1] < low)
-				low = bufferGeometry.attributes.position.array[i+1];
-		
+			if(bufferGeometry.attributes.position.array[i+1] < lowest)
+				lowest = bufferGeometry.attributes.position.array[i+1];
 		}	
 		
 		customColor[i] = 1.0;
 		customColor[i+1] = 0.0;
 		customColor[i+2] = 1.0;		
+		
+		blowDirection[i] = 0.0;
+		blowDirection[i+1] = 0.0;
+		blowDirection[i+2] = 0.0;	
+		
 		blow[i/3] = 0.0;
 		blowTime[i/3] = 0.0;
 		
+		requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] - lowest + 0.001)/ acceleration);
+		/*
 		if(modelIndex === 0)
 			requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.975)/ acceleration);
 		else if(modelIndex === 1)
 			requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.355)/ acceleration);
 		else if(modelIndex === 2)
-			requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.0)/ acceleration);			
+			requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.0)/ acceleration);	*/		
 	}
-	
+	uniforms_Particle.lowestY.value = lowest;
 	
 	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
 	bufferGeometry.attributes.customColor.needsUpdate = true;
@@ -443,12 +451,17 @@ function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, 
 	
 	bufferGeometry.addAttribute( 'requireTimeToDrop', new THREE.BufferAttribute( new Float32Array( requireTimeToDrop ), 1 ) );
 	bufferGeometry.attributes.requireTimeToDrop.needsUpdate = true;
-	if(modelIndex === 0)
+		
+	bufferGeometry.addAttribute( 'blowDirection', new THREE.BufferAttribute( new Float32Array( blowDirection ), 3 ) );
+	bufferGeometry.attributes.blowDirection.needsUpdate = true;
+	
+	
+	/*if(modelIndex === 0)
 		uniforms_Particle.lowestY.value = -0.975;//Budha 
 	else if(modelIndex === 1)
 		uniforms_Particle.lowestY.value = -0.355;
 	else if(modelIndex === 2)
-		uniforms_Particle.lowestY.value = 0.0;
+		uniforms_Particle.lowestY.value = 0.0;*/
 		
 	//uniforms_Particle_Buddha.color.value = new THREE.Vector3(0.0, 1.0, 0.0 );
 	var mesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );
