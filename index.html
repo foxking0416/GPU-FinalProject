@@ -424,6 +424,7 @@
 			uniform float acceleration;
 			//uniform vec3 color;
 			uniform vec3 offset;
+			uniform float blowStrength;
 			uniform int drop;
 			
 			attribute float blow;
@@ -444,11 +445,15 @@
 					else{
 						float pastTime = realTime - blowTime;
 						if(pastTime < requireTimeToDrop){
-							newPosition = vec3(position.x + 1.0 * (realTime - blowTime) , position.y - acceleration * pastTime * pastTime, position.z);
+							newPosition = vec3(position.x + blowStrength * (realTime - blowTime) , 
+											   position.y - acceleration * pastTime * pastTime, 
+											   position.z + blowStrength * (realTime - blowTime));
 						}
 						else {
 				
-							newPosition = vec3(position.x + 1.0 * requireTimeToDrop, lowestY, position.z);
+							newPosition = vec3(position.x + blowStrength * requireTimeToDrop, 
+							                   lowestY, 
+											   position.z + blowStrength * requireTimeToDrop);
 						}
 					}
 				}
@@ -467,9 +472,13 @@
 					}
 					else{
 						if(time > 1.0)
-							newPosition = vec3( (position.x + 1.0 * requireTimeToDrop) * (2.0 - time), lowestY, position.z * (2.0 - time));
+							newPosition = vec3( (position.x + blowStrength * requireTimeToDrop) * (2.0 - time), 
+												 lowestY, 
+												(position.z + blowStrength * requireTimeToDrop)* (2.0 - time));
 						else
-							newPosition = vec3(position.x + 1.0 * requireTimeToDrop, lowestY, position.z);
+							newPosition = vec3(position.x + blowStrength * requireTimeToDrop, 
+											   lowestY, 
+											   position.z + blowStrength * requireTimeToDrop);
 					}
 				}
 				else if(drop == 2){//rising

@@ -231,19 +231,19 @@ function initScene() {
 	loader.load( 'model/buddha.obj', function ( object ) {
 		
 		////// buddha parameters ////////
-		createMesh( object, 0, 60, 0.0, 0.0, 0.0, 0x00ff44, 3.0);//scale, x, y, z, color, acceleration
+		createMesh( object, 0, 60, 0.0, 0.0, 0.0, 1.0, 0x00ff44, 3.0);//scale, x, y, z, blowOffsetX, blowOffsetZ, color, acceleration
 	} );
 
 	loader.load( 'model/digger.obj', function ( object ) {
 		
 		////// digger parameters ////////
-		createMesh( object, 1, 0.35, 0.0, -59, 0.0, 0xff0044, 500.0);
+		createMesh( object, 1, 0.35, 0.0, -59, 0.0, 170.0, 0xff0044, 500.0);
 	} );
 	
 	loader.load( 'model/dollar.obj', function ( object ) {
 		
 		////// dollar parameters ////////
-		createMesh( object, 2, 0.05, 0.0, -57, 0.0, 0xff0044, 2000.0);
+		createMesh( object, 2, 0.05, 0.0, -57, 0.0, 1200.0, 0xff0044, 2000.0);
 	} );
 	
 	
@@ -365,7 +365,7 @@ var objectMeshCollection = [];
 var attributesParticleCollection = [];
 var uniformsParticleCollection = [];
 
-function createMesh(originalGeometry, modelIndex, scale, x, y, z, color, acceleration ) {
+function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, color, acceleration ) {
 
 	var attributes_Particle = {
 		blow:                  { type: 'f', value: []},
@@ -375,14 +375,18 @@ function createMesh(originalGeometry, modelIndex, scale, x, y, z, color, acceler
 	};
 	
 	var uniforms_Particle = {
-		time:      { type: "f", value: 1.0 },
-		size:	   { type: "f", value: 1.0 },
-		//color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
-		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
-		drop:      { type: 'i', value: drop},
-		lowestY:   { type: 'f', value: 1.0},
+		time:         { type: "f", value: 1.0 },
+		size:	      { type: "f", value: 1.0 },
+		lowestY:      { type: 'f', value: 1.0},
 		acceleration: { type: 'f', value: acceleration},
 		realTime: 	  { type: 'f', value: 0.0},
+		blowStrength: { type: 'f', value: blowStrength},
+		//color:      { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
+		offset:    	  { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
+
+		drop:         { type: 'i', value: drop},
+
+
 	};
 	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
 
@@ -611,15 +615,15 @@ var isBlow = false;
 
 function blowParticle(){
 	
-	/*var blowTime = realTimePass; 
+	var blowTime = realTimePass; 
 	
-	for(var i = 0; i < buddhaMesh.geometry.attributes.blowTime.length; i++){
-		buddhaMesh.geometry.attributes.blow.setX(i, 1.0);
-		buddhaMesh.geometry.attributes.blowTime.setX(i, blowTime);
+	for(var i = 0; i < objectMeshCollection[currentModelIndex].geometry.attributes.blowTime.length; i++){
+		objectMeshCollection[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+		objectMeshCollection[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime);
 	}
-	buddhaMesh.geometry.attributes.blow.needsUpdate = true;
-	buddhaMesh.geometry.attributes.blowTime.needsUpdate = true;
-	isBlow = true;*/
+	objectMeshCollection[currentModelIndex].geometry.attributes.blow.needsUpdate = true;
+	objectMeshCollection[currentModelIndex].geometry.attributes.blowTime.needsUpdate = true;
+	isBlow = true;
 }
 
 function transformObject(modelIndex){
@@ -634,7 +638,16 @@ function transformObject(modelIndex){
 				var c = objectMesh.children[0];
 				objectMesh.remove(c);
 			}
+			if(isBlow){
+			
+				for(var i = 0; i < objectMeshCollection[currentModelIndex].geometry.attributes.blow.length; i++){
+					objectMeshCollection[currentModelIndex].geometry.attributes.blow.setX(i, 0.0);
+				}
+				objectMeshCollection[currentModelIndex].geometry.attributes.blow.needsUpdate = true;
 
+				isBlow = false;
+			}
+			
 			objectMesh.add( objectMeshCollection[modelIndex] );
 			drop = 2;
 			currentModelIndex = modelIndex;
@@ -667,12 +680,21 @@ function animate() {
 
 	transformObject(changeModelIndex);
 	
-	/*if(uniforms_Particle_Buddha !== undefined && uniforms_Particle_Digger !== undefined && uniforms_Particle_Dollar !== undefined){
-		uniforms_Particle_Buddha.realTime.value = realTimePass;
-		uniforms_Particle_Digger.realTime.value = realTimePass;
-		uniforms_Particle_Dollar.realTime.value = realTimePass;
+	var check = true;
+	for(var i = 0; i <uniformsParticleCollection.length; ++i){
+		if(uniformsParticleCollection[i] === undefined){
+			check = false;
+			break;
+		}
+	}
+	if(check){
 		realTimePass += 0.005;
-	}*/
+		for(var i = 0; i <uniformsParticleCollection.length; ++i){
+			uniformsParticleCollection[i].realTime.value = realTimePass;
+		}		
+	}
+	
+	
 	if( rotateTargetX !== undefined && rotateTargetY !== undefined ){
 
 		rotateVX += (rotateTargetX - rotateX) * 0.012;
@@ -722,7 +744,7 @@ function animate() {
 	//console.log("x:" + globeMesh.rotation.x + "  y:"+globeMesh.rotation.y);
 	//countryMesh.rotation.x = rotateX;
 	countryMesh.rotation.y += 0.01;	
-	objectMesh.rotation.y += 0.01;	
+	//objectMesh.rotation.y += 0.01;	
     render();	
     		        		       
     requestAnimationFrame( animate );	
