@@ -231,21 +231,25 @@ function initScene() {
 	loader.load( 'model/buddha.obj', function ( object ) {
 		
 		////// buddha parameters ////////
-		createMesh( object, 0, 60, 0.0, 0.0, 0.0, 2.0, 0x00ff44, 3.0);//scale, x, y, z, blowOffsetX, blowOffsetZ, color, acceleration
+		createObjectMesh( object, 0, 60, 0.0, 0.0, 0.0, 2.0, //scale, x, y, z, blowOffsetX, blowOffsetZ, blowStrength
+					0x00ff44, 3.0, 50, 140, 180); //color, drop acceleration, ring radius, ring rising height, ring rising velocity
 	} );
 
 	loader.load( 'model/digger.obj', function ( object ) {
 		
 		////// digger parameters ////////
-		createMesh( object, 1, 0.35, 0.0, -59, 0.0, 340.0, 0xff0044, 500.0);
+		createObjectMesh( object, 1, 0.35, 5.0, -59, 0.0, 340.0, 
+					0xff0044, 500.0, 100, 92, 180);
 	} );
 	
 	loader.load( 'model/dollar.obj', function ( object ) {
 		
 		////// dollar parameters ////////
-		createMesh( object, 2, 0.05, 0.0, -57, 0.0, 2400.0, 0xff0044, 2000.0);
+		createObjectMesh( object, 2, 0.05, 0.0, -57, 0.0, 2400.0, 
+					0xff0044, 2700.0, 30, 87, 140);
 	} );
-	
+
+	createRingMesh();
 	
 	/*var ambient = new THREE.AmbientLight( 0x101030 );
 	//scene.add( ambient );
@@ -361,18 +365,33 @@ function initScene() {
 
 }
 
-var objectMeshCollection = [];
-var attributesParticleCollection = [];
-var uniformsParticleCollection = [];
+var objectMeshArray = [];
+var attributesObjectParticleArray = [];
+var uniformsObjectParticleArray = [];
 
-function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, color, acceleration ) {
+var ringMeshArray = [];
+var attributesRingParticleArray = [];
+var uniformsRingParticleArray = [];
+
+var radiusArray = [];
+var heightArray = [];
+var ringRisingVelArray = [];
+var ringMesh;
+var currentModelIndex = 0;
+var changeModelIndex = 0;
+
+
+var realTimePass = 0.0
+var isBlow = false;
+var blowDir = new THREE.Vector3(0.0, 0.0, 0.0 );
+
+function createObjectMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, color, acceleration, ringRadius, ringRisingHeight, ringRisingVelocity ) {
 
 	var attributes_Particle = {
 		blow:                  { type: 'f', value: []},
 		blowTime:              { type: 'f', value: []},
 		requireTimeToDrop:     { type: 'f', value: []},
 		customColor:		   { type: 'v3', value: []},
-		//blowDirection:         { type: 'v3', value: []},
 	};
 	
 	var uniforms_Particle = {
@@ -397,15 +416,15 @@ function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, 
 		fragmentShader: document.getElementById( 'objectPointFragmentshader' ).textContent,
 		
 	});
-	attributesParticleCollection[modelIndex] = attributes_Particle;
-	uniformsParticleCollection[modelIndex] = uniforms_Particle;
+	attributesObjectParticleArray[modelIndex] = attributes_Particle;
+	uniformsObjectParticleArray[modelIndex] = uniforms_Particle;
 
 	var bufferGeometry = originalGeometry.children[0].geometry;
 	var customColor = [];
 	var blow = [];
 	var blowTime = [];
 	var requireTimeToDrop = [];
-	//var blowDirection = [];
+
 	
 	var lowest;
 	
@@ -423,10 +442,6 @@ function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, 
 		customColor[i+1] = 0.0;
 		customColor[i+2] = 1.0;		
 		
-		//blowDirection[i] = 0.0;
-		//blowDirection[i+1] = 0.0;
-		//blowDirection[i+2] = 0.0;	
-		
 		blow[i/3] = 0.0;
 		blowTime[i/3] = 0.0;
 		
@@ -437,8 +452,6 @@ function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, 
 	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
 	bufferGeometry.attributes.customColor.needsUpdate = true;
 	
-	//bufferGeometry.addAttribute( 'blowDirection', new THREE.BufferAttribute( new Float32Array( blowDirection ), 3 ) );
-	//bufferGeometry.attributes.blowDirection.needsUpdate = true;
 	
 	bufferGeometry.addAttribute( 'blow', new THREE.BufferAttribute( new Float32Array( blow ), 1 ) );
 	bufferGeometry.attributes.blow.needsUpdate = true;
@@ -464,180 +477,94 @@ function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, 
 	mesh.position.y = y;
 	mesh.position.z = z;
 	
-	objectMeshCollection[modelIndex] = mesh;
-	if(modelIndex === 0)
+	objectMeshArray[modelIndex] = mesh;
+	radiusArray[modelIndex] = ringRadius;
+	heightArray[modelIndex] = ringRisingHeight;
+	ringRisingVelArray[modelIndex] = ringRisingVelocity;
+	if(modelIndex === 0)//buddha
 		objectMesh.add( mesh );
+
+	/*}
+	else if(modelIndex === 1){//digger
 	
+		radiusArray[modelIndex] = 100;
+		heightArray[modelIndex] = 92;
+		ringRisingVelArray[modelIndex] = 180;
+	}
+	else if(modelIndex === 2){//dollar
+	
+		radiusArray[modelIndex] = 30;
+		heightArray[modelIndex] = 87;
+		ringRisingVelArray[modelIndex] = 140;
+	}*/
 }
 
-
-/*
-function createDiggerMesh( originalGeometry, scale, x, y, z, color, acceleration ) {
-
-	attributes_Particle_Digger = {
-		blow:                  { type: 'f', value: []},
+function createRingMesh(){
+	var attributes_Particle_Ring = {
 		customColor:		   { type: 'v3', value: []},
-		blowTime:              { type: 'f', value: []},
-		requireTimeToDrop:     { type: 'f', value: []},
 	};
 	
-	uniforms_Particle_Digger = {
+	var uniforms_Particle_Ring = {
+		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},		
 		time:      { type: "f", value: 1.0 },
-		size:	   { type: "f", value: 1.0 },
-		//color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
-		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
-		drop:      { type: 'i', value: drop},
-		lowestY:   { type: 'f', value: 1.0},
-		dropDistance: { type: 'f', value: 1.0},
-		acceleration: { type: 'f', value: acceleration},
-		realTime: 	  { type: 'f', value: 0.0},
+		texture:   { type: "t", value: THREE.ImageUtils.loadTexture( "images/particleA.png" ) },
 	};
-	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
+	
+	var shaderMaterial_Particle_Ring = new THREE.ShaderMaterial( {
 
-		uniforms: 		uniforms_Particle_Digger,
-		attributes:     attributes_Particle_Digger,
-		vertexShader:   document.getElementById( 'objectPointVertexshader' ).textContent,
-		fragmentShader: document.getElementById( 'objectPointFragmentshader' ).textContent,
+		uniforms: 		uniforms_Particle_Ring,
+		attributes:     attributes_Particle_Ring,
+		vertexShader:   document.getElementById( 'ringPointVertexshader' ).textContent,
+		fragmentShader: document.getElementById( 'ringPointFragmentshader' ).textContent,
 		
+		blending: 		THREE.AdditiveBlending,
+		transparent:	true,
+		depthWrite: 	false,
+		depthTest: 		true,
 	});
 
-
-	var bufferGeometry = originalGeometry.children[0].geometry;
+	var ringPt = [];
 	var customColor = [];
-	var blow = [];
-	var blowTime = [];
-	var requireTimeToDrop = [];
-	for(var i = 0; i < bufferGeometry.attributes.position.length; i+=3){
-
-		customColor[i] = 1.0;
-		customColor[i+1] = 0.0;
-		customColor[i+2] = 1.0;		
-		blow[i/3] = 0.0;
+	
+	for(var i = 0; i < 36; i++){
+		ringPt[i * 3] = 0;
+		ringPt[i * 3 + 1] = 0;
+		ringPt[i * 3 + 2] = 0;
 		
-		blowTime[i/3] = 0.0;
-		requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.0)/ acceleration);
+		customColor[i * 3] = 0;
+		customColor[i * 3 + 1] = 1 * i / 35; 
+		customColor[i * 3 + 2] = 1 - i / 35;
 	}
+	var ringBufferGeometry = new THREE.BufferGeometry();
+	ringBufferGeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( ringPt ), 3 ) );
+	ringBufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
 	
-	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
-	bufferGeometry.attributes.customColor.needsUpdate = true;
 	
-	bufferGeometry.addAttribute( 'blow', new THREE.BufferAttribute( new Float32Array( blow ), 1 ) );
-	bufferGeometry.attributes.blow.needsUpdate = true;
-	
-	bufferGeometry.addAttribute( 'blowTime', new THREE.BufferAttribute( new Float32Array( blowTime ), 1 ) );
-	bufferGeometry.attributes.blowTime.needsUpdate = true;
-	
-	bufferGeometry.addAttribute( 'requireTimeToDrop', new THREE.BufferAttribute( new Float32Array( requireTimeToDrop ), 1 ) );
-	bufferGeometry.attributes.requireTimeToDrop.needsUpdate = true;
-	
-	uniforms_Particle_Digger.lowestY.value = 0.0;//For digger
-	//uniforms_Particle_Digger.color.value = new THREE.Vector3(1.0, 1.0, 0.0 );
-	diggerMesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );//new THREE.PointCloudMaterial( { size: 3, color: color } )
-	diggerMesh.scale.x = diggerMesh.scale.y = diggerMesh.scale.z = scale;
-
-	diggerMesh.position.x = x;
-	diggerMesh.position.y = -59;
-	diggerMesh.position.z = z;
-	
+	ringMesh = new THREE.PointCloud( ringBufferGeometry, shaderMaterial_Particle_Ring );
+	ringMesh.position.y = -59;
+	//objectMesh.add( ringMesh );
 }
 
-function createDollarMesh( originalGeometry, scale, x, y, z, color, acceleration ) {
 
-	attributes_Particle_Dollar = {
-		blow:                  { type: 'f', value: []},
-		customColor:		   { type: 'v3', value: []},
-		blowTime:              { type: 'f', value: []},
-		requireTimeToDrop:     { type: 'f', value: []},
-	};
-	
-	uniforms_Particle_Dollar = {
-		time:      { type: "f", value: 1.0 },
-		size:	   { type: "f", value: 1.0 },
-		//color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
-		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
-		drop:      { type: 'i', value: drop},
-		lowestY:   { type: 'f', value: 1.0},
-		dropDistance: { type: 'f', value: 1.0},
-		acceleration: { type: 'f', value: acceleration},
-		realTime: 	  { type: 'f', value: 0.0},
-	};
-	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
-
-		uniforms: 		uniforms_Particle_Dollar,
-		attributes:     attributes_Particle_Dollar,
-		vertexShader:   document.getElementById( 'objectPointVertexshader' ).textContent,
-		fragmentShader: document.getElementById( 'objectPointFragmentshader' ).textContent,
-		
-	});
-
-
-	var bufferGeometry = originalGeometry.children[0].geometry;
-	var customColor = [];
-	var blow = [];
-	var blowTime = [];
-	var requireTimeToDrop = [];
-	for(var i = 0; i < bufferGeometry.attributes.position.length; i+=3){
-
-		customColor[i] = 1.0;
-		customColor[i+1] = 0.0;
-		customColor[i+2] = 1.0;		
-		blow[i/3] = 0.0;
-		
-		blowTime[i/3] = 0.0;
-		requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.0)/ acceleration);
-	}
-	
-	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
-	bufferGeometry.attributes.customColor.needsUpdate = true;
-	
-	bufferGeometry.addAttribute( 'blow', new THREE.BufferAttribute( new Float32Array( blow ), 1 ) );
-	bufferGeometry.attributes.blow.needsUpdate = true;
-	
-	bufferGeometry.addAttribute( 'blowTime', new THREE.BufferAttribute( new Float32Array( blowTime ), 1 ) );
-	bufferGeometry.attributes.blowTime.needsUpdate = true;
-	
-	bufferGeometry.addAttribute( 'requireTimeToDrop', new THREE.BufferAttribute( new Float32Array( requireTimeToDrop ), 1 ) );
-	bufferGeometry.attributes.requireTimeToDrop.needsUpdate = true;
-	
-	
-	uniforms_Particle_Dollar.lowestY.value = 0.0;//For dollar
-	//uniforms_Particle_Dollar.color.value = new THREE.Vector3(1.0, 1.0, 0.0 );
-	dollarMesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );//new THREE.PointCloudMaterial( { size: 3, color: color } )
-	dollarMesh.scale.x = dollarMesh.scale.y = dollarMesh.scale.z = scale;
-
-	dollarMesh.position.x = x;
-	dollarMesh.position.y = -57;
-	dollarMesh.position.z = z;
-	
-}
-*/
-
-var currentModelIndex = 0;
-var changeModelIndex = 0;
-
-
-var realTimePass = 0.0
-var isBlow = false;
-var blowDir = new THREE.Vector3(0.0, 0.0, 0.0 );
 
 function blowParticle(){
 	
 	var blowTime = realTimePass; 
 	
-	uniformsParticleCollection[currentModelIndex].blowDirection.value = blowDir;
+	uniformsObjectParticleArray[currentModelIndex].blowDirection.value = blowDir;
 	
-	for(var i = 0; i < objectMeshCollection[currentModelIndex].geometry.attributes.blowTime.length; i++){
-		objectMeshCollection[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
-		objectMeshCollection[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime);
+	for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
+		objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+		objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime);
 
 	}
-	objectMeshCollection[currentModelIndex].geometry.attributes.blow.needsUpdate = true;
-	objectMeshCollection[currentModelIndex].geometry.attributes.blowTime.needsUpdate = true;
+	objectMeshArray[currentModelIndex].geometry.attributes.blow.needsUpdate = true;
+	objectMeshArray[currentModelIndex].geometry.attributes.blowTime.needsUpdate = true;
 	isBlow = true;
 }
 
 function transformObject(modelIndex){
-	if(uniformsParticleCollection[0] === undefined || uniformsParticleCollection[1] === undefined|| uniformsParticleCollection[2] === undefined)
+	if(uniformsObjectParticleArray[0] === undefined || uniformsObjectParticleArray[1] === undefined|| uniformsObjectParticleArray[2] === undefined)
 		return;
 
 	if(timePass >= 2.0){
@@ -650,37 +577,64 @@ function transformObject(modelIndex){
 			}
 			if(isBlow){
 			
-				for(var i = 0; i < objectMeshCollection[currentModelIndex].geometry.attributes.blow.length; i++){
-					objectMeshCollection[currentModelIndex].geometry.attributes.blow.setX(i, 0.0);
+				for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blow.length; i++){
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 0.0);
 				}
-				objectMeshCollection[currentModelIndex].geometry.attributes.blow.needsUpdate = true;
+				objectMeshArray[currentModelIndex].geometry.attributes.blow.needsUpdate = true;
 
 				isBlow = false;
 			}
-			
-			objectMesh.add( objectMeshCollection[modelIndex] );
+			objectMesh.add( ringMesh );
+			objectMesh.add( objectMeshArray[modelIndex] );
 			drop = 2;
 			currentModelIndex = modelIndex;
 		}
-		else if(drop === 2)
+		else if(drop === 2){
+			var c = objectMesh.children[0];
+			objectMesh.remove(c);
 			drop = 0;
+		}
 	}
 	
 	
-	if(drop === 0){
-		uniformsParticleCollection[modelIndex].drop.value = 0;
+	if(drop === 0){//nothing
+		uniformsObjectParticleArray[modelIndex].drop.value = 0;
 	}
-	else if(drop === 1){
+	else if(drop === 1){//dropping
 		timePass += 0.005;
-		uniformsParticleCollection[currentModelIndex].drop.value = 1;
-		uniformsParticleCollection[currentModelIndex].time.value = timePass;
+		uniformsObjectParticleArray[currentModelIndex].drop.value = 1;
+		uniformsObjectParticleArray[currentModelIndex].time.value = timePass;
 		
 	}
-	else if(drop === 2){
+	else if(drop === 2){//rising
 		timePass += 0.005;
-		uniformsParticleCollection[modelIndex].drop.value = 2;
-		uniformsParticleCollection[modelIndex].time.value = timePass;
-
+		uniformsObjectParticleArray[modelIndex].drop.value = 2;
+		uniformsObjectParticleArray[modelIndex].time.value = timePass;
+		
+		
+		if(timePass < 1.0){
+			var particleLength = ringMesh.geometry.attributes.position.length / 3;
+			for(var i = 0; i < particleLength; i++){
+				ringMesh.geometry.attributes.position.setXYZ(i, timePass * radiusArray[modelIndex] * Math.cos(2 * Math.PI / particleLength * i + timePass * Math.PI / 2),
+																0,
+																timePass * radiusArray[modelIndex] * Math.sin(2 * Math.PI / particleLength * i + timePass * Math.PI / 2));
+			}
+			ringMesh.geometry.attributes.position.needsUpdate = true;
+		}
+		else{
+			var particleLength = ringMesh.geometry.attributes.position.length / 3;
+			for(var i = 0; i < particleLength; i++){
+				if((timePass - 1) * (timePass - 1) * ringRisingVelArray[modelIndex] < heightArray[modelIndex])
+					ringMesh.geometry.attributes.position.setXYZ(i, radiusArray[modelIndex] * Math.cos(2 * Math.PI / particleLength * i + timePass * Math.PI / 2),
+																	(timePass - 1) * (timePass - 1) * ringRisingVelArray[modelIndex],
+																	radiusArray[modelIndex] * Math.sin(2 * Math.PI / particleLength * i + timePass * Math.PI / 2));
+				else
+					ringMesh.geometry.attributes.position.setXYZ(i, radiusArray[modelIndex] * Math.cos(2 * Math.PI / particleLength * i + timePass * Math.PI / 2),
+																	heightArray[modelIndex],
+																	radiusArray[modelIndex] * Math.sin(2 * Math.PI / particleLength * i + timePass * Math.PI / 2));
+			}
+			ringMesh.geometry.attributes.position.needsUpdate = true;
+		}
 	}
 }
 
@@ -691,16 +645,16 @@ function animate() {
 	transformObject(changeModelIndex);
 	
 	var check = true;
-	for(var i = 0; i <uniformsParticleCollection.length; ++i){
-		if(uniformsParticleCollection[i] === undefined){
+	for(var i = 0; i <uniformsObjectParticleArray.length; ++i){
+		if(uniformsObjectParticleArray[i] === undefined){
 			check = false;
 			break;
 		}
 	}
 	if(check){
 		realTimePass += 0.005;
-		for(var i = 0; i <uniformsParticleCollection.length; ++i){
-			uniformsParticleCollection[i].realTime.value = realTimePass;
+		for(var i = 0; i <uniformsObjectParticleArray.length; ++i){
+			uniformsObjectParticleArray[i].realTime.value = realTimePass;
 		}		
 	}
 	
@@ -757,7 +711,7 @@ function animate() {
 	//objectMesh.rotation.y += 0.01;	
 	objectMesh.rotation.x = rotateX;
 	objectMesh.rotation.y = rotateY;	
-	blowDir = new THREE.Vector3(Math.sin(rotateY), 0.0, Math.cos(rotateY) );
+	blowDir = new THREE.Vector3(Math.sin(-rotateY), 0.0, Math.cos(-rotateY) );
 	
     render();	
     		        		       

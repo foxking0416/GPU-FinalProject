@@ -108,6 +108,8 @@ var d3Graphs = {
 		if(changeModelIndex === 0 && !isBlow)
 			return;
 	
+		if(isBlow)
+			timePass = 1.0;
 
 		changeModelIndex = 0;
 		if(drop === 2)
@@ -118,7 +120,8 @@ var d3Graphs = {
     showEngr:function() {  
 		if(changeModelIndex === 1 && !isBlow)
 			return;	
-
+		if(isBlow)
+			timePass = 1.0;
 			
 		changeModelIndex = 1;
 		if(drop === 2)
@@ -129,7 +132,8 @@ var d3Graphs = {
      showBsmg:function() {
 		if(changeModelIndex === 2 && !isBlow)
 			return;
-
+		if(isBlow)
+			timePass = 1.0;
 			
 		changeModelIndex = 2;
 		if(drop === 2)

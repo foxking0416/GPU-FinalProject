@@ -471,6 +471,33 @@
 		</script>
 		
 		
+		<script id="ringPointVertexshader" type="x-shader/x-vertex" >
+
+			uniform vec3 offset;
+			attribute vec3 customColor;
+			varying vec3 vColor;
+
+			void main() {
+
+				vColor = customColor;
+
+				gl_PointSize = 15.0;
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+				gl_Position += vec4(offset, 1.0);
+			}
+		</script>
+
+		<script id="ringPointFragmentshader" type="x-shader/x-fragment" >
+			uniform sampler2D texture;		
+			varying vec3 vColor;
+			void main() {
+
+				gl_FragColor = vec4( vColor, 1.0 );
+				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+				
+			}
+		</script>
+		
 		
 		<script type="text/javascript">
 			var _gaq = _gaq || [];
