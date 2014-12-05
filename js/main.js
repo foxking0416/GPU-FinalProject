@@ -395,10 +395,10 @@ function createBuddhaMesh( originalGeometry, scale, x, y, z, color ) {
 		customColor[i] = 1.0;
 		customColor[i+1] = 0.0;
 		customColor[i+2] = 1.0;		
-		if(i < bufferGeometry.attributes.position.length / 2)
+		/*if(i < bufferGeometry.attributes.position.length / 2)
 			blow[i/3] = 0.0;
 		else 
-			blow[i/3] = 1.0;
+			blow[i/3] = 1.0;*/
 	}
 	
 	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
@@ -583,6 +583,10 @@ function transformObject(modelIndex){
 		timePass += 0.005;
 	}
 	
+	/*for(var i = 0; i < buddhaMesh.geometry.attributes.position.length; i+=3){
+		buddhaMesh.geometry.attributes.customColor.setXYZ(i/3, timePass, timePass, timePass);
+	}
+	buddhaMesh.geometry.attributes.customColor.needsUpdate = true;*/
 
 	uniforms_Particle_Buddha.time.value = timePass;
 	uniforms_Particle_Digger.time.value = timePass;

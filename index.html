@@ -438,7 +438,7 @@
 				
 				vec3 newPosition;
 				float offsetX;
-				if(drop == 0 || blow == 0.0)//nothing
+				if(drop == 0 )//nothing
 					newPosition = vec3(position.x ,position.y, position.z);
 				else if(drop == 1){//droping
 					if(position.y - dropDistance > lowestY){
