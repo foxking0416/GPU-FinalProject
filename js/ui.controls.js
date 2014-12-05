@@ -4,10 +4,10 @@ Created by Pitch Interactive
 Created on 6/26/2012
 This code will control the primary functions of the UI in the ArmsGlobe app
 **/
-d3.selection.prototype.moveToFront = function() { 
-    return this.each(function() { 
-        this.parentNode.appendChild(this); 
-    }); 
+//d3.selection.prototype.moveToFront = function() { 
+
+var moveToFront = function() {
+  this.parentNode.appendChild(this); 
 }; 
 
 
@@ -458,7 +458,8 @@ var d3Graphs = {
                 return d3Graphs.line(d3Graphs.histogramImportArray);
             }
         }).attr('visibility',importsVisible ? 'visible' : 'hidden');
-		importLine.moveToFront();
+		//importLine.moveToFront();
+        d3.select(this).node(moveToFront);
 		
         var exportLine = this.histogramSVG.selectAll("path.export").data([1]);
         exportLine.enter().append('svg:path').attr('class','export');
@@ -469,8 +470,9 @@ var d3Graphs = {
                 return d3Graphs.line(d3Graphs.histogramExportArray);
             }
         }).attr('visibility', exportsVisible ? 'visible' : 'hidden');
+        d3.select(this).node(moveToFront);
         
-        exportLine.moveToFront();
+        //exportLine.moveToFront();
         //active year labels
         var yearOffset = $("#handle").css('left');
         yearOffset = yearOffset.substr(0,yearOffset.length-2);
@@ -558,8 +560,9 @@ var d3Graphs = {
                 return exportsVisible ? 'visible' : 'hidden';
             }
         });
-        yearDots.moveToFront();
-        yearDotLabels.moveToFront();
+        d3.select(this).node(moveToFront);
+       // yearDots.moveToFront();
+       // yearDotLabels.moveToFront();
 
     },
     drawBarGraph: function() {
@@ -658,13 +661,22 @@ var d3Graphs = {
         inboundRects.enter().append('rect').attr('class', function(d) {
             return 'import '+ d.type;
         }).attr('y',midY ).attr('width',this.barWidth);
-        */
+        
         
         //inboundRects.attr('x',10.0).attr('width',this.barGraphWidth);
         
 		
-		//******************Test*********************//
-		
+	
+
+
+        var data2 = [{"qw": 70}];
+        var testRects = this.barGraphSVG.selectAll('rect.import').data(data2);
+        
+        testRects.enter().append('rect');
+
+        testRects.attr('y', 60).attr('height',100);
+        testRects.attr('x', 60).attr('width',100);*/
+            //******************Test*********************//
 		
         //bar graph labels
         this.cumImportLblY = 0;
@@ -894,7 +906,40 @@ var d3Graphs = {
         event.dataTransfer.effectAllowed='move';
     },
     drawRadarChart: function(){
-   //     this.barGraphSVG.attr('id','radarChart').attr('width',500).attr('height',500).attr('class','overlayCountries noPointer');
+        this.radarChartSVG.attr('id','radarChart').attr('width',d3Graphs.barGraphWidth).attr('height',d3Graphs.barGraphHeight).attr('class','overlayCountries noPointer');
+        
+        var data = [
+          {
+            className: 'germany', // optional can be used for styling
+            axes: [
+              {axis: "strength", value: 13}, 
+              {axis: "intelligence", value: 6}, 
+              {axis: "charisma", value: 5},  
+              {axis: "dexterity", value: 9},  
+              {axis: "luck", value: 2},
+              {axis: "test", value: 3}
+            ]
+          },
+          {
+            className: 'argentina',
+            axes: [
+              {axis: "strength", value: 6}, 
+              {axis: "intelligence", value: 7}, 
+              {axis: "charisma", value: 10},  
+              {axis: "dexterity", value: 13},  
+              {axis: "luck", value: 9},
+              {axis: "test", value: 3}
+            ]
+          }
+        ];
+
+       
+    var chart = RadarChart.chart();
+    var cfg = chart.config(); // retrieve default config
+    var svg =  d3.select("#wrapper").append("svg").attr('id','radarChart')
+      .attr('width', cfg.w)
+      .attr('height', cfg.h + cfg.h / 4);
+    svg.append('g').classed('single', 1).datum(data).call(chart);
     }
 }
 

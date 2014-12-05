@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>Interactive Globe: International Student Statistics</title>
@@ -8,8 +8,8 @@
 		<link href='http://fonts.googleapis.com/css?family=Grand+Hotel' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Shadows+Into+Light' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="style.css">
-		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
-		<link rel="stylesheet" href="radar-chart.css">
+		<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+		<link rel="stylesheet" type="text/css" href="radar-chart.css">
 
 	</head>
 
@@ -23,11 +23,11 @@
 	.radar-chart.focus .area.focused {
 	  fill-opacity: 0.9;
 	}
-	.area.germany, .germany .circle {
+	.area .germany, .germany .circle {
 	  fill: #FFD700;
 	  stroke: none;
 	}
-	.area.argentina, .argentina .circle {
+	.area .argentina, .argentina .circle {
 	  fill: #ADD8E6;
 	  stroke: none;
 	}
@@ -97,56 +97,7 @@
 		<script src="js/ui.controls.js"></script>			<!--***********Important: draw the chart************-->
 
 		<script src="js/radar-chart.js"></script>          <!-- radar chart -->
-
-		<script>
-		RadarChart.defaultConfig.color = function() {};
-		RadarChart.defaultConfig.radius = 1;
-	
-		var data = [
-		  {
-		    className: 'germany', // optional can be used for styling
-		    axes: [
-		      {axis: "strength", value: 13}, 
-		      {axis: "intelligence", value: 6}, 
-		      {axis: "charisma", value: 5},  
-		      {axis: "dexterity", value: 9},  
-		      {axis: "luck", value: 2},
-		      {axis: "test", value: 3}
-		    ]
-		  },
-		  {
-		    className: 'argentina',
-		    axes: [
-		      {axis: "strength", value: 6}, 
-		      {axis: "intelligence", value: 7}, 
-		      {axis: "charisma", value: 10},  
-		      {axis: "dexterity", value: 13},  
-		      {axis: "luck", value: 9},
-		      {axis: "test", value: 3}
-		    ]
-		  }
-		];
-		function randomDataset() {
-		  return data.map(function(d) {
-		    return {
-		      className: d.className,
-		      axes: d.axes.map(function(axis) {
-		        return {axis: axis.axis, value: Math.ceil(Math.random() * 10)};
-		      })
-		    };
-		  });
-		}
-		
-		var chart = RadarChart.chart();
-		var cfg = chart.config(); // retrieve default config
-		var svg = d3.select('#wrapper').append('svg')
-		  .attr('width', cfg.w)
-		  .attr('height', cfg.h + cfg.h / 4);
-		svg.append('g').classed('single', 1).datum(randomDataset()).call(chart);
-
-		</script>
-
-
+		<script src="http://d3js.org/d3.v3.js"></script>
 		
 		<script id="globeVertexShader" type="x-shader/x-vertex">
 			//projectionMatrix
