@@ -105,9 +105,10 @@ var d3Graphs = {
     },
     showDart:function() {      
 
-		if(changeModelIndex === 0)
+		if(changeModelIndex === 0 && !isBlow)
 			return;
 	
+
 		changeModelIndex = 0;
 		if(drop === 2)
 			timePass = 0.0;
@@ -115,27 +116,26 @@ var d3Graphs = {
 		drop = 1;
     },
     showEngr:function() {  
-		if(changeModelIndex === 1)
+		if(changeModelIndex === 1 && !isBlow)
 			return;	
 
+			
 		changeModelIndex = 1;
 		if(drop === 2)
 			timePass = 0.0;
 		
-
 		drop = 1;
     },
      showBsmg:function() {
-		if(changeModelIndex === 2)
+		if(changeModelIndex === 2 && !isBlow)
 			return;
 
+			
 		changeModelIndex = 2;
 		if(drop === 2)
 			timePass = 0.0;
 		
-
 		drop = 1;
-		
     },
     clickTimeline:function() {
         var year = $(this).html();

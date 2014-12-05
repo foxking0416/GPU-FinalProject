@@ -77,6 +77,8 @@ function onClick( event ){
 			return;
 		}
 	}	
+	
+	blowParticle();
 }
 
 function onKeyDown( event ){	
