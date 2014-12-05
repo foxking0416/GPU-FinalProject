@@ -373,15 +373,18 @@
 			uniform float size;
 			uniform float lowestY;
 			uniform float acceleration;
+			uniform float blowStrength;
 			//uniform vec3 color;
 			uniform vec3 offset;
-			uniform float blowStrength;
+			uniform vec3 blowDirection;
+			
 			uniform int drop;
 			
 			attribute float blow;
-			attribute vec3 customColor;
 			attribute float blowTime;
 			attribute float requireTimeToDrop;
+			attribute vec3 customColor;
+			//attribute vec3 blowDirection;
 			varying vec3 vColor;
 
 			void main() {
@@ -396,15 +399,15 @@
 					else{
 						float pastTime = realTime - blowTime;
 						if(pastTime < requireTimeToDrop){
-							newPosition = vec3(position.x + blowStrength * (realTime - blowTime) , 
+							newPosition = vec3(position.x + blowStrength * blowDirection.x * (realTime - blowTime) , 
 											   position.y - acceleration * pastTime * pastTime, 
-											   position.z + blowStrength * (realTime - blowTime));
+											   position.z + blowStrength * blowDirection.z * (realTime - blowTime));
 						}
 						else {
 				
-							newPosition = vec3(position.x + blowStrength * requireTimeToDrop, 
+							newPosition = vec3(position.x + blowStrength * blowDirection.x * requireTimeToDrop, 
 							                   lowestY, 
-											   position.z + blowStrength * requireTimeToDrop);
+											   position.z + blowStrength * blowDirection.z * requireTimeToDrop);
 						}
 					}
 				}
@@ -423,13 +426,13 @@
 					}
 					else{
 						if(time > 1.0)
-							newPosition = vec3( (position.x + blowStrength * requireTimeToDrop) * (2.0 - time), 
+							newPosition = vec3( (position.x + blowStrength * blowDirection.x * requireTimeToDrop) * (2.0 - time), 
 												 lowestY, 
-												(position.z + blowStrength * requireTimeToDrop)* (2.0 - time));
+												(position.z + blowStrength * blowDirection.z * requireTimeToDrop)* (2.0 - time));
 						else
-							newPosition = vec3(position.x + blowStrength * requireTimeToDrop, 
+							newPosition = vec3(position.x + blowStrength * blowDirection.x * requireTimeToDrop, 
 											   lowestY, 
-											   position.z + blowStrength * requireTimeToDrop);
+											   position.z + blowStrength * blowDirection.z * requireTimeToDrop);
 					}
 				}
 				else if(drop == 2){//rising

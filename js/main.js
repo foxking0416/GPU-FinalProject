@@ -231,19 +231,19 @@ function initScene() {
 	loader.load( 'model/buddha.obj', function ( object ) {
 		
 		////// buddha parameters ////////
-		createMesh( object, 0, 60, 0.0, 0.0, 0.0, 1.0, 0x00ff44, 3.0);//scale, x, y, z, blowOffsetX, blowOffsetZ, color, acceleration
+		createMesh( object, 0, 60, 0.0, 0.0, 0.0, 2.0, 0x00ff44, 3.0);//scale, x, y, z, blowOffsetX, blowOffsetZ, color, acceleration
 	} );
 
 	loader.load( 'model/digger.obj', function ( object ) {
 		
 		////// digger parameters ////////
-		createMesh( object, 1, 0.35, 0.0, -59, 0.0, 170.0, 0xff0044, 500.0);
+		createMesh( object, 1, 0.35, 0.0, -59, 0.0, 340.0, 0xff0044, 500.0);
 	} );
 	
 	loader.load( 'model/dollar.obj', function ( object ) {
 		
 		////// dollar parameters ////////
-		createMesh( object, 2, 0.05, 0.0, -57, 0.0, 1200.0, 0xff0044, 2000.0);
+		createMesh( object, 2, 0.05, 0.0, -57, 0.0, 2400.0, 0xff0044, 2000.0);
 	} );
 	
 	
@@ -372,7 +372,7 @@ function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, 
 		blowTime:              { type: 'f', value: []},
 		requireTimeToDrop:     { type: 'f', value: []},
 		customColor:		   { type: 'v3', value: []},
-		blowDirection:         { type: 'v3', value: []},
+		//blowDirection:         { type: 'v3', value: []},
 	};
 	
 	var uniforms_Particle = {
@@ -384,7 +384,7 @@ function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, 
 		blowStrength: { type: 'f', value: blowStrength},
 		//color:      { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
 		offset:    	  { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
-
+		blowDirection:{ type: 'v3', value: new THREE.Vector3( 0, 0, 0 )},
 		drop:         { type: 'i', value: drop},
 		
 
@@ -405,43 +405,40 @@ function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, 
 	var blow = [];
 	var blowTime = [];
 	var requireTimeToDrop = [];
-	var blowDirection = [];
+	//var blowDirection = [];
 	
 	var lowest;
 	
 	for(var i = 0; i < bufferGeometry.attributes.position.length; i+=3){
 		
-		if(i === 0)
+		if(i === 0){
 			lowest = bufferGeometry.attributes.position.array[1];
+		}
 		else{
 			if(bufferGeometry.attributes.position.array[i+1] < lowest)
-				lowest = bufferGeometry.attributes.position.array[i+1];
+				lowest = bufferGeometry.attributes.position.array[i+1];	
 		}	
 		
 		customColor[i] = 1.0;
 		customColor[i+1] = 0.0;
 		customColor[i+2] = 1.0;		
 		
-		blowDirection[i] = 0.0;
-		blowDirection[i+1] = 0.0;
-		blowDirection[i+2] = 0.0;	
+		//blowDirection[i] = 0.0;
+		//blowDirection[i+1] = 0.0;
+		//blowDirection[i+2] = 0.0;	
 		
 		blow[i/3] = 0.0;
 		blowTime[i/3] = 0.0;
 		
-		requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] - lowest + 0.001)/ acceleration);
-		/*
-		if(modelIndex === 0)
-			requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.975)/ acceleration);
-		else if(modelIndex === 1)
-			requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.355)/ acceleration);
-		else if(modelIndex === 2)
-			requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.0)/ acceleration);	*/		
+		requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] - lowest + 0.001)/ acceleration);	
 	}
 	uniforms_Particle.lowestY.value = lowest;
 	
 	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
 	bufferGeometry.attributes.customColor.needsUpdate = true;
+	
+	//bufferGeometry.addAttribute( 'blowDirection', new THREE.BufferAttribute( new Float32Array( blowDirection ), 3 ) );
+	//bufferGeometry.attributes.blowDirection.needsUpdate = true;
 	
 	bufferGeometry.addAttribute( 'blow', new THREE.BufferAttribute( new Float32Array( blow ), 1 ) );
 	bufferGeometry.attributes.blow.needsUpdate = true;
@@ -452,10 +449,6 @@ function createMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, 
 	bufferGeometry.addAttribute( 'requireTimeToDrop', new THREE.BufferAttribute( new Float32Array( requireTimeToDrop ), 1 ) );
 	bufferGeometry.attributes.requireTimeToDrop.needsUpdate = true;
 		
-	bufferGeometry.addAttribute( 'blowDirection', new THREE.BufferAttribute( new Float32Array( blowDirection ), 3 ) );
-	bufferGeometry.attributes.blowDirection.needsUpdate = true;
-	
-	
 	/*if(modelIndex === 0)
 		uniforms_Particle.lowestY.value = -0.975;//Budha 
 	else if(modelIndex === 1)
@@ -625,14 +618,18 @@ var changeModelIndex = 0;
 
 var realTimePass = 0.0
 var isBlow = false;
+var blowDir = new THREE.Vector3(0.0, 0.0, 0.0 );
 
 function blowParticle(){
 	
 	var blowTime = realTimePass; 
 	
+	uniformsParticleCollection[currentModelIndex].blowDirection.value = blowDir;
+	
 	for(var i = 0; i < objectMeshCollection[currentModelIndex].geometry.attributes.blowTime.length; i++){
 		objectMeshCollection[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
 		objectMeshCollection[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime);
+
 	}
 	objectMeshCollection[currentModelIndex].geometry.attributes.blow.needsUpdate = true;
 	objectMeshCollection[currentModelIndex].geometry.attributes.blowTime.needsUpdate = true;
@@ -758,6 +755,10 @@ function animate() {
 	//countryMesh.rotation.x = rotateX;
 	countryMesh.rotation.y += 0.01;	
 	//objectMesh.rotation.y += 0.01;	
+	objectMesh.rotation.x = rotateX;
+	objectMesh.rotation.y = rotateY;	
+	blowDir = new THREE.Vector3(Math.sin(rotateY), 0.0, Math.cos(rotateY) );
+	
     render();	
     		        		       
     requestAnimationFrame( animate );	
