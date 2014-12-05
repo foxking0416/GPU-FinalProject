@@ -231,19 +231,19 @@ function initScene() {
 	loader.load( 'model/buddha.obj', function ( object ) {
 		
 		////// buddha parameters ////////
-		createBuddhaMesh( object, 60, 0.0, 0.0, 0.0, 0x00ff44);
+		createBuddhaMesh( object, 60, 0.0, 0.0, 0.0, 0x00ff44, 3.0);//scale, x, y, z, color, acceleration
 	} );
 
 	loader.load( 'model/digger.obj', function ( object ) {
 		
 		////// digger parameters ////////
-		createDiggerMesh( object, 0.35, 0.0, 0.0, 0.0, 0xff0044);
+		createDiggerMesh( object, 0.35, 0.0, 0.0, 0.0, 0xff0044, 500.0);
 	} );
 	
 	loader.load( 'model/dollar.obj', function ( object ) {
 		
 		////// dollar parameters ////////
-		createDollarMesh( object, 0.05, 0.0, 0.0, 0.0, 0xff0044);
+		createDollarMesh( object, 0.05, 0.0, 0.0, 0.0, 0xff0044, 2000.0);
 	} );
 	
 	
@@ -361,11 +361,13 @@ function initScene() {
 
 }
 
-function createBuddhaMesh( originalGeometry, scale, x, y, z, color ) {
+function createBuddhaMesh( originalGeometry, scale, x, y, z, color, acceleration ) {
 
 	attributes_Particle_Buddha = {
 		blow:                  { type: 'f', value: []},
 		customColor:		   { type: 'v3', value: []},
+		blowTime:              { type: 'f', value: []},
+		requireTimeToDrop:     { type: 'f', value: []},
 	};
 	
 	uniforms_Particle_Buddha = {
@@ -376,6 +378,8 @@ function createBuddhaMesh( originalGeometry, scale, x, y, z, color ) {
 		drop:      { type: 'i', value: drop},
 		lowestY:   { type: 'f', value: 1.0},
 		dropDistance: { type: 'f', value: 1.0},
+		acceleration: { type: 'f', value: acceleration},
+		realTime: 	  { type: 'f', value: 0.0},
 	};
 	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
 
@@ -390,22 +394,31 @@ function createBuddhaMesh( originalGeometry, scale, x, y, z, color ) {
 	var bufferGeometry = originalGeometry.children[0].geometry;
 	var customColor = [];
 	var blow = [];
+	var blowTime = [];
+	var requireTimeToDrop = [];
 	for(var i = 0; i < bufferGeometry.attributes.position.length; i+=3){
 
 		customColor[i] = 1.0;
 		customColor[i+1] = 0.0;
 		customColor[i+2] = 1.0;		
-		/*if(i < bufferGeometry.attributes.position.length / 2)
-			blow[i/3] = 0.0;
-		else 
-			blow[i/3] = 1.0;*/
+		blow[i/3] = 0.0;
+
+		blowTime[i/3] = 0.0;
+		requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.98)/ acceleration);
 	}
+	
 	
 	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
 	bufferGeometry.attributes.customColor.needsUpdate = true;
 	
 	bufferGeometry.addAttribute( 'blow', new THREE.BufferAttribute( new Float32Array( blow ), 1 ) );
 	bufferGeometry.attributes.blow.needsUpdate = true;
+	
+	bufferGeometry.addAttribute( 'blowTime', new THREE.BufferAttribute( new Float32Array( blowTime ), 1 ) );
+	bufferGeometry.attributes.blowTime.needsUpdate = true;
+	
+	bufferGeometry.addAttribute( 'requireTimeToDrop', new THREE.BufferAttribute( new Float32Array( requireTimeToDrop ), 1 ) );
+	bufferGeometry.attributes.requireTimeToDrop.needsUpdate = true;
 	
 	uniforms_Particle_Buddha.lowestY.value = -0.974;//Budha 
 	//uniforms_Particle_Buddha.color.value = new THREE.Vector3(0.0, 1.0, 0.0 );
@@ -419,11 +432,13 @@ function createBuddhaMesh( originalGeometry, scale, x, y, z, color ) {
 	
 }
 
-function createDiggerMesh( originalGeometry, scale, x, y, z, color ) {
+function createDiggerMesh( originalGeometry, scale, x, y, z, color, acceleration ) {
 
 	attributes_Particle_Digger = {
 		blow:                  { type: 'f', value: []},
 		customColor:		   { type: 'v3', value: []},
+		blowTime:              { type: 'f', value: []},
+		requireTimeToDrop:     { type: 'f', value: []},
 	};
 	
 	uniforms_Particle_Digger = {
@@ -434,6 +449,8 @@ function createDiggerMesh( originalGeometry, scale, x, y, z, color ) {
 		drop:      { type: 'i', value: drop},
 		lowestY:   { type: 'f', value: 1.0},
 		dropDistance: { type: 'f', value: 1.0},
+		acceleration: { type: 'f', value: acceleration},
+		realTime: 	  { type: 'f', value: 0.0},
 	};
 	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
 
@@ -448,12 +465,17 @@ function createDiggerMesh( originalGeometry, scale, x, y, z, color ) {
 	var bufferGeometry = originalGeometry.children[0].geometry;
 	var customColor = [];
 	var blow = [];
+	var blowTime = [];
+	var requireTimeToDrop = [];
 	for(var i = 0; i < bufferGeometry.attributes.position.length; i+=3){
 
 		customColor[i] = 1.0;
 		customColor[i+1] = 0.0;
 		customColor[i+2] = 1.0;		
 		blow[i/3] = 0.0;
+		
+		blowTime[i/3] = 0.0;
+		requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.0)/ acceleration);
 	}
 	
 	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
@@ -461,6 +483,12 @@ function createDiggerMesh( originalGeometry, scale, x, y, z, color ) {
 	
 	bufferGeometry.addAttribute( 'blow', new THREE.BufferAttribute( new Float32Array( blow ), 1 ) );
 	bufferGeometry.attributes.blow.needsUpdate = true;
+	
+	bufferGeometry.addAttribute( 'blowTime', new THREE.BufferAttribute( new Float32Array( blowTime ), 1 ) );
+	bufferGeometry.attributes.blowTime.needsUpdate = true;
+	
+	bufferGeometry.addAttribute( 'requireTimeToDrop', new THREE.BufferAttribute( new Float32Array( requireTimeToDrop ), 1 ) );
+	bufferGeometry.attributes.requireTimeToDrop.needsUpdate = true;
 	
 	uniforms_Particle_Digger.lowestY.value = 0.0;//For digger
 	//uniforms_Particle_Digger.color.value = new THREE.Vector3(1.0, 1.0, 0.0 );
@@ -473,11 +501,13 @@ function createDiggerMesh( originalGeometry, scale, x, y, z, color ) {
 	
 }
 
-function createDollarMesh( originalGeometry, scale, x, y, z, color ) {
+function createDollarMesh( originalGeometry, scale, x, y, z, color, acceleration ) {
 
 	attributes_Particle_Dollar = {
 		blow:                  { type: 'f', value: []},
 		customColor:		   { type: 'v3', value: []},
+		blowTime:              { type: 'f', value: []},
+		requireTimeToDrop:     { type: 'f', value: []},
 	};
 	
 	uniforms_Particle_Dollar = {
@@ -488,6 +518,8 @@ function createDollarMesh( originalGeometry, scale, x, y, z, color ) {
 		drop:      { type: 'i', value: drop},
 		lowestY:   { type: 'f', value: 1.0},
 		dropDistance: { type: 'f', value: 1.0},
+		acceleration: { type: 'f', value: acceleration},
+		realTime: 	  { type: 'f', value: 0.0},
 	};
 	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
 
@@ -502,12 +534,17 @@ function createDollarMesh( originalGeometry, scale, x, y, z, color ) {
 	var bufferGeometry = originalGeometry.children[0].geometry;
 	var customColor = [];
 	var blow = [];
+	var blowTime = [];
+	var requireTimeToDrop = [];
 	for(var i = 0; i < bufferGeometry.attributes.position.length; i+=3){
 
 		customColor[i] = 1.0;
 		customColor[i+1] = 0.0;
 		customColor[i+2] = 1.0;		
 		blow[i/3] = 0.0;
+		
+		blowTime[i/3] = 0.0;
+		requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.0)/ acceleration);
 	}
 	
 	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
@@ -515,6 +552,12 @@ function createDollarMesh( originalGeometry, scale, x, y, z, color ) {
 	
 	bufferGeometry.addAttribute( 'blow', new THREE.BufferAttribute( new Float32Array( blow ), 1 ) );
 	bufferGeometry.attributes.blow.needsUpdate = true;
+	
+	bufferGeometry.addAttribute( 'blowTime', new THREE.BufferAttribute( new Float32Array( blowTime ), 1 ) );
+	bufferGeometry.attributes.blowTime.needsUpdate = true;
+	
+	bufferGeometry.addAttribute( 'requireTimeToDrop', new THREE.BufferAttribute( new Float32Array( requireTimeToDrop ), 1 ) );
+	bufferGeometry.attributes.requireTimeToDrop.needsUpdate = true;
 	
 	
 	uniforms_Particle_Dollar.lowestY.value = 0.0;//For dollar
@@ -531,6 +574,23 @@ function createDollarMesh( originalGeometry, scale, x, y, z, color ) {
 
 var currentModel = 0;
 var changeModelIndex = 0;
+
+
+var realTimePass = 0.0
+var isBlow = false;
+
+function blowParticle(){
+	
+	var blowTime = realTimePass; 
+	
+	for(var i = 0; i < buddhaMesh.geometry.attributes.blowTime.length; i++){
+		buddhaMesh.geometry.attributes.blow.setX(i, 1.0);
+		buddhaMesh.geometry.attributes.blowTime.setX(i, blowTime);
+	}
+	buddhaMesh.geometry.attributes.blow.needsUpdate = true;
+	buddhaMesh.geometry.attributes.blowTime.needsUpdate = true;
+	isBlow = true;
+}
 
 function transformObject(modelIndex){
 	if(uniforms_Particle_Buddha === undefined || uniforms_Particle_Digger === undefined)
@@ -674,8 +734,13 @@ function animate() {
 		stats.update();
 
 	transformObject(changeModelIndex);
-	//pointUpdate();
-
+	
+	if(uniforms_Particle_Buddha !== undefined && uniforms_Particle_Digger !== undefined && uniforms_Particle_Dollar !== undefined){
+		uniforms_Particle_Buddha.realTime.value = realTimePass;
+		uniforms_Particle_Digger.realTime.value = realTimePass;
+		uniforms_Particle_Dollar.realTime.value = realTimePass;
+		realTimePass += 0.005;
+	}
 	if( rotateTargetX !== undefined && rotateTargetY !== undefined ){
 
 		rotateVX += (rotateTargetX - rotateX) * 0.012;
@@ -725,7 +790,7 @@ function animate() {
 	//console.log("x:" + globeMesh.rotation.x + "  y:"+globeMesh.rotation.y);
 	//countryMesh.rotation.x = rotateX;
 	countryMesh.rotation.y += 0.01;	
-	objectMesh.rotation.y += 0.01;	
+	//objectMesh.rotation.y += 0.01;	
     render();	
     		        		       
     requestAnimationFrame( animate );	

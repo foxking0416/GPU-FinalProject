@@ -108,11 +108,27 @@ var d3Graphs = {
 		if(changeModelIndex === 0)
 			return;
 	
+		/*if(isBlow){
+			
+			if(changeModelIndex === 1){
+				for(var i = 0; i < buddhaMesh.geometry.attributes.blow.length; i++){
+					buddhaMesh.geometry.attributes.blow.setX(i, 0.0);
+				}
+				buddhaMesh.geometry.attributes.blow.needsUpdate = true;
+			}
+			else if
+			isBlow = false;
+		}*/
+	
+	
 		changeModelIndex = 0;
 		if(drop === 2)
 			timePass = 0.0;
 		
 		drop = 1;
+		
+
+		
     },
     showEngr:function() {  
 		if(changeModelIndex === 1)

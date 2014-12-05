@@ -417,38 +417,62 @@
 		</script>
 		
 		<script id="objectPointVertexshader" type="x-shader/x-vertex" >
+			uniform float realTime;
 			uniform float time;
 			uniform float size;
 			uniform float lowestY;
 			uniform float dropDistance;
+			uniform float acceleration;
 			//uniform vec3 color;
 			uniform vec3 offset;
 			uniform int drop;
 			
 			attribute float blow;
 			attribute vec3 customColor;
+			attribute float blowTime;
+			attribute float requireTimeToDrop;
 			varying vec3 vColor;
 
 			void main() {
 
 				vColor = customColor; // set color associated to vertex; use later in fragment shader.
-				//vColor = ptColor;
-				//vColor = vec3(1.0, 0.0,0.0);
-				//vColor = vec3(color.x, color.y, colora.z);
-				
 				vec3 newPosition;
-				float offsetX;
-				if(drop == 0 )//nothing
-					newPosition = vec3(position.x ,position.y, position.z);
-				else if(drop == 1){//droping
-					if(position.y - dropDistance > lowestY){
-						newPosition = vec3(position.x , position.y - dropDistance, position.z);
+				
+						
+				
+				if(drop == 0 ){//nothing
+					if(blow == 0.0){
+						newPosition = vec3(position.x ,position.y, position.z);
 					}
-					else {
+					else{
+						float pastTime = realTime - blowTime;
+						if(pastTime < requireTimeToDrop){
+							newPosition = vec3(position.x + 1.0 * (realTime - blowTime) , position.y - acceleration * pastTime * pastTime, position.z);
+						}
+						else {
+				
+							newPosition = vec3(position.x + 1.0 * requireTimeToDrop, lowestY, position.z);
+						}
+					}
+				}
+				else if(drop == 1){//droping
+					if(blow == 0.0){
+						if(position.y - dropDistance > lowestY){
+							newPosition = vec3(position.x , position.y - dropDistance, position.z);
+						}
+						else {
+							if(time > 1.0)
+								//newPosition = vec3( position.x + (0.0 - position.x) * (time - 1.0) , lowestY, position.z + (0.0 - position.z) * (time - 1.0));
+								newPosition = vec3( position.x * (2.0 - time) , lowestY, position.z * (2.0 - time));
+							else
+								newPosition = vec3(position.x , lowestY, position.z);
+						}
+					}
+					else{
 						if(time > 1.0)
-							newPosition = vec3(position.x + (0.0 - position.x) * (time - 1.0) , lowestY, position.z + (0.0 - position.z) * (time - 1.0));
+							newPosition = vec3( (position.x + 1.0 * requireTimeToDrop) * (2.0 - time), lowestY, position.z * (2.0 - time));
 						else
-							newPosition = vec3(position.x , lowestY, position.z);
+							newPosition = vec3(position.x + 1.0 * requireTimeToDrop, lowestY, position.z);
 					}
 				}
 				else if(drop == 2){//rising
@@ -462,6 +486,10 @@
 							newPosition = vec3(position.x, position.y, position.z);
 					}
 				}
+
+				
+				
+				
 				vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
 				//vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
@@ -469,7 +497,6 @@
 				gl_PointSize = size;
 
 				gl_Position = projectionMatrix * mvPosition;
-				//gl_Position += vec4(900.0, 0.0, 0.0, 1.0);
 				gl_Position += vec4(offset, 1.0);
 			}
 		</script>
@@ -478,9 +505,7 @@
 			varying vec3 vColor; // colors associated to vertices, assigned by vertex shader
 			void main() 
 			{
-				// calculates a color for the particle
 				gl_FragColor = vec4( vColor, 1.0 );
-				//gl_FragColor = vec4( 1.0,0.0,0.0, 1.0 );
 			}
 		</script>
 		
