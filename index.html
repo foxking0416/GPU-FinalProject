@@ -421,7 +421,6 @@
 			uniform float time;
 			uniform float size;
 			uniform float lowestY;
-			uniform float dropDistance;
 			uniform float acceleration;
 			//uniform vec3 color;
 			uniform vec3 offset;
@@ -437,8 +436,6 @@
 
 				vColor = customColor; // set color associated to vertex; use later in fragment shader.
 				vec3 newPosition;
-				
-						
 				
 				if(drop == 0 ){//nothing
 					if(blow == 0.0){
@@ -457,12 +454,12 @@
 				}
 				else if(drop == 1){//droping
 					if(blow == 0.0){
+						float dropDistance = time * time * acceleration;
 						if(position.y - dropDistance > lowestY){
 							newPosition = vec3(position.x , position.y - dropDistance, position.z);
 						}
 						else {
 							if(time > 1.0)
-								//newPosition = vec3( position.x + (0.0 - position.x) * (time - 1.0) , lowestY, position.z + (0.0 - position.z) * (time - 1.0));
 								newPosition = vec3( position.x * (2.0 - time) , lowestY, position.z * (2.0 - time));
 							else
 								newPosition = vec3(position.x , lowestY, position.z);
@@ -476,6 +473,7 @@
 					}
 				}
 				else if(drop == 2){//rising
+					float dropDistance = (time - 1.0) * (time - 1.0) * acceleration;
 					if(time < 1.0){
 						newPosition = vec3(0.0 + (position.x - 0.0) * (time) , lowestY, 0.0 + (position.z - 0.0) * (time));
 					}

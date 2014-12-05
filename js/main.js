@@ -22,11 +22,13 @@ var objectMesh;
 
 var mapUniforms;
 var shaderMaterial_Globe;
-var attributes_Particle_Buddha;
-var uniforms_Particle_Buddha;
-var attributes_Particle_Digger;
-var uniforms_Particle_Digger;
-
+//var attributes_Particle_Buddha;
+//var uniforms_Particle_Buddha;
+//var attributes_Particle_Digger;
+//var uniforms_Particle_Digger;
+//var buddhaMesh;
+//var diggerMesh;
+//var dollarMesh;
 
 var clock = new THREE.Clock();
 var timeBins;
@@ -46,9 +48,7 @@ var countryLookup;
 var selectableYears = [];
 var selectableCountries = [];			    
 
-var buddhaMesh;
-var diggerMesh;
-var dollarMesh;
+
 var drop = 0;
 
 var stats;
@@ -231,19 +231,19 @@ function initScene() {
 	loader.load( 'model/buddha.obj', function ( object ) {
 		
 		////// buddha parameters ////////
-		createBuddhaMesh( object, 60, 0.0, 0.0, 0.0, 0x00ff44, 3.0);//scale, x, y, z, color, acceleration
+		createMesh( object, 0, 60, 0.0, 0.0, 0.0, 0x00ff44, 3.0);//scale, x, y, z, color, acceleration
 	} );
 
 	loader.load( 'model/digger.obj', function ( object ) {
 		
 		////// digger parameters ////////
-		createDiggerMesh( object, 0.35, 0.0, 0.0, 0.0, 0xff0044, 500.0);
+		createMesh( object, 1, 0.35, 0.0, -59, 0.0, 0xff0044, 500.0);
 	} );
 	
 	loader.load( 'model/dollar.obj', function ( object ) {
 		
 		////// dollar parameters ////////
-		createDollarMesh( object, 0.05, 0.0, 0.0, 0.0, 0xff0044, 2000.0);
+		createMesh( object, 2, 0.05, 0.0, -57, 0.0, 0xff0044, 2000.0);
 	} );
 	
 	
@@ -361,50 +361,70 @@ function initScene() {
 
 }
 
-function createBuddhaMesh( originalGeometry, scale, x, y, z, color, acceleration ) {
+var objectMeshCollection = [];
+var attributesParticleCollection = [];
+var uniformsParticleCollection = [];
 
-	attributes_Particle_Buddha = {
+function createMesh(originalGeometry, modelIndex, scale, x, y, z, color, acceleration ) {
+
+	var attributes_Particle = {
 		blow:                  { type: 'f', value: []},
-		customColor:		   { type: 'v3', value: []},
 		blowTime:              { type: 'f', value: []},
 		requireTimeToDrop:     { type: 'f', value: []},
+		customColor:		   { type: 'v3', value: []},
 	};
 	
-	uniforms_Particle_Buddha = {
+	var uniforms_Particle = {
 		time:      { type: "f", value: 1.0 },
 		size:	   { type: "f", value: 1.0 },
 		//color:     { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
 		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
 		drop:      { type: 'i', value: drop},
 		lowestY:   { type: 'f', value: 1.0},
-		dropDistance: { type: 'f', value: 1.0},
 		acceleration: { type: 'f', value: acceleration},
 		realTime: 	  { type: 'f', value: 0.0},
 	};
 	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
 
-		uniforms: 		uniforms_Particle_Buddha,
-		attributes:     attributes_Particle_Buddha,
+		uniforms: 		uniforms_Particle,
+		attributes:     attributes_Particle,
 		vertexShader:   document.getElementById( 'objectPointVertexshader' ).textContent,
 		fragmentShader: document.getElementById( 'objectPointFragmentshader' ).textContent,
 		
 	});
-
+	attributesParticleCollection[modelIndex] = attributes_Particle;
+	uniformsParticleCollection[modelIndex] = uniforms_Particle;
 
 	var bufferGeometry = originalGeometry.children[0].geometry;
 	var customColor = [];
 	var blow = [];
 	var blowTime = [];
 	var requireTimeToDrop = [];
+	
+	var low;
+	
 	for(var i = 0; i < bufferGeometry.attributes.position.length; i+=3){
-
+		
+		if(i === 0)
+			low = bufferGeometry.attributes.position.array[1];
+		else{
+			if(bufferGeometry.attributes.position.array[i+1] < low)
+				low = bufferGeometry.attributes.position.array[i+1];
+		
+		}	
+		
 		customColor[i] = 1.0;
 		customColor[i+1] = 0.0;
 		customColor[i+2] = 1.0;		
 		blow[i/3] = 0.0;
-
 		blowTime[i/3] = 0.0;
-		requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.98)/ acceleration);
+		
+		if(modelIndex === 0)
+			requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.975)/ acceleration);
+		else if(modelIndex === 1)
+			requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.355)/ acceleration);
+		else if(modelIndex === 2)
+			requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] + 0.0)/ acceleration);			
 	}
 	
 	
@@ -419,19 +439,29 @@ function createBuddhaMesh( originalGeometry, scale, x, y, z, color, acceleration
 	
 	bufferGeometry.addAttribute( 'requireTimeToDrop', new THREE.BufferAttribute( new Float32Array( requireTimeToDrop ), 1 ) );
 	bufferGeometry.attributes.requireTimeToDrop.needsUpdate = true;
-	
-	uniforms_Particle_Buddha.lowestY.value = -0.974;//Budha 
+	if(modelIndex === 0)
+		uniforms_Particle.lowestY.value = -0.975;//Budha 
+	else if(modelIndex === 1)
+		uniforms_Particle.lowestY.value = -0.355;
+	else if(modelIndex === 2)
+		uniforms_Particle.lowestY.value = 0.0;
+		
 	//uniforms_Particle_Buddha.color.value = new THREE.Vector3(0.0, 1.0, 0.0 );
-	buddhaMesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );//new THREE.PointCloudMaterial( { size: 3, color: color } )
-	buddhaMesh.scale.x = buddhaMesh.scale.y = buddhaMesh.scale.z = scale;
+	var mesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );
+	mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
 
-	buddhaMesh.position.x = x;
-	buddhaMesh.position.y = y;
-	buddhaMesh.position.z = z;
-	objectMesh.add( buddhaMesh );
+	mesh.position.x = x;
+	mesh.position.y = y;
+	mesh.position.z = z;
+	
+	objectMeshCollection[modelIndex] = mesh;
+	if(modelIndex === 0)
+		objectMesh.add( mesh );
 	
 }
 
+
+/*
 function createDiggerMesh( originalGeometry, scale, x, y, z, color, acceleration ) {
 
 	attributes_Particle_Digger = {
@@ -570,9 +600,9 @@ function createDollarMesh( originalGeometry, scale, x, y, z, color, acceleration
 	dollarMesh.position.z = z;
 	
 }
+*/
 
-
-var currentModel = 0;
+var currentModelIndex = 0;
 var changeModelIndex = 0;
 
 
@@ -581,7 +611,7 @@ var isBlow = false;
 
 function blowParticle(){
 	
-	var blowTime = realTimePass; 
+	/*var blowTime = realTimePass; 
 	
 	for(var i = 0; i < buddhaMesh.geometry.attributes.blowTime.length; i++){
 		buddhaMesh.geometry.attributes.blow.setX(i, 1.0);
@@ -589,13 +619,13 @@ function blowParticle(){
 	}
 	buddhaMesh.geometry.attributes.blow.needsUpdate = true;
 	buddhaMesh.geometry.attributes.blowTime.needsUpdate = true;
-	isBlow = true;
+	isBlow = true;*/
 }
 
 function transformObject(modelIndex){
-	if(uniforms_Particle_Buddha === undefined || uniforms_Particle_Digger === undefined)
+	if(uniformsParticleCollection[0] === undefined || uniformsParticleCollection[1] === undefined|| uniformsParticleCollection[2] === undefined)
 		return;
-	
+
 	if(timePass >= 2.0){
 		timePass = 0.0;
 		
@@ -604,130 +634,32 @@ function transformObject(modelIndex){
 				var c = objectMesh.children[0];
 				objectMesh.remove(c);
 			}
-			
-			if(modelIndex === 0)
-				objectMesh.add( buddhaMesh );
-			else if(modelIndex === 1)
-				objectMesh.add( diggerMesh );
-			else if(modelIndex === 2)
-				objectMesh.add( dollarMesh );
-			
+
+			objectMesh.add( objectMeshCollection[modelIndex] );
 			drop = 2;
+			currentModelIndex = modelIndex;
 		}
-		else if(drop === 2){
+		else if(drop === 2)
 			drop = 0;
-		}
 	}
+	
 	
 	if(drop === 0){
-		uniforms_Particle_Buddha.drop.value = 0;
-		uniforms_Particle_Digger.drop.value = 0;
-		uniforms_Particle_Dollar.drop.value = 0;
+		uniformsParticleCollection[modelIndex].drop.value = 0;
 	}
 	else if(drop === 1){
-		uniforms_Particle_Buddha.drop.value = 1;
-		uniforms_Particle_Digger.drop.value = 1;
-		uniforms_Particle_Dollar.drop.value = 1;
-		uniforms_Particle_Buddha.dropDistance.value = 3 * timePass * timePass;	
-		uniforms_Particle_Digger.dropDistance.value = 500 * timePass * timePass;
-		uniforms_Particle_Dollar.dropDistance.value = 2000 * timePass * timePass;
 		timePass += 0.005;
+		uniformsParticleCollection[currentModelIndex].drop.value = 1;
+		uniformsParticleCollection[currentModelIndex].time.value = timePass;
+		
 	}
 	else if(drop === 2){
-		uniforms_Particle_Buddha.drop.value = 2;
-		uniforms_Particle_Digger.drop.value = 2;
-		uniforms_Particle_Dollar.drop.value = 2;
-		uniforms_Particle_Buddha.dropDistance.value = 3 * (timePass -1) * (timePass-1) * (timePass-1);
-		uniforms_Particle_Digger.dropDistance.value = 500 * (timePass -1) * (timePass-1) * (timePass-1);
-		uniforms_Particle_Dollar.dropDistance.value = 2000 * (timePass -1) * (timePass-1) * (timePass-1);
 		timePass += 0.005;
-	}
-	
-	/*for(var i = 0; i < buddhaMesh.geometry.attributes.position.length; i+=3){
-		buddhaMesh.geometry.attributes.customColor.setXYZ(i/3, timePass, timePass, timePass);
-	}
-	buddhaMesh.geometry.attributes.customColor.needsUpdate = true;*/
+		uniformsParticleCollection[modelIndex].drop.value = 2;
+		uniformsParticleCollection[modelIndex].time.value = timePass;
 
-	uniforms_Particle_Buddha.time.value = timePass;
-	uniforms_Particle_Digger.time.value = timePass;
-	uniforms_Particle_Dollar.time.value = timePass;
-
+	}
 }
-
-function pointUpdate()
-{
-
-	if(transform === false)
-		return;
-
-	if(uniforms_Particle_Buddha === undefined)
-		return;
-		
-		
-
-	if(timePass >= 2.0){
-		if(currentModel === 0){
-
-			if(uniforms_Particle_Buddha.drop.value === 1){
-				uniforms_Particle_Digger.drop.value = 0;
-				
-				while( objectMesh.children.length > 0 ){
-					var c = objectMesh.children[0];
-					objectMesh.remove(c);
-				}
-				objectMesh.add( diggerMesh );
-				currentModel = 1;
-		
-			}
-			else {
-				uniforms_Particle_Buddha.drop.value = 1;
-
-			}
-			timePass = 0.0;
-		}
-		else{
-			if(uniforms_Particle_Digger.drop.value === 1){
-				uniforms_Particle_Buddha.drop.value = 0;
-
-				while( objectMesh.children.length > 0 ){
-					var c = objectMesh.children[0];
-					objectMesh.remove(c);
-				}
-				objectMesh.add( buddhaMesh );
-				currentModel = 0;
-			}
-			else {
-				uniforms_Particle_Digger.drop.value = 1;
-
-			}
-			timePass = 0.0;
-		}
-	}
-
-	
-	
-	
-			
-	if(currentModel === 0){
-		if(uniforms_Particle_Buddha.drop.value === 1)
-			uniforms_Particle_Buddha.dropDistance.value = 3 * timePass * timePass;		
-		else
-			uniforms_Particle_Buddha.dropDistance.value = 3 * (timePass -1) * (timePass-1) * (timePass-1);
-		
-		uniforms_Particle_Buddha.time.value = timePass;
-		
-	}
-	else{
-		if(uniforms_Particle_Digger.drop.value === 1)
-			uniforms_Particle_Digger.dropDistance.value = 500 * timePass * timePass;
-		else
-			uniforms_Particle_Digger.dropDistance.value = 500 * (timePass -1) * (timePass-1) * (timePass-1);
-		
-		uniforms_Particle_Digger.time.value = timePass;
-	}
-	timePass += 0.005;
-}
-
 
 function animate() {	
 	if(stats != undefined)
@@ -735,12 +667,12 @@ function animate() {
 
 	transformObject(changeModelIndex);
 	
-	if(uniforms_Particle_Buddha !== undefined && uniforms_Particle_Digger !== undefined && uniforms_Particle_Dollar !== undefined){
+	/*if(uniforms_Particle_Buddha !== undefined && uniforms_Particle_Digger !== undefined && uniforms_Particle_Dollar !== undefined){
 		uniforms_Particle_Buddha.realTime.value = realTimePass;
 		uniforms_Particle_Digger.realTime.value = realTimePass;
 		uniforms_Particle_Dollar.realTime.value = realTimePass;
 		realTimePass += 0.005;
-	}
+	}*/
 	if( rotateTargetX !== undefined && rotateTargetY !== undefined ){
 
 		rotateVX += (rotateTargetX - rotateX) * 0.012;
@@ -790,7 +722,7 @@ function animate() {
 	//console.log("x:" + globeMesh.rotation.x + "  y:"+globeMesh.rotation.y);
 	//countryMesh.rotation.x = rotateX;
 	countryMesh.rotation.y += 0.01;	
-	//objectMesh.rotation.y += 0.01;	
+	objectMesh.rotation.y += 0.01;	
     render();	
     		        		       
     requestAnimationFrame( animate );	
