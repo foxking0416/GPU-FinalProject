@@ -50,6 +50,8 @@ function onDocumentMouseUp( event ){
 }
 
 function onClick( event ){
+	
+
 	//	make the rest not work if the event was actually a drag style click
 	if( Math.abs(pressX - mouseX) > 3 || Math.abs(pressY - mouseY) > 3 )
 		return;				
@@ -78,10 +80,13 @@ function onClick( event ){
 		}
 	}	
 	
-	blowParticle();
+
 }
 
 function onKeyDown( event ){	
+	if(keyboard.pressed("b") === true){
+		blowParticle();
+	}
 }
 
 function handleMWheel( delta ) {
