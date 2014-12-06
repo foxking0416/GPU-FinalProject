@@ -11,6 +11,7 @@ var RadarChart = {
     maxValue: 0,
     radians: 2 * Math.PI,
     color: d3.scale.category10(),
+    //color: "#001100",
     axisLine: true,
     axisText: true,
     circles: true,
@@ -153,7 +154,7 @@ var RadarChart = {
                 var p = getHorizontalPosition(i, 0.5);
 
                 return 'legend ' +
-                  ((p < 0.4) ? 'left' : ((p > 0.6) ? 'right' : 'middle'));
+                  ((p < 0.3) ? 'left' : ((p > 0.6) ? 'right' : 'middle'));
               })
               .attr('dy', function(d, i) {
                 var p = getVerticalPosition(i, 0.5);
@@ -161,7 +162,8 @@ var RadarChart = {
               })
               .text(function(d) { return d; })
               .attr('x', function(d, i){ return getHorizontalPosition(i, cfg.w / 2, cfg.factorLegend); })
-              .attr('y', function(d, i){ return getVerticalPosition(i, cfg.h / 2, cfg.factorLegend); });
+              .attr('y', function(d, i){ return getVerticalPosition(i, cfg.h / 2, cfg.factorLegend); })
+              .style("stroke", "#FFFFFF");
           }
         }
 

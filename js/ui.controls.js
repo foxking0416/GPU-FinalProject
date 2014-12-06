@@ -10,7 +10,8 @@ var moveToFront = function() {
   this.parentNode.appendChild(this); 
 }; 
 
-
+var currentYear;
+ var acdData2 = [];
 
 var d3Graphs = {
     barGraphWidth: 500,
@@ -26,7 +27,7 @@ var d3Graphs = {
 	barGraphSVG: d3.select("#wrapper").append("svg").attr('id','barGraph'),
 	histogramSVG: null,
     //radar chart added
-    radarChartSVG: d3.select("#wrapper").append("svg").attr('id','radarChart'),
+    radarChartSVG: d3.select("#wrapper2").append("svg").attr('id','radarChart'),
 	histogramYScale: null,
 	histogramXScale: null,
 	cumImportY: 0,cumExportY: 0,
@@ -262,6 +263,8 @@ var d3Graphs = {
         selectionData.selectedYear = year;
         selectionData.selectedCountry = country;
         selectVisualization(timeBins, year,[country],exportArray, importArray);
+
+        currentYear = year;
     },
     dropHandle:function() {
         d3Graphs.updateViz();
@@ -910,41 +913,73 @@ var d3Graphs = {
         event.dataTransfer.effectAllowed='move';
     },
     drawRadarChart: function(){
-        this.radarChartSVG.attr('id','radarChart').attr('width',d3Graphs.barGraphWidth).attr('height',d3Graphs.barGraphHeight).attr('class','overlayCountries noPointer');
         
+        for( var i in acdLevel ){
+            acdData2[i] = Math.ceil(Math.random() * 10) + 5;
+        } 
+        d3.select("#wrapper2").select('svg').remove();
+        this.radarChartSVG.attr('id','radarChart').attr('width',d3Graphs.barGraphWidth).attr('height',d3Graphs.barGraphHeight).attr('class','overlayCountries noPointer');
+        var acdData = [];
+        if (currentYear == null) currentYear = 2013;
+        for( var i in acdLevel ){
+            var myacd = acdLevel[i];
+            if(myacd.t == currentYear)
+            {
+                acdData.push(myacd.v);
+            }
+        }
+        
+
         var data = [
           {
-            className: 'germany', // optional can be used for styling
+            className: 'inbound', // optional can be used for styling
             axes: [
-              {axis: "strength", value: 13}, 
-              {axis: "intelligence", value: 6}, 
-              {axis: "charisma", value: 5},  
-              {axis: "dexterity", value: 9},  
-              {axis: "luck", value: 2},
-              {axis: "test", value: 3}
+              {axis: "Undergrad", value: (acdData[0] - 160000) * 0.0002}, 
+              {axis: "Graduate", value: (acdData[1] - 200000) * 0.0002}, 
+              {axis: "Non-Degree", value: (acdData[2] - 20000) * 0.0002},  
+              {axis: "OPT", value: (acdData[3] - 20000) * 0.0002}
             ]
           },
           {
-            className: 'argentina',
+            className: 'outbound',
             axes: [
-              {axis: "strength", value: 6}, 
-              {axis: "intelligence", value: 7}, 
-              {axis: "charisma", value: 10},  
-              {axis: "dexterity", value: 13},  
-              {axis: "luck", value: 9},
-              {axis: "test", value: 3}
+              {axis: "Undergrad", value: acdData2[0]}, 
+              {axis: "Graduate", value: acdData2[1]}, 
+              {axis: "Non-Degree", value: acdData2[2]},  
+              {axis: "OPT", value: 2}
             ]
           }
         ];
 
-       
+   /* var data = [
+          {
+            className: 'inbound', // optional can be used for styling
+            axes: [
+              {axis: "Undergrad", value: 1},
+              {axis: "Graduate", value: 2}, 
+              {axis: "Non-Degree", value: 3},  
+              {axis: "OPT", value: 4}
+            ]
+          },
+          {
+            className: 'outbound',
+            axes: [
+              {axis: "Undergrad", value: 0}, 
+              {axis: "Graduate", value: 1}, 
+              {axis: "Non-Degree", value: 2},  
+              {axis: "OPT", value: acdData2[3]}
+            ]
+          }
+        ];*/
     var chart = RadarChart.chart();
     var cfg = chart.config(); // retrieve default config
-    var svg =  d3.select("#wrapper").append("svg").attr('id','radarChart')
+    
+    var svg =  d3.select("#wrapper2").append("svg").attr('id','radarChart')
       .attr('width', cfg.w)
       .attr('height', cfg.h + cfg.h / 4);
     svg.append('g').classed('single', 1).datum(data).call(chart);
     }
+
 }
 
 /*

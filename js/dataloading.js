@@ -25,7 +25,7 @@ function loadWorldPins( callback ){
 }
 
 function loadContentData(callback){	
-	var filePath = "categories/All-test2.json";
+	var filePath = "categories/All-test.json";
 	filePath = encodeURI( filePath );
 	// console.log(filePath);
 			
@@ -54,6 +54,31 @@ function loadContentData(callback){
 	};
 	xhr.send( null );					    	
 }
+
+function loadAcdLevelData(callback){	
+	var filePath = "categories/AcdLevel.json";
+	filePath = encodeURI( filePath );
+	// console.log(filePath);
+			
+	xhr = new XMLHttpRequest();
+	xhr.open( 'GET', filePath, true );
+
+	//ra
+	xhr.overrideMimeType("application/json");
+
+	xhr.onreadystatechange = function() {
+		if(xhr.readyState === 4){
+		//if ( xhr.readyState === 4 && xhr.status === 200 ) {
+	    	acdLevel = JSON.parse( xhr.responseText ).acdLevel;		    											    	
+
+			if(callback)
+				callback();				
+	    	console.log("finished read academic level data");	   	
+	    }
+	};
+	xhr.send( null );					    	
+}
+
 
 function loadCountryCodes( callback ){
 	cxhr = new XMLHttpRequest();

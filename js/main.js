@@ -34,6 +34,8 @@ var clock = new THREE.Clock();
 var timeBins;
 var timePass = 0.0;
 
+//ra academic levels
+var acdLevel;
 
 //	contains latlon data for each country
 var latlonData;			    
@@ -101,9 +103,14 @@ function start( e ){
 				loadWorldPins(
 					function(){										
 						loadContentData(								
-							function(){																	
-								initScene();
-								animate();		
+							function(){	
+								loadAcdLevelData(
+								function()
+								{
+									initScene();
+									animate();	
+								}
+							);												
 							}
 						);														
 					}

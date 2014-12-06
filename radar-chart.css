@@ -1,11 +1,11 @@
 .radar-chart .level {
   stroke: grey;
-  stroke-width: 0.5;
+  stroke-width: 2;
 }
 
 .radar-chart .axis line {
   stroke: grey;
-  stroke-width: 1;
+  stroke-width: 2;
 }
 .radar-chart .axis .legend {
   font-family: sans-serif;
