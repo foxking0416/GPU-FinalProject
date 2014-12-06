@@ -247,21 +247,21 @@ function initScene() {
 		
 		////// buddha parameters ////////
 		createObjectMesh( object, 0, 60, 0.0, 0.0, 0.0, 3.0, //scale, x, y, z, blowOffsetX, blowOffsetZ, blowStrength
-					0x00ff44, 3.0, 50, 140, 180); //color, drop acceleration, ring radius, ring rising height, ring rising velocity
+					1.0,1.0,1.0, 3.0, 50, 140, 180); //colorR,colorG,colorB, drop acceleration, ring radius, ring rising height, ring rising velocity
 	} );
 
 	loader.load( 'model/digger.obj', function ( object ) {
 		
 		////// digger parameters ////////
 		createObjectMesh( object, 1, 0.35, 5.0, -59, 0.0, 510.0, 
-					0xff0044, 500.0, 100, 92, 180);
+					0.0,0.3,1.0, 500.0, 100, 92, 180);
 	} );
 	
 	loader.load( 'model/dollar.obj', function ( object ) {
 		
 		////// dollar parameters ////////
 		createObjectMesh( object, 2, 0.05, 0.0, -57, 0.0, 3600.0, 
-					0xff0044, 2700.0, 30, 87, 140);
+					0.9,0.9,0.1, 2700.0, 30, 87, 140);
 	} );
 
 	createRingMesh();
@@ -403,7 +403,7 @@ var isBlow = false;
 var blowDir = new THREE.Vector3(0.0, 0.0, 0.0 );
 
 
-function createObjectMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, color, acceleration, ringRadius, ringRisingHeight, ringRisingVelocity ) {
+function createObjectMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, colorR, colorG, colorB, acceleration, ringRadius, ringRisingHeight, ringRisingVelocity ) {
 
 	var attributes_Particle = {
 		blow:                  { type: 'f', value: []},
@@ -461,9 +461,9 @@ function createObjectMesh(originalGeometry, modelIndex, scale, x, y, z, blowStre
 				highest = bufferGeometry.attributes.position.array[i+1];	
 		}	
 		
-		customColor[i] = 1.0;
-		customColor[i+1] = 0.0;
-		customColor[i+2] = 1.0;		
+		customColor[i] = colorR;
+		customColor[i+1] = colorG;
+		customColor[i+2] = colorB;		
 		
 		blowDirection[i] = 0.0;
 		blowDirection[i+1] = 0.0;
@@ -862,7 +862,8 @@ function animate() {
 		objectMeshArray[currentModelIndex].rotation.y += 0.01;
 	objectMesh.rotation.x = rotateX;
 	objectMesh.rotation.y = rotateY;	
-	blowDir = new THREE.Vector3(Math.sin(Math.PI - rotateY  ), 0.0, Math.cos(Math.PI - rotateY ) );
+	if(objectMeshArray[currentModelIndex] !== undefined)
+	blowDir = new THREE.Vector3(Math.sin(Math.PI - (rotateY +objectMeshArray[currentModelIndex].rotation.y ) ), 0.0, Math.cos(Math.PI - (rotateY +objectMeshArray[currentModelIndex].rotation.y)) );
 	//blowDir = new THREE.Vector3(Math.sin(Math.PI / 2 * 3), 0.0, Math.cos(Math.PI / 2 * 3) );
 	//console.log( rotateY );
     render();	
