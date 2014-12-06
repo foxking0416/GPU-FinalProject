@@ -194,7 +194,7 @@ function initScene() {
 		'earthLight': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthlight1024Tran.png" ) },
 		'earthBump': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthbump1024Tran.png" ) },
 		'earthSpec': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthspec1024Tran.png" ) },
-		'earthTech': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthmap1024TranCopy.png" ) },
+		'earthTech': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthmap1024Tran _Tech.png" ) },
 		'outlineLevel': {type: 'f', value: 1 },
 	};
 	mapUniforms = uniforms_Globe;
@@ -858,6 +858,8 @@ function animate() {
 	//countryMesh.rotation.x = rotateX;
 	countryMesh.rotation.y += 0.01;	
 	//objectMesh.rotation.y += 0.01;	
+	if(objectMeshArray[currentModelIndex] !== undefined)
+		objectMeshArray[currentModelIndex].rotation.y += 0.01;
 	objectMesh.rotation.x = rotateX;
 	objectMesh.rotation.y = rotateY;	
 	blowDir = new THREE.Vector3(Math.sin(Math.PI - rotateY  ), 0.0, Math.cos(Math.PI - rotateY ) );

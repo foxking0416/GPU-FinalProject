@@ -170,8 +170,8 @@
 				specular = pow(specular, 2.0);
 				specular = 0.0;
 				
-				vec3 earthColor = texture2D(earthMap, vUv ).rgb;
-				//vec3 earthColor = texture2D(earthTech, vUv ).rgb;
+				//vec3 earthColor = texture2D(earthMap, vUv ).rgb;
+				vec3 earthColor = texture2D(earthTech, vUv ).rgb;
 				vec3 earthColorAccu = vec3(0.0, 0.0, 0.0);
 
 				/*earthColorAccu += texture2D(earthMap, vUv + vec2(1.0/1024.0, 0.0)).rgb;
