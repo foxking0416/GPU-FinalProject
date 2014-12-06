@@ -557,7 +557,7 @@ function selectCountryFlag( countries ){
 
 	
 	var boundCube = new THREE.Mesh( new THREE.BoxGeometry( 80, 80, 80 ), shaderMaterial_Flag );
-	//flagBoxMesh.add( boundCube );	
+	flagBoxMesh.add( boundCube );	
 }
 
 function selectCountryLand( countries ){
@@ -585,7 +585,7 @@ function selectCountryLand( countries ){
 		var countryShape = new THREE.Shape( country2dPoints );
 		var country3d = new THREE.ExtrudeGeometry( countryShape, { amount: 5, bevelEnabled: false} );
 		var extrudeGeo = new THREE.Mesh( country3d, shaderMaterial_Country );
-		//countryMesh.add( extrudeGeo );
+		countryMesh.add( extrudeGeo );
 		
 	}
 }

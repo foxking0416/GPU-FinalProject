@@ -165,13 +165,13 @@ function initScene() {
 	scene.add(globeMesh);
 
 	countryMesh = new THREE.Object3D();
-	scene.add(countryMesh);
+	//scene.add(countryMesh);
 	
 	flagBoxMesh = new THREE.Object3D();
-	scene.add(flagBoxMesh);
+	//scene.add(flagBoxMesh);
 	
 	objectMesh = new THREE.Object3D();
-	scene.add(objectMesh);
+
 	
 	lookupCanvas = document.createElement('canvas');	
 	lookupCanvas.width = 256;
@@ -377,7 +377,11 @@ function initScene() {
 	camera.position.z = 1400;
 	camera.position.y = 0;
 	stats = initStats();
+	//////////////////////////
 
+	scene.add(countryMesh);
+	scene.add(flagBoxMesh);
+	scene.add(objectMesh);
 }
 
 var objectMeshArray = [];
