@@ -85,7 +85,22 @@ function onClick( event ){
 
 function onKeyDown( event ){	
 	if(keyboard.pressed("b") === true){
-		blowParticle();
+		blowParticle(0);
+	}
+	if(keyboard.pressed("1") === true){
+		blowParticle(1);
+	}
+	if(keyboard.pressed("2") === true){
+		blowParticle(2);
+	}
+	if(keyboard.pressed("3") === true){
+		blowParticle(3);
+	}
+	if(keyboard.pressed("4") === true){
+		blowParticle(4);
+	}
+	if(keyboard.pressed("5") === true){
+		blowParticle(5);
 	}
 }
 

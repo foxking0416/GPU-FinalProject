@@ -67,7 +67,7 @@
 		<script src="js/three.js"></script>					<!--Library-->
 		<!--<script src="js/three.min.js"></script>					<!--Library-->
 		<script src="js/BinaryLoader.js"></script>					<!--Library-->
-		
+		<!--<script src="js/crayon.js"></script>	<!--Library-->
 		<script src="js/THREEx.KeyboardState.js"></script>	<!--Library-->
 		<script src="js/THREEx.WindowResize.js"></script>	<!--Library-->
 		<!--<script src="js/Stats.js"></script>					<!--Library-->
@@ -170,6 +170,20 @@
 				specular = 0.0;
 				
 				vec3 earthColor = texture2D(earthMap, vUv ).rgb;
+				vec3 earthColorAccu = vec3(0.0, 0.0, 0.0);
+
+				earthColorAccu += texture2D(earthMap, vUv + vec2(1.0/1024.0, 0.0)).rgb;
+				earthColorAccu += texture2D(earthMap, vUv + vec2(2.0/1024.0, 0.0)).rgb;
+				earthColorAccu += texture2D(earthMap, vUv + vec2(3.0/1024.0, 0.0)).rgb;
+				earthColorAccu += texture2D(earthMap, vUv + vec2(4.0/1024.0, 0.0)).rgb;
+				earthColorAccu += texture2D(earthMap, vUv + vec2(5.0/1024.0, 0.0)).rgb;
+				earthColorAccu += texture2D(earthMap, vUv - vec2(1.0/1024.0, 0.0)).rgb;
+				earthColorAccu += texture2D(earthMap, vUv - vec2(2.0/1024.0, 0.0)).rgb;
+				earthColorAccu += texture2D(earthMap, vUv - vec2(3.0/1024.0, 0.0)).rgb;
+				earthColorAccu += texture2D(earthMap, vUv - vec2(4.0/1024.0, 0.0)).rgb;
+				earthColorAccu += texture2D(earthMap, vUv - vec2(5.0/1024.0, 0.0)).rgb;
+				earthColor = earthColorAccu / 10.0;
+				
 				vec3 nightColor = texture2D(earthLight, vUv).rgb;
 				
 				float gammaCorrect = 1.5 / 1.2; //gamma correct by 1/1.2
@@ -187,6 +201,19 @@
 				vec3 mask = lookupColor + vec3((1.0 - outlineLevel) * indexedColor);
 				mask = clamp(mask, vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
 				vec3 outlineColor = vec3(0.8 * texture2D( outline, vUv ).x * outlineLevel);
+				vec3 outlineColorAccu = vec3(0.0, 0.0, 0.0);
+				outlineColorAccu += vec3(0.8 * texture2D( outline, vUv+ vec2(1.0 / 1024.0, 0.0) ).x * outlineLevel);
+				outlineColorAccu += vec3(0.8 * texture2D( outline, vUv+ vec2(2.0 / 1024.0, 0.0) ).x * outlineLevel);
+				outlineColorAccu += vec3(0.8 * texture2D( outline, vUv+ vec2(3.0 / 1024.0, 0.0) ).x * outlineLevel);
+				outlineColorAccu += vec3(0.8 * texture2D( outline, vUv+ vec2(4.0 / 1024.0, 0.0) ).x * outlineLevel);
+				outlineColorAccu += vec3(0.8 * texture2D( outline, vUv+ vec2(5.0 / 1024.0, 0.0) ).x * outlineLevel);
+				/*outlineColorAccu += vec3(0.8 * texture2D( outline, vUv+ vec2(6.0 / 1024.0, 0.0) ).x * outlineLevel);
+				outlineColorAccu += vec3(0.8 * texture2D( outline, vUv+ vec2(7.0 / 1024.0, 0.0) ).x * outlineLevel);
+				outlineColorAccu += vec3(0.8 * texture2D( outline, vUv+ vec2(8.0 / 1024.0, 0.0) ).x * outlineLevel);
+				outlineColorAccu += vec3(0.8 * texture2D( outline, vUv+ vec2(9.0 / 1024.0, 0.0) ).x * outlineLevel);
+				outlineColorAccu += vec3(0.8 * texture2D( outline, vUv+ vec2(10.0 / 1024.0, 0.0) ).x * outlineLevel);*/
+				//outlineColor = outlineColorAccu / 5.0;
+				
 				vec3 maskAndOutline = mask + vec3(outlineColor);
 
 						
@@ -384,7 +411,7 @@
 			attribute float blowTime;
 			attribute float requireTimeToDrop;
 			attribute vec3 customColor;
-			//attribute vec3 blowDirection;
+			attribute vec3 blowDirectionVertex;
 			varying vec3 vColor;
 
 			void main() {
@@ -399,15 +426,15 @@
 					else{
 						float pastTime = realTime - blowTime;
 						if(pastTime < requireTimeToDrop){
-							newPosition = vec3(position.x + blowStrength * blowDirection.x * (realTime - blowTime) , 
+							newPosition = vec3(position.x + blowStrength * blowDirectionVertex.x * (realTime - blowTime) , 
 											   position.y - acceleration * pastTime * pastTime, 
-											   position.z + blowStrength * blowDirection.z * (realTime - blowTime));
+											   position.z + blowStrength * blowDirectionVertex.z * (realTime - blowTime));
 						}
 						else {
 				
-							newPosition = vec3(position.x + blowStrength * blowDirection.x * requireTimeToDrop, 
+							newPosition = vec3(position.x + blowStrength * blowDirectionVertex.x * requireTimeToDrop, 
 							                   lowestY, 
-											   position.z + blowStrength * blowDirection.z * requireTimeToDrop);
+											   position.z + blowStrength * blowDirectionVertex.z * requireTimeToDrop);
 						}
 					}
 				}
@@ -426,13 +453,13 @@
 					}
 					else{
 						if(time > 1.0)
-							newPosition = vec3( (position.x + blowStrength * blowDirection.x * requireTimeToDrop) * (2.0 - time), 
+							newPosition = vec3( (position.x + blowStrength * blowDirectionVertex.x * requireTimeToDrop) * (2.0 - time), 
 												 lowestY, 
-												(position.z + blowStrength * blowDirection.z * requireTimeToDrop)* (2.0 - time));
+												(position.z + blowStrength * blowDirectionVertex.z * requireTimeToDrop)* (2.0 - time));
 						else
-							newPosition = vec3(position.x + blowStrength * blowDirection.x * requireTimeToDrop, 
+							newPosition = vec3(position.x + blowStrength * blowDirectionVertex.x * requireTimeToDrop, 
 											   lowestY, 
-											   position.z + blowStrength * blowDirection.z * requireTimeToDrop);
+											   position.z + blowStrength * blowDirectionVertex.z * requireTimeToDrop);
 					}
 				}
 				else if(drop == 2){//rising
@@ -474,6 +501,7 @@
 		<script id="ringPointVertexshader" type="x-shader/x-vertex" >
 
 			uniform vec3 offset;
+			uniform float size;
 			attribute vec3 customColor;
 			varying vec3 vColor;
 
@@ -481,7 +509,7 @@
 
 				vColor = customColor;
 
-				gl_PointSize = 15.0;
+				gl_PointSize = size;
 				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 				gl_Position += vec4(offset, 1.0);
 			}

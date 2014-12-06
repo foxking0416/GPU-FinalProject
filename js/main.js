@@ -220,11 +220,25 @@ function initScene() {
 	globeMesh.add( globeSphere );	
 
 	
+
+	/*CRAYON.extends( 'SceneNode', CRAYON.ShaderNode, {
+		init: function() {
+			CRAYON.ShaderNode.call( this );
+		},
+	});
+	sceneNode = new CRAYON.SceneNode();
+	sceneDepthNode = new CRAYON.SceneDepthNode( sceneNode );
+	screenNode = new CRAYON.RenderToScreenNode( renderer );*/
+	//edgeNode = new CRAYON.EdgeFilterNode( renderer );
+	//multiplyNode = new CRAYON.MultiplyNode( renderer );
+	//executorNode = new CRAYON.ExecutorNode( renderer );
+	//particleNode = new CRAYON.ParticleRendererNode( renderer );
+	
+	
 	var manager = new THREE.LoadingManager();
 		manager.onProgress = function ( item, loaded, total ) {
 		console.log( item, loaded, total );
 	};
-
 
 	// model
 	var loader = new THREE.OBJLoader( manager );
@@ -376,6 +390,8 @@ var uniformsRingParticleArray = [];
 var radiusArray = [];
 var heightArray = [];
 var ringRisingVelArray = [];
+var lowestHeightArray = [];
+var highestHeightArray = [];
 var ringMesh;
 var currentModelIndex = 0;
 var changeModelIndex = 0;
@@ -385,6 +401,7 @@ var realTimePass = 0.0
 var isBlow = false;
 var blowDir = new THREE.Vector3(0.0, 0.0, 0.0 );
 
+
 function createObjectMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, color, acceleration, ringRadius, ringRisingHeight, ringRisingVelocity ) {
 
 	var attributes_Particle = {
@@ -392,6 +409,7 @@ function createObjectMesh(originalGeometry, modelIndex, scale, x, y, z, blowStre
 		blowTime:              { type: 'f', value: []},
 		requireTimeToDrop:     { type: 'f', value: []},
 		customColor:		   { type: 'v3', value: []},
+		blowDirectionVertex:   { type: 'v3', value: []},
 	};
 	
 	var uniforms_Particle = {
@@ -424,34 +442,47 @@ function createObjectMesh(originalGeometry, modelIndex, scale, x, y, z, blowStre
 	var blow = [];
 	var blowTime = [];
 	var requireTimeToDrop = [];
-
+	var blowDirection = [];
 	
 	var lowest;
+	var highest;
 	
 	for(var i = 0; i < bufferGeometry.attributes.position.length; i+=3){
 		
 		if(i === 0){
 			lowest = bufferGeometry.attributes.position.array[1];
+			highest = bufferGeometry.attributes.position.array[1];
 		}
 		else{
 			if(bufferGeometry.attributes.position.array[i+1] < lowest)
 				lowest = bufferGeometry.attributes.position.array[i+1];	
+			if(bufferGeometry.attributes.position.array[i+1] > highest)
+				highest = bufferGeometry.attributes.position.array[i+1];	
 		}	
 		
 		customColor[i] = 1.0;
 		customColor[i+1] = 0.0;
 		customColor[i+2] = 1.0;		
 		
+		blowDirection[i] = 0.0;
+		blowDirection[i+1] = 0.0;
+		blowDirection[i+2] = 0.0;
+		
 		blow[i/3] = 0.0;
 		blowTime[i/3] = 0.0;
 		
 		requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] - lowest + 0.001)/ acceleration);	
 	}
+	lowestHeightArray[modelIndex] = lowest;
+	highestHeightArray[modelIndex] = highest;
+	
 	uniforms_Particle.lowestY.value = lowest;
 	
 	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
 	bufferGeometry.attributes.customColor.needsUpdate = true;
 	
+	bufferGeometry.addAttribute( 'blowDirectionVertex', new THREE.BufferAttribute( new Float32Array( blowDirection ), 3 ) );
+	bufferGeometry.attributes.blowDirectionVertex.needsUpdate = true;
 	
 	bufferGeometry.addAttribute( 'blow', new THREE.BufferAttribute( new Float32Array( blow ), 1 ) );
 	bufferGeometry.attributes.blow.needsUpdate = true;
@@ -484,19 +515,7 @@ function createObjectMesh(originalGeometry, modelIndex, scale, x, y, z, blowStre
 	if(modelIndex === 0)//buddha
 		objectMesh.add( mesh );
 
-	/*}
-	else if(modelIndex === 1){//digger
-	
-		radiusArray[modelIndex] = 100;
-		heightArray[modelIndex] = 92;
-		ringRisingVelArray[modelIndex] = 180;
-	}
-	else if(modelIndex === 2){//dollar
-	
-		radiusArray[modelIndex] = 30;
-		heightArray[modelIndex] = 87;
-		ringRisingVelArray[modelIndex] = 140;
-	}*/
+
 }
 
 function createRingMesh(){
@@ -507,6 +526,7 @@ function createRingMesh(){
 	var uniforms_Particle_Ring = {
 		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},		
 		time:      { type: "f", value: 1.0 },
+		size:      { type: "f", value: 30.0 },
 		texture:   { type: "t", value: THREE.ImageUtils.loadTexture( "images/particleA.png" ) },
 	};
 	
@@ -545,9 +565,15 @@ function createRingMesh(){
 	//objectMesh.add( ringMesh );
 }
 
+var blowPart1 = false;
+var blowPart2 = false;
+var blowPart3 = false;
+var blowPart4 = false;
+var blowPart5 = false;
+var totalBlow = 0;
 
-
-function blowParticle(){
+function blowParticle(blowpart){
+	
 	
 	if(isBlow)
 		return;
@@ -556,14 +582,127 @@ function blowParticle(){
 	
 	uniformsObjectParticleArray[currentModelIndex].blowDirection.value = blowDir;
 	
-	for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
-		objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
-		objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime);
+	
+	
+		if(blowpart === 0){
+			for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
+				if( (!blowPart1 && (objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) / 5
+				    )) 
+					|| 
+					(!blowPart2 && (objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) / 5 && 
+					   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 2 / 5
+				    ))
+					|| 
+					(!blowPart3 && (objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 2 / 5 && 
+					   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 3 / 5
+				    ))
+					|| 
+					(!blowPart4 && (objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 3 / 5 && 
+					   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 4 / 5
+				    ))
+					|| 
+					(!blowPart5 && (objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 4 / 5 && 
+					   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex])
+				    ))
+				){
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime - Math.random() / 10);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.setXYZ(i, blowDir.x, blowDir.y, blowDir.z);
+				}
+			}
+			isBlow = true;
+		}
+		else if(blowpart === 1 && !blowPart1){
+		
+			for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
+				if(objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+					lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) / 5 )	{
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime - Math.random() / 10);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.setXYZ(i, blowDir.x, blowDir.y, blowDir.z);
+				}
+			}
+			blowPart1 = true;
+			totalBlow += 1;
+		}
+		else if(blowpart === 2 && !blowPart2){
+			for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
+				if(objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) / 5 && 
+				   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 2 / 5
+					)	{
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime - Math.random() / 10);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.setXYZ(i, blowDir.x, blowDir.y, blowDir.z);
+				}
+			}
+			blowPart2 = true;
+			totalBlow += 2;
+		}
+		else if(blowpart === 3 && !blowPart3){
+			for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
+				if(objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 2 / 5 && 
+				   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 3 / 5
+					)	{
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime - Math.random() / 10);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.setXYZ(i, blowDir.x, blowDir.y, blowDir.z);
+				}
+			}
+			blowPart3 = true;
+			totalBlow += 3;
+		}
+		else if(blowpart === 4 && !blowPart4){
+			for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
+				if(objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 3 / 5 && 
+				   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 4 / 5
+					)	{
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime - Math.random() / 10);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.setXYZ(i, blowDir.x, blowDir.y, blowDir.z);
+				}
+			}
+			blowPart4 = true;
+			totalBlow += 4;
+		}
+		else if(blowpart === 5 && !blowPart5){
+			for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
+				if(objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 4 / 5 && 
+				   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex])
+					)	{
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime - Math.random() / 10);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.setXYZ(i, blowDir.x, blowDir.y, blowDir.z);
+				}
+			}
+			blowPart5 = true;
+			totalBlow += 5;
+		}
+	
 
-	}
+	if(totalBlow >= 15)
+		isBlow = true;
+	
 	objectMeshArray[currentModelIndex].geometry.attributes.blow.needsUpdate = true;
 	objectMeshArray[currentModelIndex].geometry.attributes.blowTime.needsUpdate = true;
-	isBlow = true;
+	objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.needsUpdate = true;
+	
 }
 
 function transformObject(modelIndex){
@@ -578,7 +717,7 @@ function transformObject(modelIndex){
 				var c = objectMesh.children[0];
 				objectMesh.remove(c);
 			}
-			if(isBlow){
+			if(isBlow || blowPart1 || blowPart2 || blowPart3 || blowPart4 || blowPart5){
 			
 				for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blow.length; i++){
 					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 0.0);
@@ -586,6 +725,12 @@ function transformObject(modelIndex){
 				objectMeshArray[currentModelIndex].geometry.attributes.blow.needsUpdate = true;
 
 				isBlow = false;
+				blowPart1 = false;
+				blowPart2 = false;
+				blowPart3 = false;
+				blowPart4 = false;
+				blowPart5 = false;
+				totalBlow = 0;
 			}
 			objectMesh.add( ringMesh );
 			objectMesh.add( objectMeshArray[modelIndex] );
@@ -716,7 +861,7 @@ function animate() {
 	objectMesh.rotation.y = rotateY;	
 	blowDir = new THREE.Vector3(Math.sin(Math.PI - rotateY  ), 0.0, Math.cos(Math.PI - rotateY ) );
 	//blowDir = new THREE.Vector3(Math.sin(Math.PI / 2 * 3), 0.0, Math.cos(Math.PI / 2 * 3) );
-	console.log( rotateY );
+	//console.log( rotateY );
     render();	
     		        		       
     requestAnimationFrame( animate );	
