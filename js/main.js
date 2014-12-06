@@ -194,6 +194,7 @@ function initScene() {
 		'earthLight': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthlight1024Tran.png" ) },
 		'earthBump': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthbump1024Tran.png" ) },
 		'earthSpec': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthspec1024Tran.png" ) },
+		'earthTech': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthmap1024TranCopy.png" ) },
 		'outlineLevel': {type: 'f', value: 1 },
 	};
 	mapUniforms = uniforms_Globe;
