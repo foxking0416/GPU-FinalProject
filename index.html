@@ -13,26 +13,6 @@
 
 	</head>
 
-	<style>
-	.radar-chart .area {
-	  fill-opacity: 0.7;
-	}
-	.radar-chart.focus .area {
-	  fill-opacity: 0.3;
-	}
-	.radar-chart.focus .area.focused {
-	  fill-opacity: 0.9;
-	}
-	.area .germany, .germany .circle {
-	  fill: #FFD700;
-	  stroke: none;
-	}
-	.area .argentina, .argentina .circle {
-	  fill: #ADD8E6;
-	  stroke: none;
-	}
-	</style>
-
 	<body onload="start()" id="dataviz" class="">
 		<div id="Stats-output">
 		</div>
@@ -40,7 +20,11 @@
 		
 		<div id="loading">
 			<h2>I AM LOADING...</h2>
+			<h3><img src="images/head_ry.png" alt="Lei Yang" style="width:70px;height:70px;border:0"></h3>
+			<h4><img src="images/head_wct.png" alt="Wei-Chien Tu" style="width:70px;height:70px;border:0"></h4>
 		</div>
+
+		
 
 		<div >
 			<table id="marker_template" class="marker" style="left:'0px';top:'0px'"><tr><td><span id="countryText" class="country">
@@ -134,18 +118,24 @@
 			uniform sampler2D earthBump;
 			uniform sampler2D earthSpec;
 			uniform sampler2D earthTech;
+			uniform sampler2D earthArt;
+			uniform sampler2D earthBusiness;
 			uniform float outlineLevel;
 			varying mat3 u_InvTrans;
 			varying vec3 v_Position;	// position in camera coordinates
 			varying vec3 v_positionMC;  // position in model coordinates
 			varying vec3 vNormal; 		// surface normal in camera coordinates
 			varying vec2 vUv;			// the same as v_Texcoord
-			
+
+			//ra
+			uniform int currentField;
+
+
 			mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
 			
 			void main() {
 				
-				
+			//	int currentField = 0;
 				float earthSpec = texture2D(earthSpec, vUv).r;	
 				float centerHeight = texture2D(earthBump, vUv).r;
 				float rightHeight = texture2D(earthBump, vUv+ vec2(1.0/1024.0, 0.0)).r;
@@ -171,21 +161,23 @@
 				specular = pow(specular, 2.0);
 				specular = 0.0;
 				
-				//vec3 earthColor = texture2D(earthMap, vUv ).rgb;
-				vec3 earthColor = texture2D(earthTech, vUv ).rgb;
-				vec3 earthColorAccu = vec3(0.0, 0.0, 0.0);
+				vec3 earthColor = texture2D(earthMap, vUv ).rgb;
 
-				/*earthColorAccu += texture2D(earthMap, vUv + vec2(1.0/1024.0, 0.0)).rgb;
-				earthColorAccu += texture2D(earthMap, vUv + vec2(2.0/1024.0, 0.0)).rgb;
-				earthColorAccu += texture2D(earthMap, vUv + vec2(3.0/1024.0, 0.0)).rgb;
-				earthColorAccu += texture2D(earthMap, vUv + vec2(4.0/1024.0, 0.0)).rgb;
-				earthColorAccu += texture2D(earthMap, vUv + vec2(5.0/1024.0, 0.0)).rgb;
-				earthColorAccu += texture2D(earthMap, vUv - vec2(1.0/1024.0, 0.0)).rgb;
-				earthColorAccu += texture2D(earthMap, vUv - vec2(2.0/1024.0, 0.0)).rgb;
-				earthColorAccu += texture2D(earthMap, vUv - vec2(3.0/1024.0, 0.0)).rgb;
-				earthColorAccu += texture2D(earthMap, vUv - vec2(4.0/1024.0, 0.0)).rgb;
-				earthColorAccu += texture2D(earthMap, vUv - vec2(5.0/1024.0, 0.0)).rgb;*/
-				//earthColor = earthColorAccu / 10.0;
+				if(currentField == 0) //general
+				{
+					earthColor = texture2D(earthMap, vUv ).rgb;
+				}else if(currentField == 1) //bsmg
+				{
+					earthColor = texture2D(earthBusiness, vUv ).rgb;
+				}else if(currentField == 2) //dart
+				{
+					earthColor = texture2D(earthArt, vUv ).rgb;
+				}else if(currentField == 3) //engr
+				{
+					earthColor = texture2D(earthTech, vUv ).rgb;
+				}
+				//vec3 earthColor = texture2D(earthArt, vUv ).rgb;
+				vec3 earthColorAccu = vec3(0.0, 0.0, 0.0);
 				
 				vec3 nightColor = texture2D(earthLight, vUv).rgb;
 				
@@ -250,6 +242,7 @@
 					bitangentEC.x, bitangentEC.y, bitangentEC.z,
 					normalEC.x,    normalEC.y,    normalEC.z);
 			}
+
 			
 		</script>
 		
@@ -544,7 +537,25 @@
 		
 		<div id="wrapper2"></div>
 
-		
+		<div id="info">
+   		 <p> Reference: <a href="http://armsglobe.chromeexperiments.com/">Arms Globe </a>  </p>
+   		 <p> Data acquired from <a href="http://www.iie.org/Research-and-Publications/Open-Doors/Data/International-Students">IIE Open Doors Data</a></p>
+ 		</div>
+
+ 		<div id="author">
+ 		 <p> Created By: </p>
+   		 <p> <img src="images/head_wct.png" alt="Wei-Chien Tu" style="width:35px;height:35px;border:0"> <a href="https://github.com/foxking0416"> Wei-Chien Tu</a> <span class="bull">&bull;</span> <a href="http://lovelessrara.wix.com/leiyang"> Lei Yang</a> <img src="images/head_ry.png" alt="Lei Yang" style="width:35px;height:35px;border:0"> </p>
+ 		</div>
+
+		<div class="overlayCountries noPointer" id="hudSwitch">
+			
+   			<input type="button" value="General Trends" class="gnlBtn swBtn pointer">
+   			<input type="button" value="Field of Study" class="fosBtn swBtn pointer">
+			
+          	<br class="clear" />
+            
+        </div>
+
 		<div class="overlayCountries noPointer" id="hudButtons">
 			
    			<input type="button" value="Fine Arts" class="dartBtn armsBtn pointer">
@@ -601,9 +612,9 @@
         <div id="graphIcon" class="overlayCountries"></div>
         <div id="importExportBtns" class="overlayCountries">
             <div class="typeLabels">
-                <div class="bsmg">Business Management</div>
+                <div class="bsmg">Business</div>
                 <div class="engr">Engineer</div>
-                <div class="dart">Design and Fine Arts</div>
+                <div class="dart">Fine Arts</div>
                 <div class="total">Total</div><br class="clear">
             </div>
         

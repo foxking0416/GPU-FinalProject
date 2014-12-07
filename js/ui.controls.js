@@ -15,7 +15,7 @@ var currentYear;
 
 var d3Graphs = {
     barGraphWidth: 500,
-	barGraphHeight: 500,
+	barGraphHeight: 600,
     barWidth: 14,
 	barGraphTopPadding: 20,
 	barGraphBottomPadding: 50,
@@ -54,12 +54,16 @@ var d3Graphs = {
         this.drawBarGraph();
         this.drawHistogram();
         this.drawRadarChart();
+        if(currentMode == 0)
+        {
+            $("#barGraph").hide();
+        }
     },
     showHud: function() {
         if(this.inited) return;
         this.inited = true;
         d3Graphs.windowResize();
-        $("#hudHeader, #hudButtons").show();
+        $("#hudHeader, #hudSwitch").show();
         $("#history").show();
         $("#graphIcon").show();
         //$("#importExportBtns").show();
@@ -77,6 +81,8 @@ var d3Graphs = {
         $("#hudButtons .dartBtn").click(d3Graphs.showDart);
         $("#hudButtons .bsmgBtn").click(d3Graphs.showBsmg);
         $("#hudButtons .engrBtn").click(d3Graphs.showEngr);
+        $("#hudSwitch .gnlBtn").click(d3Graphs.modeGeneral);
+        $("#hudSwitch .fosBtn").click(d3Graphs.modeFOS);
         $(document).on("click",".ui-autocomplete li",d3Graphs.menuItemClick);
         $(window).resize(d3Graphs.windowResizeCB);
         $(".zoomBtn").mousedown(d3Graphs.zoomBtnClick);
@@ -105,6 +111,7 @@ var d3Graphs = {
         $("#aboutContainer").toggle();
     },
     showDart:function() {      
+        currentFieldint = 2; //0: general, 1: bsmg, 2: dart, 3: engr
 
 		if(changeModelIndex === 0 && !isBlow)
 			return;
@@ -117,8 +124,11 @@ var d3Graphs = {
 			timePass = 0.0;
 		
 		drop = 1;
+
     },
     showEngr:function() {  
+         currentFieldint = 3; //0: general, 1: bsmg, 2: dart, 3: engr
+
 		if(changeModelIndex === 1 && !isBlow)
 			return;	
 		if(isBlow)
@@ -131,6 +141,9 @@ var d3Graphs = {
 		drop = 1;
     },
      showBsmg:function() {
+         currentFieldint = 1; //0: general, 1: bsmg, 2: dart, 3: engr
+         //updatTexture(currentFieldint);
+
 		if(changeModelIndex === 2 && !isBlow)
 			return;
 		if(isBlow)
@@ -140,7 +153,19 @@ var d3Graphs = {
 		if(drop === 2)
 			timePass = 0.0;
 		
-		drop = 1;
+		drop = 1;  
+    },
+    modeGeneral:function() {
+       currentMode = 0;
+       $("#hudButtons").hide();
+       $("#barGraph").hide();
+       $("#wrapper2").show();
+    },
+    modeFOS:function() {
+       currentMode = 1;
+       $("#hudButtons").show();
+       $("#barGraph").show();
+       $("#wrapper2").hide();
     },
     clickTimeline:function() {
         var year = $(this).html();
@@ -706,7 +731,11 @@ var d3Graphs = {
         });
         importLabels.attr('transform',function(d) { 
             var translate = 'translate('+(d3Graphs.barGraphWidth / 2 - 25)+",";
-            var valueX = d3Graphs.barGraphWidth - d3Graphs.barGraphBottomPadding - xScale(d.amount)/2;
+            var valueX;
+            if(xScale(d.amount) > d3Graphs.barGraphWidth - 100)
+                valueX = d3Graphs.barGraphWidth - d3Graphs.barGraphBottomPadding - xScale(d.amount)/2;
+            else
+                valueX =  d3Graphs.barGraphBottomPadding + xScale(d.amount) + 80;
            // d3Graphs.cumImportLblY += yScale(d.amount);
            d3Graphs.cumImportLblY += 30;
            var valueY = d3Graphs.barGraphHeight - (d3Graphs.barGraphHeight /2 + d3Graphs.cumImportLblY);
@@ -801,12 +830,19 @@ var d3Graphs = {
         exportLabels.enter().append("g").attr('class',function(d) {
             return 'exportLabel '+d.type;
         });
+
         exportLabels.attr('transform',function(d) { 
-            var translate = 'translate('+(d3Graphs.barGraphWidth / 2 + 35)+",";
-            var value = d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - d3Graphs.cumExportLblY - yScale(d.amount)/2;
-            d3Graphs.cumExportLblY += yScale(d.amount);
-            translate += value+")";
-            this.previousExportLabelTranslateY = value;
+            var translate = 'translate('+(d3Graphs.barGraphWidth / 2 - 25)+",";
+            if(xScale(d.amount) > d3Graphs.barGraphWidth - 100)
+                valueX = d3Graphs.barGraphWidth - d3Graphs.barGraphBottomPadding - xScale(d.amount)/2;
+            else
+                valueX =  d3Graphs.barGraphBottomPadding + xScale(d.amount) + 60;
+          //  var valueX = d3Graphs.barGraphBottomPadding + xScale(d.amount) + 60;
+           // d3Graphs.cumImportLblY += yScale(d.amount);
+           d3Graphs.cumImportLblY += 30;
+           var valueY = d3Graphs.barGraphHeight - (d3Graphs.barGraphHeight /2 + d3Graphs.cumImportLblY);
+            translate = 'translate('+valueX+","+ valueY+")";
+            this.previousImportLabelTranslateY = valueX;
             return translate;
         }).attr('display',function(d) {
             if(d.amount == 0) { return 'none';}
@@ -815,10 +851,10 @@ var d3Graphs = {
         exportLabels.selectAll("*").remove();
         var exportLabelArray = exportLabels[0];
         var exportLabelBGArray = exportLabelBGs[0];
-        /*for(var i = 0; i < exportLabelArray.length; i++) {
+        for(var i = 0; i < exportLabelArray.length; i++) {
             var exportLabelE = exportLabelArray[i];
             var exportLabel = d3.select(exportLabelE);
-            var data = exportArray[i];
+            var data = outboundArray[i];
             exportLabel.data(data);
             var pieceHeight = yScale(data.amount);
             var labelHeight = -1;
@@ -838,7 +874,7 @@ var d3Graphs = {
                 labelBGYPos = - labelHeight / 2;
                 var numericLabelEle = numericLabel[0][0];
                 labelWidth = numericLabelEle.getComputedTextLength();
-            } else if(pieceHeight < mediumLabelSize || data.type == 'ammo') {
+            } else if(pieceHeight < mediumLabelSize || data.type == 'bsmg') {
                 //number and type
                 var numericLabel = exportLabel.append('text').text(function(d) {
                     return abbreviateNumber(d.amount);
@@ -864,7 +900,7 @@ var d3Graphs = {
                 var textLabel = exportLabel.append('text').text(function(d) {
                     return reverseStatisticLookup[d.type].split(' ')[0].toUpperCase();
                 }).attr('text-anchor','start').attr('y',8).attr('class',function(d) { return 'export '+d.type});
-                var weaponLabel  =exportLabel.append('text').text('WEAPONS').attr('text-anchor','start').attr('y',21)
+                var weaponLabel  =exportLabel.append('text').text('MAJOR').attr('text-anchor','start').attr('y',21)
                     .attr('class',function(d) { return'export '+d.type} );
                 labelHeight = fontSizeInterpolater((data.amount-minImExAmount)/(maxImExAmount-minImExAmount));
                 labelBGYPos = -labelHeight - 7;
@@ -880,19 +916,21 @@ var d3Graphs = {
             if(labelHeight != -1 && labelBGYPos != -1 && labelWidth != -1) {
                 exportLabelBG.attr('x',0).attr('y',labelBGYPos).attr('width',labelWidth).attr('height',labelHeight)
                     .attr('transform',exportLabel.attr('transform'));
+              //       exportLabelBG.attr('x',-labelWidth).attr('y',labelBGYPos).attr('width',labelWidth).attr('height',labelHeight)
+             //       .attr('transform',exportLabel.attr('transform'));
             }
         }
        
         //over all numeric Total Import/Export labels
-        var importsVisible = $("#importExportBtns .imports .check").not(".inactive").length != 0;
+   /*     var importsVisible = $("#importExportBtns .imports .check").not(".inactive").length != 0;
         var exportsVisible = $("#importExportBtns .exports .check").not(".inactive").length != 0;
         var importTotalLabel = this.barGraphSVG.selectAll('text.totalLabel').data([1]);
         importTotalLabel.enter().append('text').attr('x',midX).attr('text-anchor','end')
             .attr('class','totalLabel').attr('y',this.barGraphHeight- this.barGraphBottomPadding + 25);
-        importTotalLabel.text(abbreviateNumber(importTotal)).attr('visibility',importsVisible ? "visible":"hidden");
+        importTotalLabel.text(abbreviateNumber(inboundTotal)).attr('visibility',importsVisible ? "visible":"hidden");
         var exportTotalLabel = this.barGraphSVG.selectAll('text.totalLabel.totalLabel2').data([1]);
         exportTotalLabel.enter().append('text').attr('x',midX+10).attr('class','totalLabel totalLabel2').attr('y', this.barGraphHeight - this.barGraphBottomPadding+25);
-        exportTotalLabel.text(abbreviateNumber(exportTotal)).attr('visibility',exportsVisible ? "visible":"hidden");
+        exportTotalLabel.text(abbreviateNumber(outboundTotal)).attr('visibility',exportsVisible ? "visible":"hidden");
         //Import label at bottom
         var importLabel = this.barGraphSVG.selectAll('text.importLabel').data([1]);
         importLabel.enter().append('text').attr('x',midX).attr('text-anchor','end').text('IMPORTS')
@@ -902,8 +940,8 @@ var d3Graphs = {
         var exportLabel = this.barGraphSVG.selectAll('text.exportLabel').data([1]);
         exportLabel.enter().append('text').attr('x',midX+10).text('EXPORTS')
             .attr('class','exportLabel').attr('y', this.barGraphHeight - this.barGraphBottomPadding + 45);
-        exportLabel.attr('visibility',exportsVisible ? "visible":"hidden")    
-         */
+        exportLabel.attr('visibility',exportsVisible ? "visible":"hidden")    */
+         
             
     },
     dragHandleStart: function(event) {

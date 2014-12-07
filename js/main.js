@@ -18,6 +18,7 @@ var globeMesh;
 var countryMesh;
 var flagBoxMesh;
 var visualizationMesh;
+var globeShpere;
 var objectMesh;							
 
 var mapUniforms;
@@ -36,6 +37,10 @@ var timePass = 0.0;
 
 //ra academic levels
 var acdLevel;
+var currentMode = 0;
+
+//ra field of study
+var currentFieldint;  //0: general, 1: bsmg, 2: dart, 3: engr
 
 //	contains latlon data for each country
 var latlonData;			    
@@ -57,10 +62,10 @@ var stats;
 
 
 var StudyAreaLookup = {
-	'Business_Management' 	: 'bsmg',
-	'Engineer'	           	: 'engr',
-	'Design_and_Fine_Arts'	: 'dart',
-	'Total'                 : 'total',
+	'Business' 	: 'bsmg',
+	'Engineer'	: 'engr',
+	'Fine_Arts'	: 'dart',
+	'Total'     : 'total',
 };
 
 //	a list of the reverse for easy lookup
@@ -179,6 +184,8 @@ function initScene() {
 	
 	objectMesh = new THREE.Object3D();
 
+	currentFieldint = 0;//0: general
+
 	
 	lookupCanvas = document.createElement('canvas');	
 	lookupCanvas.width = 256;
@@ -202,7 +209,10 @@ function initScene() {
 		'earthBump': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthbump1024Tran.png" ) },
 		'earthSpec': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthspec1024Tran.png" ) },
 		'earthTech': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthmap1024Tran _Tech.png" ) },
+		'earthArt': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthmap1024Tran_art.png" ) },
+		'earthBusiness': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthmap1024Tran_business.png" ) },
 		'outlineLevel': {type: 'f', value: 1 },
+		'currentField':{type:'i', value: currentFieldint},
 	};
 	mapUniforms = uniforms_Globe;
 	
@@ -220,7 +230,7 @@ function initScene() {
 	});
 		
 
-	var globeSphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial_Globe );	//100 is radius, 40 is segments in width, 40 is segments in height
+	globeSphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial_Globe );	//100 is radius, 40 is segments in width, 40 is segments in height
 	globeSphere.rotation.x = Math.PI;				
 	globeSphere.rotation.y = -Math.PI/2;
 	globeSphere.rotation.z = Math.PI;
@@ -388,7 +398,7 @@ function initScene() {
 
 	scene.add(countryMesh);
 	scene.add(flagBoxMesh);
-	scene.add(objectMesh);
+	//scene.add(objectMesh);
 }
 
 var objectMeshArray = [];
@@ -797,12 +807,38 @@ function transformObject(modelIndex){
 		}
 	}
 }
+function updateGlobeTexture(currentFieldint){
+
+	globeMesh.remove(globeSphere);
+	mapUniforms['currentField'].value = currentFieldint;
+	globeMesh.add(globeSphere);
+}
+function updateMode(currentMode){
+
+	if(currentMode == 1) //Field of Study Mode
+	{
+		scene.remove(countryMesh);
+		scene.remove(flagBoxMesh);
+		scene.add(objectMesh);
+	}
+	else if(currentMode == 0)
+	{
+		scene.add(countryMesh);
+		scene.add(flagBoxMesh);		
+		scene.remove(objectMesh);
+	}
+}
+
 
 function animate() {	
 	if(stats != undefined)
 		stats.update();
 
 	transformObject(changeModelIndex);
+
+	if(currentFieldint != 0)
+	{updateGlobeTexture(currentFieldint);}
+	updateMode(currentMode);
 	
 	var check = true;
 	for(var i = 0; i <uniformsObjectParticleArray.length; ++i){
