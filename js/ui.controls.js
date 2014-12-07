@@ -57,6 +57,7 @@ var d3Graphs = {
         if(currentMode == 0)
         {
             $("#barGraph").hide();
+            $("#checkSwitch2").hide();
         }
     },
     showHud: function() {
@@ -160,12 +161,16 @@ var d3Graphs = {
        $("#hudButtons").hide();
        $("#barGraph").hide();
        $("#wrapper2").show();
+       $("#checkSwitch2").hide();
+       $("#checkSwitch").show();
     },
     modeFOS:function() {
        currentMode = 1;
        $("#hudButtons").show();
        $("#barGraph").show();
        $("#wrapper2").hide();
+       $("#checkSwitch2").show();
+       $("#checkSwitch").hide();
     },
     clickTimeline:function() {
         var year = $(this).html();
@@ -836,7 +841,7 @@ var d3Graphs = {
             if(xScale(d.amount) > d3Graphs.barGraphWidth - 100)
                 valueX = d3Graphs.barGraphWidth - d3Graphs.barGraphBottomPadding - xScale(d.amount)/2;
             else
-                valueX =  d3Graphs.barGraphBottomPadding + xScale(d.amount) + 60;
+                valueX =  d3Graphs.barGraphBottomPadding + xScale(d.amount) + 30;
           //  var valueX = d3Graphs.barGraphBottomPadding + xScale(d.amount) + 60;
            // d3Graphs.cumImportLblY += yScale(d.amount);
            d3Graphs.cumImportLblY += 30;
