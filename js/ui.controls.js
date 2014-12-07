@@ -125,6 +125,18 @@ var d3Graphs = {
 			timePass = 0.0;
 		
 		drop = 1;
+		var selection = selectionData;
+		
+		selection.inboundCategories.Fine_Arts = true;
+		selection.outboundCategories.Fine_Arts = true;
+		selection.inboundCategories.Business = false;
+		selection.outboundCategories.Business = false;
+		selection.inboundCategories.Engineer = false;
+		selection.outboundCategories.Engineer = false;
+		selection.inboundCategories.Total = false;
+		selection.outboundCategories.Total = false;
+		selectVisualization( timeBins, selection.selectedYear, [selection.selectedCountry], selection.getOutboundCategories(), selection.getInboundCategories() );	
+		selectVisualization( timeBins, selection.selectedYear, [selection.selectedCountry], selection.getOutboundCategories(), selection.getInboundCategories() );	
 
     },
     showEngr:function() {  
@@ -140,6 +152,18 @@ var d3Graphs = {
 			timePass = 0.0;
 		
 		drop = 1;
+		
+		var selection = selectionData;
+		selection.inboundCategories.Fine_Arts = false;
+		selection.outboundCategories.Fine_Arts = false;
+		selection.inboundCategories.Business = false;
+		selection.outboundCategories.Business = false;
+		selection.inboundCategories.Engineer = true;
+		selection.outboundCategories.Engineer = true;
+		selection.inboundCategories.Total = false;
+		selection.outboundCategories.Total = false;
+		selectVisualization( timeBins, selection.selectedYear, [selection.selectedCountry], selection.getOutboundCategories(), selection.getInboundCategories() );	
+		selectVisualization( timeBins, selection.selectedYear, [selection.selectedCountry], selection.getOutboundCategories(), selection.getInboundCategories() );	
     },
      showBsmg:function() {
          currentFieldint = 1; //0: general, 1: bsmg, 2: dart, 3: engr
@@ -155,6 +179,18 @@ var d3Graphs = {
 			timePass = 0.0;
 		
 		drop = 1;  
+		
+		var selection = selectionData;	
+		selection.inboundCategories.Fine_Arts = false;
+		selection.outboundCategories.Fine_Arts = false;
+		selection.inboundCategories.Business = true;
+		selection.outboundCategories.Business = true;
+		selection.inboundCategories.Engineer = false;
+		selection.outboundCategories.Engineer = false;
+		selection.inboundCategories.Total = false;
+		selection.outboundCategories.Total = false;
+		selectVisualization( timeBins, selection.selectedYear, [selection.selectedCountry], selection.getOutboundCategories(), selection.getInboundCategories() );	
+		selectVisualization( timeBins, selection.selectedYear, [selection.selectedCountry], selection.getOutboundCategories(), selection.getInboundCategories() );	
     },
     modeGeneral:function() {
        currentMode = 0;
@@ -618,6 +654,26 @@ var d3Graphs = {
         var minImExAmount = Number.MAX_VALUE;
         var maxImExAmount = Number.MIN_VALUE;
         for(var type in reverseStatisticLookup) {
+		
+			var selection = selectionData;
+		
+			if(type === 'bsmg' && !selection.outboundCategories.Business)
+				continue;
+			else if(type === 'dart' && !selection.inboundCategories.Fine_Arts)
+				continue;
+			else if(type === 'engr' && !selection.inboundCategories.Engineer)
+				continue;
+			else if(type === 'total' && !selection.inboundCategories.Total)
+				continue;
+			/*selection.inboundCategories.Fine_Arts = true;
+			selection.outboundCategories.Fine_Arts = true;
+			selection.inboundCategories.Business = false;
+			selection.outboundCategories.Business = false;
+			selection.inboundCategories.Engineer = false;
+			selection.outboundCategories.Engineer = false;
+			selection.inboundCategories.Total = false;
+			selection.outboundCategories.Total = false;*/
+		
             var imAmnt = selectedCountry.summary.imported[type];
             var exAmnt = selectedCountry.summary.exported[type];
             if(imAmnt < minImExAmount) {

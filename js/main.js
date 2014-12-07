@@ -771,13 +771,13 @@ function transformObject(modelIndex){
 		uniformsObjectParticleArray[modelIndex].drop.value = 0;
 	}
 	else if(drop === 1){//dropping
-		timePass += 0.005;
+		timePass += 0.01;
 		uniformsObjectParticleArray[currentModelIndex].drop.value = 1;
 		uniformsObjectParticleArray[currentModelIndex].time.value = timePass;
 		
 	}
 	else if(drop === 2){//rising
-		timePass += 0.005;
+		timePass += 0.01;
 		uniformsObjectParticleArray[modelIndex].drop.value = 2;
 		uniformsObjectParticleArray[modelIndex].time.value = timePass;
 		
