@@ -63,11 +63,11 @@ Right now we have built 9 countries geometry that could be showed(United States,
 ![1](images/Readme4.png)
 * We used extrusion function to extrude the shape from 2D information and then apply alpha blending with flag box. 
 ![1](images/Readme12.png)
-* The radar chart showes you the students population of each degree. We use D3.js to build this effect. 
+* The radar chart showes you the students population of each degree. We use D3.js to build this effect.  
 ![1](images/Readme5.png)
 ![1](images/Readme6.png)
 
-#Field of Study
+#Field of Study mode
 * When user pushed the field of study button, this page will display the population data of each study field in the left bottom corner. 
 And there will be a symbolize model which could represent this field show up in the right side. In this mode, we apply different texture for different 
 study field. Besides, if the user switched to different field,
@@ -75,17 +75,20 @@ then the vertices of this model will crash and drop to the ground and regenerate
 we used the bufferGeometry instead of Geometry in three.js to store all the vertices information including the position, normal and UVs. 
 The benefit of using bufferGeometry is that it could reduce the cost of passing all this data to the GPU. However, 
 the drawback is that we have to access the raw data from the appropriate attribute buffer.
+After we build the bufferGeometry, then we could use THREE.Point to build all the point we need.
 ![1](images/Readme7a.png)
-* The vertices crash and drop with an acceleration effect.
+* The vertices crash and drop with an acceleration effect. 
+To do this effect, we have to provide each vertex with drop acceleration, ground position, drop time, global time and use vertex shader to compute the desired position for each vertex.
+Actually, we could also change the position attribute data in bufferGeometry which we mentioned in the last section. However, that is not done in vertex shader and will be much slower than our method.
 ![1](images/Readme8.png)
 * When all the vertices of original model converge to a single point, we instantly change the model to another one and also inflate it to become a new model.
 ![1](images/Readme9.png)
-*Just for fun!!
+* Just for fun!!  
 User could use number keys from '1' to '5' to blow the vertices of the model from its initial position. 
 Each number key could blow differnt part of the model and the blow direction is the camera direction.
 To achieve this effect, we have to assign each vertex with different blow time and blow direction, then use the specific vertex shader to compute the position for each vertex.
 ![1](images/Readme10.png)
-* By pushing 'b', user could blow the entire the model. 
+* By pushing 'b', user could blow the entire the model at one time. 
 ![1](images/Readme11.png)
 #Video
 http://youtu.be/mhCQRrjc6zM
