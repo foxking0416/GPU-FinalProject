@@ -64,8 +64,51 @@ a { color:#ffffff; text-decoration:none; text-transform:uppercase; }
 a:hover { color:#8eb423; }
 h1 { font-family:'RopaSans'; font-weight:normal; }
 h2 { font-family:'RopaSans'; font-weight:normal; }
+
 li { list-style-type:none; }
 
+h3 { 
+    position: relative;
+    right: -160px;
+    top: -50px;
+
+}
+h4 { 
+    position: relative;
+    right: 100px;
+    top: -140px;
+
+}
+
+#info {
+
+        font-size: 11px;
+        text-align: right;
+        color: grey;
+        position: absolute;
+        bottom: 5px;
+        background-color: rgba(0,0,0,0.6);
+        right: 30px;
+        padding: 10px;
+
+      }
+
+#author {
+
+        font-size: 11px;
+        text-align: left;
+        color: grey;
+        position: absolute;
+        bottom: 5px;
+        left: 20px;
+        padding: 10px;
+
+      }      
+
+.bull {
+        padding: 0 5px;
+        color: #555;
+      }
 
  #country_name {
         color: white;
@@ -81,6 +124,16 @@ li { list-style-type:none; }
 #wrapper {
     display:block;
     float:center;
+ /*   min-width:1280px;*/
+}
+
+
+#wrapper2 {
+    display:block;
+    float:center;
+    position: absolute;
+    bottom: 0px;
+    right: 80px;
  /*   min-width:1280px;*/
 }
 
@@ -211,11 +264,71 @@ Elements to control the title and country selector
     color: #ddd;
     
 }
+
+#hudSwitch {
+    display: none;
+    position: absolute;
+    left:  -50px;
+    top:  320px;   
+}
+
+#checkSwitch{
+    position: absolute;
+    left:  270px;
+    top:  0px; 
+}
+
+#checkSwitch2{
+    position: absolute;
+    left:  270px;
+    top:  30px; 
+}
+
+#hudSwitch .swBtn {
+    float: right;
+    background:             #009966;
+    padding:                3px 10px 2px;
+    color:                  white;
+    border:                 0;
+    font-size:              20px;
+    font-family:            'RopaSans';
+    cursor:                 pointer;
+    margin-right:           0px;
+    opacity:                0.7;
+    text-transform:         uppercase;
+    text-align:             left;
+}
+#hudSwitch .swBtn:hover {
+    color:pink;
+    font-size: 24px;
+    opacity: 1;
+}
+
+#hudSwitch .swBtn:active {
+    color:yellow;
+    font-size: 22px;
+    opacity: 1;
+}
+
+#hudSwitch .gnlBtn {
+    display:                block;
+    clear:                  both;
+    margin-left:           20px;
+    width:                  178px;
+}
+
+#hudSwitch .fosBtn {
+    display:                block;
+    clear:                  both;
+    margin-left:           80px;
+    width:                  178px;
+}
+
 #hudButtons {
     display: none;
     position: absolute;
-    bottom: 80px;    
-
+    top: 80px;    
+    right: 120px;
     width: 489px;
 }
 #hudButtons .countryTextInput {
@@ -235,10 +348,12 @@ Elements to control the title and country selector
     font-size: 				18px;
 	font-family: 			'RopaSans';
 	cursor: 				pointer;
+    right: 120px;
 	margin-right: 			0px;
 	opacity:                0.9;
 }
 #hudButtons .armsBtn:hover {
+    font-size: 20px;
     opacity: 1;
 }
 #hudButtons .aboutBtn {
@@ -306,7 +421,7 @@ Bar graph on left
 */
 #barGraph {
     position: absolute;
-    /*bottom:10px;*/
+  /*  bottom:120px; */
     left:-7px;
     opacity: 0.9;
 }
@@ -356,12 +471,23 @@ Bar graph on left
 #barGraph .barGraphLabelBG {
     fill: rgba(0,0,0,0.8);
 }
+
+/* radar chart */
+
+#radarChart {
+    position: absolute;
+    bottom: 100px;
+    right: 40px;
+    opacity: 1.0;
+}
+
+
 /* histogram and timeline at bottom */
 #history {
     position: 				absolute;
     bottom: 				0;
     left: 					386px;
-    background-color: 		rgba(43,43,43,0.9);
+    background-color: 		rgba(66,0,30,0.5);
     display: 				none;
 }
 #history ul {
@@ -422,14 +548,14 @@ Bar graph on left
     float: right;
     font-family: Roboto;
     font-size: 14px;
-    color:#70B4CB;
+    color:#C285FF;
     margin-top: 10px;
 }
 #history .labels .outbound {
     float: right;
     font-family: Roboto;
     font-size: 14px;
-    color: #FFA90B;
+    color: #FFFF80;
     margin-top: 10px;
     margin-left: 10px;
 }
@@ -438,10 +564,10 @@ Bar graph on left
     stroke-width: 2px;
 }
 #histogram .export {
-    stroke:         #FFA90B;
+    stroke:         #FFFF80;
 }
 #histogram .import {
-    stroke:         #44B2D4;
+    stroke:         #C285FF;
 }
 #histogram .tick {
     fill:           none;

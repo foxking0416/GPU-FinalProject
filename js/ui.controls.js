@@ -4,17 +4,18 @@ Created by Pitch Interactive
 Created on 6/26/2012
 This code will control the primary functions of the UI in the ArmsGlobe app
 **/
-d3.selection.prototype.moveToFront = function() { 
-    return this.each(function() { 
-        this.parentNode.appendChild(this); 
-    }); 
+//d3.selection.prototype.moveToFront = function() { 
+
+var moveToFront = function() {
+  this.parentNode.appendChild(this); 
 }; 
 
-
+var currentYear;
+ var acdData2 = [];
 
 var d3Graphs = {
     barGraphWidth: 500,
-	barGraphHeight: 500,
+	barGraphHeight: 600,
     barWidth: 14,
 	barGraphTopPadding: 20,
 	barGraphBottomPadding: 50,
@@ -26,7 +27,7 @@ var d3Graphs = {
 	barGraphSVG: d3.select("#wrapper").append("svg").attr('id','barGraph'),
 	histogramSVG: null,
     //radar chart added
-    radarChartSVG: d3.select("#wrapper").append("svg").attr('id','radarChart'),
+    radarChartSVG: d3.select("#wrapper2").append("svg").attr('id','radarChart'),
 	histogramYScale: null,
 	histogramXScale: null,
 	cumImportY: 0,cumExportY: 0,
@@ -53,12 +54,17 @@ var d3Graphs = {
         this.drawBarGraph();
         this.drawHistogram();
         this.drawRadarChart();
+        if(currentMode == 0)
+        {
+            $("#barGraph").hide();
+            $("#checkSwitch2").hide();
+        }
     },
     showHud: function() {
         if(this.inited) return;
         this.inited = true;
         d3Graphs.windowResize();
-        $("#hudHeader, #hudButtons").show();
+        $("#hudHeader, #hudSwitch").show();
         $("#history").show();
         $("#graphIcon").show();
         //$("#importExportBtns").show();
@@ -76,6 +82,8 @@ var d3Graphs = {
         $("#hudButtons .dartBtn").click(d3Graphs.showDart);
         $("#hudButtons .bsmgBtn").click(d3Graphs.showBsmg);
         $("#hudButtons .engrBtn").click(d3Graphs.showEngr);
+        $("#hudSwitch .gnlBtn").click(d3Graphs.modeGeneral);
+        $("#hudSwitch .fosBtn").click(d3Graphs.modeFOS);
         $(document).on("click",".ui-autocomplete li",d3Graphs.menuItemClick);
         $(window).resize(d3Graphs.windowResizeCB);
         $(".zoomBtn").mousedown(d3Graphs.zoomBtnClick);
@@ -103,95 +111,102 @@ var d3Graphs = {
         
         $("#aboutContainer").toggle();
     },
-    showDart:function() {
-        
-        while( globeMesh.children.length > 3 ){
-        var c = globeMesh.children[3];
-        globeMesh.remove(c);
-    }
-        loader.load( 'model/buddha.obj', function ( object ) {
+    showDart:function() {      
+        currentFieldint = 2; //0: general, 1: bsmg, 2: dart, 3: engr
 
-            object.traverse( function ( child ) {
+		if(changeModelIndex === 0 && !isBlow)
+			return;
+	
+		if(isBlow)
+			timePass = 1.0;
 
-                if ( child instanceof THREE.Mesh ) {
+		changeModelIndex = 0;
+		if(drop === 2)
+			timePass = 0.0;
+		
+		drop = 1;
+		var selection = selectionData;
+		
+		selection.inboundCategories.Fine_Arts = true;
+		selection.outboundCategories.Fine_Arts = true;
+		selection.inboundCategories.Business = false;
+		selection.outboundCategories.Business = false;
+		selection.inboundCategories.Engineer = false;
+		selection.outboundCategories.Engineer = false;
+		selection.inboundCategories.Total = false;
+		selection.outboundCategories.Total = false;
+		selectVisualization( timeBins, selection.selectedYear, [selection.selectedCountry], selection.getOutboundCategories(), selection.getInboundCategories() );	
+		selectVisualization( timeBins, selection.selectedYear, [selection.selectedCountry], selection.getOutboundCategories(), selection.getInboundCategories() );	
 
-                    //child.material.map = texture;
-                }
-            } );
-            object.scale.x = 60;
-            object.scale.y = 60;
-            object.scale.z = 60;
-            obj = object
-            globeMesh.add( obj );
-
-        } );
-     //   console.log("yayaya");
     },
-    showEngr:function() {
-    /*    var manager = new THREE.LoadingManager();
-        manager.onProgress = function ( item, loaded, total ) {
-      //  console.log( item, loaded, total );
-    };*/
-        
-       while( globeMesh.children.length > 3 ){
-        var c = globeMesh.children[3];
-        globeMesh.remove(c);
-    }
-        var loader = new THREE.OBJLoader( manager );
-        loader.load( 'model/digger.obj', function ( object ) {
+    showEngr:function() {  
+         currentFieldint = 3; //0: general, 1: bsmg, 2: dart, 3: engr
 
-            object.traverse( function ( child ) {
-
-                if ( child instanceof THREE.Mesh ) {
-
-                    //child.material.map = texture;
-                }
-            } );
-
-            object.scale.x = 0.35;
-            object.scale.y = 0.35;
-            object.scale.z = 0.35;
-            object.position.y -= 50;
-            object.position.x += 20;
-            object.position.z += 10;
-            obj = object
-            globeMesh.add( obj );
-
-        } );
-     //   console.log("yayaya");
+		if(changeModelIndex === 1 && !isBlow)
+			return;	
+		if(isBlow)
+			timePass = 1.0;
+			
+		changeModelIndex = 1;
+		if(drop === 2)
+			timePass = 0.0;
+		
+		drop = 1;
+		
+		var selection = selectionData;
+		selection.inboundCategories.Fine_Arts = false;
+		selection.outboundCategories.Fine_Arts = false;
+		selection.inboundCategories.Business = false;
+		selection.outboundCategories.Business = false;
+		selection.inboundCategories.Engineer = true;
+		selection.outboundCategories.Engineer = true;
+		selection.inboundCategories.Total = false;
+		selection.outboundCategories.Total = false;
+		selectVisualization( timeBins, selection.selectedYear, [selection.selectedCountry], selection.getOutboundCategories(), selection.getInboundCategories() );	
+		selectVisualization( timeBins, selection.selectedYear, [selection.selectedCountry], selection.getOutboundCategories(), selection.getInboundCategories() );	
     },
      showBsmg:function() {
-    /*    var manager = new THREE.LoadingManager();
-        manager.onProgress = function ( item, loaded, total ) {
-      //  console.log( item, loaded, total );
-    };*/
-        
-        while( globeMesh.children.length > 3 ){
-        var c = globeMesh.children[3];
-        globeMesh.remove(c);
-        }
-        var loader = new THREE.OBJLoader( manager );
-        loader.load( 'model/ship.obj', function ( object ) {
+         currentFieldint = 1; //0: general, 1: bsmg, 2: dart, 3: engr
+         //updatTexture(currentFieldint);
 
-            object.traverse( function ( child ) {
-
-                if ( child instanceof THREE.Mesh ) {
-
-                    //child.material.map = texture;
-                }
-            } );
-
-            object.position.x = - 60;
-            object.rotation.x = 20* Math.PI / 180;
-            object.rotation.z = 20* Math.PI / 180;
-            object.scale.x = 10;
-            object.scale.y = 10;
-            object.scale.z = 10;
-            obj = object
-            globeMesh.add( obj );
-
-        } );
-     //   console.log("yayaya");
+		if(changeModelIndex === 2 && !isBlow)
+			return;
+		if(isBlow)
+			timePass = 1.0;
+			
+		changeModelIndex = 2;
+		if(drop === 2)
+			timePass = 0.0;
+		
+		drop = 1;  
+		
+		var selection = selectionData;	
+		selection.inboundCategories.Fine_Arts = false;
+		selection.outboundCategories.Fine_Arts = false;
+		selection.inboundCategories.Business = true;
+		selection.outboundCategories.Business = true;
+		selection.inboundCategories.Engineer = false;
+		selection.outboundCategories.Engineer = false;
+		selection.inboundCategories.Total = false;
+		selection.outboundCategories.Total = false;
+		selectVisualization( timeBins, selection.selectedYear, [selection.selectedCountry], selection.getOutboundCategories(), selection.getInboundCategories() );	
+		selectVisualization( timeBins, selection.selectedYear, [selection.selectedCountry], selection.getOutboundCategories(), selection.getInboundCategories() );	
+    },
+    modeGeneral:function() {
+       currentMode = 0;
+       $("#hudButtons").hide();
+       $("#barGraph").hide();
+       $("#wrapper2").show();
+       $("#checkSwitch2").hide();
+       $("#checkSwitch").show();
+    },
+    modeFOS:function() {
+       currentMode = 1;
+       $("#hudButtons").show();
+       $("#barGraph").show();
+       $("#wrapper2").hide();
+       $("#checkSwitch2").show();
+       $("#checkSwitch").hide();
     },
     clickTimeline:function() {
         var year = $(this).html();
@@ -314,6 +329,8 @@ var d3Graphs = {
         selectionData.selectedYear = year;
         selectionData.selectedCountry = country;
         selectVisualization(timeBins, year,[country],exportArray, importArray);
+
+        currentYear = year;
     },
     dropHandle:function() {
         d3Graphs.updateViz();
@@ -514,7 +531,8 @@ var d3Graphs = {
                 return d3Graphs.line(d3Graphs.histogramImportArray);
             }
         }).attr('visibility',importsVisible ? 'visible' : 'hidden');
-		importLine.moveToFront();
+		//importLine.moveToFront();
+        d3.select(this).node(moveToFront);
 		
         var exportLine = this.histogramSVG.selectAll("path.export").data([1]);
         exportLine.enter().append('svg:path').attr('class','export');
@@ -525,8 +543,9 @@ var d3Graphs = {
                 return d3Graphs.line(d3Graphs.histogramExportArray);
             }
         }).attr('visibility', exportsVisible ? 'visible' : 'hidden');
+        d3.select(this).node(moveToFront);
         
-        exportLine.moveToFront();
+        //exportLine.moveToFront();
         //active year labels
         var yearOffset = $("#handle").css('left');
         yearOffset = yearOffset.substr(0,yearOffset.length-2);
@@ -614,8 +633,9 @@ var d3Graphs = {
                 return exportsVisible ? 'visible' : 'hidden';
             }
         });
-        yearDots.moveToFront();
-        yearDotLabels.moveToFront();
+        d3.select(this).node(moveToFront);
+       // yearDots.moveToFront();
+       // yearDotLabels.moveToFront();
 
     },
     drawBarGraph: function() {
@@ -634,6 +654,26 @@ var d3Graphs = {
         var minImExAmount = Number.MAX_VALUE;
         var maxImExAmount = Number.MIN_VALUE;
         for(var type in reverseStatisticLookup) {
+		
+			var selection = selectionData;
+		
+			if(type === 'bsmg' && !selection.outboundCategories.Business)
+				continue;
+			else if(type === 'dart' && !selection.inboundCategories.Fine_Arts)
+				continue;
+			else if(type === 'engr' && !selection.inboundCategories.Engineer)
+				continue;
+			else if(type === 'total' && !selection.inboundCategories.Total)
+				continue;
+			/*selection.inboundCategories.Fine_Arts = true;
+			selection.outboundCategories.Fine_Arts = true;
+			selection.inboundCategories.Business = false;
+			selection.outboundCategories.Business = false;
+			selection.inboundCategories.Engineer = false;
+			selection.outboundCategories.Engineer = false;
+			selection.inboundCategories.Total = false;
+			selection.outboundCategories.Total = false;*/
+		
             var imAmnt = selectedCountry.summary.imported[type];
             var exAmnt = selectedCountry.summary.exported[type];
             if(imAmnt < minImExAmount) {
@@ -714,13 +754,22 @@ var d3Graphs = {
         inboundRects.enter().append('rect').attr('class', function(d) {
             return 'import '+ d.type;
         }).attr('y',midY ).attr('width',this.barWidth);
-        */
+        
         
         //inboundRects.attr('x',10.0).attr('width',this.barGraphWidth);
         
 		
-		//******************Test*********************//
-		
+	
+
+
+        var data2 = [{"qw": 70}];
+        var testRects = this.barGraphSVG.selectAll('rect.import').data(data2);
+        
+        testRects.enter().append('rect');
+
+        testRects.attr('y', 60).attr('height',100);
+        testRects.attr('x', 60).attr('width',100);*/
+            //******************Test*********************//
 		
         //bar graph labels
         this.cumImportLblY = 0;
@@ -743,7 +792,11 @@ var d3Graphs = {
         });
         importLabels.attr('transform',function(d) { 
             var translate = 'translate('+(d3Graphs.barGraphWidth / 2 - 25)+",";
-            var valueX = d3Graphs.barGraphWidth - d3Graphs.barGraphBottomPadding - xScale(d.amount)/2;
+            var valueX;
+            if(xScale(d.amount) > d3Graphs.barGraphWidth - 100)
+                valueX = d3Graphs.barGraphWidth - d3Graphs.barGraphBottomPadding - xScale(d.amount)/2;
+            else
+                valueX =  d3Graphs.barGraphBottomPadding + xScale(d.amount) + 80;
            // d3Graphs.cumImportLblY += yScale(d.amount);
            d3Graphs.cumImportLblY += 30;
            var valueY = d3Graphs.barGraphHeight - (d3Graphs.barGraphHeight /2 + d3Graphs.cumImportLblY);
@@ -838,12 +891,19 @@ var d3Graphs = {
         exportLabels.enter().append("g").attr('class',function(d) {
             return 'exportLabel '+d.type;
         });
+
         exportLabels.attr('transform',function(d) { 
-            var translate = 'translate('+(d3Graphs.barGraphWidth / 2 + 35)+",";
-            var value = d3Graphs.barGraphHeight - d3Graphs.barGraphBottomPadding - d3Graphs.cumExportLblY - yScale(d.amount)/2;
-            d3Graphs.cumExportLblY += yScale(d.amount);
-            translate += value+")";
-            this.previousExportLabelTranslateY = value;
+            var translate = 'translate('+(d3Graphs.barGraphWidth / 2 - 25)+",";
+            if(xScale(d.amount) > d3Graphs.barGraphWidth - 100)
+                valueX = d3Graphs.barGraphWidth - d3Graphs.barGraphBottomPadding - xScale(d.amount)/2;
+            else
+                valueX =  d3Graphs.barGraphBottomPadding + xScale(d.amount) + 30;
+          //  var valueX = d3Graphs.barGraphBottomPadding + xScale(d.amount) + 60;
+           // d3Graphs.cumImportLblY += yScale(d.amount);
+           d3Graphs.cumImportLblY += 30;
+           var valueY = d3Graphs.barGraphHeight - (d3Graphs.barGraphHeight /2 + d3Graphs.cumImportLblY);
+            translate = 'translate('+valueX+","+ valueY+")";
+            this.previousImportLabelTranslateY = valueX;
             return translate;
         }).attr('display',function(d) {
             if(d.amount == 0) { return 'none';}
@@ -852,10 +912,10 @@ var d3Graphs = {
         exportLabels.selectAll("*").remove();
         var exportLabelArray = exportLabels[0];
         var exportLabelBGArray = exportLabelBGs[0];
-        /*for(var i = 0; i < exportLabelArray.length; i++) {
+        for(var i = 0; i < exportLabelArray.length; i++) {
             var exportLabelE = exportLabelArray[i];
             var exportLabel = d3.select(exportLabelE);
-            var data = exportArray[i];
+            var data = outboundArray[i];
             exportLabel.data(data);
             var pieceHeight = yScale(data.amount);
             var labelHeight = -1;
@@ -875,7 +935,7 @@ var d3Graphs = {
                 labelBGYPos = - labelHeight / 2;
                 var numericLabelEle = numericLabel[0][0];
                 labelWidth = numericLabelEle.getComputedTextLength();
-            } else if(pieceHeight < mediumLabelSize || data.type == 'ammo') {
+            } else if(pieceHeight < mediumLabelSize || data.type == 'bsmg') {
                 //number and type
                 var numericLabel = exportLabel.append('text').text(function(d) {
                     return abbreviateNumber(d.amount);
@@ -901,7 +961,7 @@ var d3Graphs = {
                 var textLabel = exportLabel.append('text').text(function(d) {
                     return reverseStatisticLookup[d.type].split(' ')[0].toUpperCase();
                 }).attr('text-anchor','start').attr('y',8).attr('class',function(d) { return 'export '+d.type});
-                var weaponLabel  =exportLabel.append('text').text('WEAPONS').attr('text-anchor','start').attr('y',21)
+                var weaponLabel  =exportLabel.append('text').text('MAJOR').attr('text-anchor','start').attr('y',21)
                     .attr('class',function(d) { return'export '+d.type} );
                 labelHeight = fontSizeInterpolater((data.amount-minImExAmount)/(maxImExAmount-minImExAmount));
                 labelBGYPos = -labelHeight - 7;
@@ -917,19 +977,21 @@ var d3Graphs = {
             if(labelHeight != -1 && labelBGYPos != -1 && labelWidth != -1) {
                 exportLabelBG.attr('x',0).attr('y',labelBGYPos).attr('width',labelWidth).attr('height',labelHeight)
                     .attr('transform',exportLabel.attr('transform'));
+              //       exportLabelBG.attr('x',-labelWidth).attr('y',labelBGYPos).attr('width',labelWidth).attr('height',labelHeight)
+             //       .attr('transform',exportLabel.attr('transform'));
             }
         }
        
         //over all numeric Total Import/Export labels
-        var importsVisible = $("#importExportBtns .imports .check").not(".inactive").length != 0;
+   /*     var importsVisible = $("#importExportBtns .imports .check").not(".inactive").length != 0;
         var exportsVisible = $("#importExportBtns .exports .check").not(".inactive").length != 0;
         var importTotalLabel = this.barGraphSVG.selectAll('text.totalLabel').data([1]);
         importTotalLabel.enter().append('text').attr('x',midX).attr('text-anchor','end')
             .attr('class','totalLabel').attr('y',this.barGraphHeight- this.barGraphBottomPadding + 25);
-        importTotalLabel.text(abbreviateNumber(importTotal)).attr('visibility',importsVisible ? "visible":"hidden");
+        importTotalLabel.text(abbreviateNumber(inboundTotal)).attr('visibility',importsVisible ? "visible":"hidden");
         var exportTotalLabel = this.barGraphSVG.selectAll('text.totalLabel.totalLabel2').data([1]);
         exportTotalLabel.enter().append('text').attr('x',midX+10).attr('class','totalLabel totalLabel2').attr('y', this.barGraphHeight - this.barGraphBottomPadding+25);
-        exportTotalLabel.text(abbreviateNumber(exportTotal)).attr('visibility',exportsVisible ? "visible":"hidden");
+        exportTotalLabel.text(abbreviateNumber(outboundTotal)).attr('visibility',exportsVisible ? "visible":"hidden");
         //Import label at bottom
         var importLabel = this.barGraphSVG.selectAll('text.importLabel').data([1]);
         importLabel.enter().append('text').attr('x',midX).attr('text-anchor','end').text('IMPORTS')
@@ -939,8 +1001,8 @@ var d3Graphs = {
         var exportLabel = this.barGraphSVG.selectAll('text.exportLabel').data([1]);
         exportLabel.enter().append('text').attr('x',midX+10).text('EXPORTS')
             .attr('class','exportLabel').attr('y', this.barGraphHeight - this.barGraphBottomPadding + 45);
-        exportLabel.attr('visibility',exportsVisible ? "visible":"hidden")    
-         */
+        exportLabel.attr('visibility',exportsVisible ? "visible":"hidden")    */
+         
             
     },
     dragHandleStart: function(event) {
@@ -950,8 +1012,73 @@ var d3Graphs = {
         event.dataTransfer.effectAllowed='move';
     },
     drawRadarChart: function(){
-   //     this.barGraphSVG.attr('id','radarChart').attr('width',500).attr('height',500).attr('class','overlayCountries noPointer');
+        
+        for( var i in acdLevel ){
+            acdData2[i] = Math.ceil(Math.random() * 10) + 5;
+        } 
+        d3.select("#wrapper2").select('svg').remove();
+        this.radarChartSVG.attr('id','radarChart').attr('width',d3Graphs.barGraphWidth).attr('height',d3Graphs.barGraphHeight).attr('class','overlayCountries noPointer');
+        var acdData = [];
+        if (currentYear == null) currentYear = 2013;
+        for( var i in acdLevel ){
+            var myacd = acdLevel[i];
+            if(myacd.t == currentYear)
+            {
+                acdData.push(myacd.v);
+            }
+        }
+        
+
+        var data = [
+          {
+            className: 'inbound', // optional can be used for styling
+            axes: [
+              {axis: "Undergrad", value: (acdData[0] - 160000) * 0.0002}, 
+              {axis: "Graduate", value: (acdData[1] - 200000) * 0.0002}, 
+              {axis: "Non-Degree", value: (acdData[2] - 20000) * 0.0002},  
+              {axis: "OPT", value: (acdData[3] - 20000) * 0.0002}
+            ]
+          },
+          {
+            className: 'outbound',
+            axes: [
+              {axis: "Undergrad", value: acdData2[0]}, 
+              {axis: "Graduate", value: acdData2[1]}, 
+              {axis: "Non-Degree", value: acdData2[2]},  
+              {axis: "OPT", value: 2}
+            ]
+          }
+        ];
+
+   /* var data = [
+          {
+            className: 'inbound', // optional can be used for styling
+            axes: [
+              {axis: "Undergrad", value: 1},
+              {axis: "Graduate", value: 2}, 
+              {axis: "Non-Degree", value: 3},  
+              {axis: "OPT", value: 4}
+            ]
+          },
+          {
+            className: 'outbound',
+            axes: [
+              {axis: "Undergrad", value: 0}, 
+              {axis: "Graduate", value: 1}, 
+              {axis: "Non-Degree", value: 2},  
+              {axis: "OPT", value: acdData2[3]}
+            ]
+          }
+        ];*/
+    var chart = RadarChart.chart();
+    var cfg = chart.config(); // retrieve default config
+    
+    var svg =  d3.select("#wrapper2").append("svg").attr('id','radarChart')
+      .attr('width', cfg.w)
+      .attr('height', cfg.h + cfg.h / 4);
+    svg.append('g').classed('single', 1).datum(data).call(chart);
     }
+
 }
 
 /*

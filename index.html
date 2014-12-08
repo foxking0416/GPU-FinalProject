@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>Interactive Globe: International Student Statistics</title>
@@ -8,36 +8,23 @@
 		<link href='http://fonts.googleapis.com/css?family=Grand+Hotel' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Shadows+Into+Light' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="style.css">
-		<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
-		<link rel="stylesheet" href="radar-chart.css">
+		<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+		<link rel="stylesheet" type="text/css" href="radar-chart.css">
 
 	</head>
 
-	<style>
-	.radar-chart .area {
-	  fill-opacity: 0.7;
-	}
-	.radar-chart.focus .area {
-	  fill-opacity: 0.3;
-	}
-	.radar-chart.focus .area.focused {
-	  fill-opacity: 0.9;
-	}
-	.area.germany, .germany .circle {
-	  fill: #FFD700;
-	  stroke: none;
-	}
-	.area.argentina, .argentina .circle {
-	  fill: #ADD8E6;
-	  stroke: none;
-	}
-	</style>
-
 	<body onload="start()" id="dataviz" class="">
+		<div id="Stats-output">
+		</div>
 		<div id="wrapper">
+		
 		<div id="loading">
 			<h2>I AM LOADING...</h2>
+			<h3><img src="images/head_ry.png" alt="Lei Yang" style="width:70px;height:70px;border:0"></h3>
+			<h4><img src="images/head_wct.png" alt="Wei-Chien Tu" style="width:70px;height:70px;border:0"></h4>
 		</div>
+
+		
 
 		<div >
 			<table id="marker_template" class="marker" style="left:'0px';top:'0px'"><tr><td><span id="countryText" class="country">
@@ -62,10 +49,10 @@
 		<script src="js/Detector.js"></script>
 		<script src="js/Tween.js"></script>
 		<script src="js/dat.gui.min.js"></script>			<!--Library-->
-		<script src="js/Three.js"></script>					<!--Library-->
+		<script src="js/three.js"></script>					<!--Library-->
 		<script src="js/THREEx.KeyboardState.js"></script>	<!--Library-->
 		<script src="js/THREEx.WindowResize.js"></script>	<!--Library-->
-		<script src="js/Stats.js"></script>					<!--Library-->
+		<script src="js/stats.min.js" type="text/javascript" ></script>
 		<script src="js/jquery-1.7.1.min.js"></script>		<!--Library-->
     	<script src="js/jquery-ui-1.8.21.custom.min.js"></script>		<!--Library-->
     	<script src="js/RequestAnimationFrame.js"></script>
@@ -74,8 +61,8 @@
 		<script src="js/rgbcolor.js"></script>				<!--Library:  Vector graphic editor-->
 		<script src="js/innersvg.js"></script>				<!--Provide innerHTML/innerSVG properties on SVG Elements-->
 		<script src="js/d3.v2.min.js"></script>				<!--Library Data-Driven Documents-->
-		<script src="js/objloader.js"></script>
-		
+		<script src="js/OBJLoader_New.js"></script>         <!---->
+
 		
 		<script src="js/main.js" type="text/javascript"></script>
 		<script src="js/countryData.js"></script>
@@ -91,56 +78,7 @@
 		<script src="js/ui.controls.js"></script>			<!--***********Important: draw the chart************-->
 
 		<script src="js/radar-chart.js"></script>          <!-- radar chart -->
-
-		<script>
-		RadarChart.defaultConfig.color = function() {};
-		RadarChart.defaultConfig.radius = 1;
-	
-		var data = [
-		  {
-		    className: 'germany', // optional can be used for styling
-		    axes: [
-		      {axis: "strength", value: 13}, 
-		      {axis: "intelligence", value: 6}, 
-		      {axis: "charisma", value: 5},  
-		      {axis: "dexterity", value: 9},  
-		      {axis: "luck", value: 2},
-		      {axis: "test", value: 3}
-		    ]
-		  },
-		  {
-		    className: 'argentina',
-		    axes: [
-		      {axis: "strength", value: 6}, 
-		      {axis: "intelligence", value: 7}, 
-		      {axis: "charisma", value: 10},  
-		      {axis: "dexterity", value: 13},  
-		      {axis: "luck", value: 9},
-		      {axis: "test", value: 3}
-		    ]
-		  }
-		];
-		function randomDataset() {
-		  return data.map(function(d) {
-		    return {
-		      className: d.className,
-		      axes: d.axes.map(function(axis) {
-		        return {axis: axis.axis, value: Math.ceil(Math.random() * 10)};
-		      })
-		    };
-		  });
-		}
-		
-		var chart = RadarChart.chart();
-		var cfg = chart.config(); // retrieve default config
-		var svg = d3.select('#wrapper').append('svg')
-		  .attr('width', cfg.w)
-		  .attr('height', cfg.h + cfg.h / 4);
-		svg.append('g').classed('single', 1).datum(randomDataset()).call(chart);
-
-		</script>
-
-
+		<script src="http://d3js.org/d3.v3.js"></script>
 		
 		<script id="globeVertexShader" type="x-shader/x-vertex">
 			//projectionMatrix
@@ -175,18 +113,25 @@
 			uniform sampler2D earthLight;
 			uniform sampler2D earthBump;
 			uniform sampler2D earthSpec;
+			uniform sampler2D earthTech;
+			uniform sampler2D earthArt;
+			uniform sampler2D earthBusiness;
 			uniform float outlineLevel;
 			varying mat3 u_InvTrans;
 			varying vec3 v_Position;	// position in camera coordinates
 			varying vec3 v_positionMC;  // position in model coordinates
 			varying vec3 vNormal; 		// surface normal in camera coordinates
 			varying vec2 vUv;			// the same as v_Texcoord
-			
+
+			//ra
+			uniform int currentField;
+
+
 			mat3 eastNorthUpToEyeCoordinates(vec3 positionMC, vec3 normalEC);
 			
 			void main() {
 				
-				
+			//	int currentField = 0;
 				float earthSpec = texture2D(earthSpec, vUv).r;	
 				float centerHeight = texture2D(earthBump, vUv).r;
 				float rightHeight = texture2D(earthBump, vUv+ vec2(1.0/1024.0, 0.0)).r;
@@ -213,6 +158,23 @@
 				specular = 0.0;
 				
 				vec3 earthColor = texture2D(earthMap, vUv ).rgb;
+
+				if(currentField == 0) //general
+				{
+					earthColor = texture2D(earthMap, vUv ).rgb;
+				}else if(currentField == 1) //bsmg
+				{
+					earthColor = texture2D(earthBusiness, vUv ).rgb;
+				}else if(currentField == 2) //dart
+				{
+					earthColor = texture2D(earthArt, vUv ).rgb;
+				}else if(currentField == 3) //engr
+				{
+					earthColor = texture2D(earthTech, vUv ).rgb;
+				}
+				//vec3 earthColor = texture2D(earthArt, vUv ).rgb;
+				vec3 earthColorAccu = vec3(0.0, 0.0, 0.0);
+				
 				vec3 nightColor = texture2D(earthLight, vUv).rgb;
 				
 				float gammaCorrect = 1.5 / 1.2; //gamma correct by 1/1.2
@@ -230,21 +192,11 @@
 				vec3 mask = lookupColor + vec3((1.0 - outlineLevel) * indexedColor);
 				mask = clamp(mask, vec3(0.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0));
 				vec3 outlineColor = vec3(0.8 * texture2D( outline, vUv ).x * outlineLevel);
+
+				
 				vec3 maskAndOutline = mask + vec3(outlineColor);
 
 						
-				//gl_FragColor = vec4( maskAndOutline, 1.0  );
-				//gl_FragColor = vec4( earthColor, 1.0 )* 0.6 * outlineLevel + vec4( maskAndOutline, 1.0  );
-				//perturbeNormal = normalize(perturbeNormal);
-				//vec3 test= normalize(vNormal);
-				//gl_FragColor = vec4( abs(test.x),abs(test.y),abs(test.z), 1.0 );
-				//gl_FragColor = vec4( bumpNormal, 1.0 );
-				//gl_FragColor = vec4( vec3(diffuse), 1.0  );
-				//gl_FragColor = vec4( vec3(outlineColor), 1.0  );
-				//gl_FragColor = vec4( mapColor );
-				//gl_FragColor = vec4( lookupColor );
-				//gl_FragColor = vec4( vec3(lookupColor.x),1.0 );
-				//gl_FragColor = vec4(texture2D( lookup, vUv ).xyz, 1.0);
 				vec3 color;
 				if(diffuseForDayAndNight > 0.1)//Day
 					color = finalDayColor;
@@ -274,6 +226,7 @@
 					bitangentEC.x, bitangentEC.y, bitangentEC.z,
 					normalEC.x,    normalEC.y,    normalEC.z);
 			}
+
 			
 		</script>
 		
@@ -410,40 +363,137 @@
 			}
 		</script>
 		
-		<script id="pointVertexshader2" type="x-shader/x-vertex" >
+		<script id="objectPointVertexshader" type="x-shader/x-vertex" >
+			uniform float realTime;
 			uniform float time;
-			attribute float size;
+			uniform float size;
+			uniform float lowestY;
+			uniform float acceleration;
+			uniform float blowStrength;
+			//uniform vec3 color;
+			uniform vec3 offset;
+			uniform vec3 blowDirection;
+			
+			uniform int drop;
+			
+			attribute float blow;
+			attribute float blowTime;
+			attribute float requireTimeToDrop;
 			attribute vec3 customColor;
+			attribute vec3 blowDirectionVertex;
 			varying vec3 vColor;
 
 			void main() {
 
 				vColor = customColor; // set color associated to vertex; use later in fragment shader.
+				vec3 newPosition;
+				
+				if(drop == 0 ){//nothing
+					if(blow == 0.0){
+						newPosition = vec3(position.x ,position.y, position.z);
+					}
+					else{
+						float pastTime = realTime - blowTime;
+						if(pastTime < requireTimeToDrop){
+							newPosition = vec3(position.x + blowStrength * blowDirectionVertex.x * (realTime - blowTime) , 
+											   position.y - acceleration * pastTime * pastTime, 
+											   position.z + blowStrength * blowDirectionVertex.z * (realTime - blowTime));
+						}
+						else {
+				
+							newPosition = vec3(position.x + blowStrength * blowDirectionVertex.x * requireTimeToDrop, 
+							                   lowestY, 
+											   position.z + blowStrength * blowDirectionVertex.z * requireTimeToDrop);
+						}
+					}
+				}
+				else if(drop == 1){//droping
+					if(blow == 0.0){
+						float dropDistance = time * time * acceleration;
+						if(position.y - dropDistance > lowestY){
+							newPosition = vec3(position.x , position.y - dropDistance, position.z);
+						}
+						else {
+							if(time > 1.0)
+								newPosition = vec3( position.x * (2.0 - time) , lowestY, position.z * (2.0 - time));
+							else
+								newPosition = vec3(position.x , lowestY, position.z);
+						}
+					}
+					else{
+						if(time > 1.0)
+							newPosition = vec3( (position.x + blowStrength * blowDirectionVertex.x * requireTimeToDrop) * (2.0 - time), 
+												 lowestY, 
+												(position.z + blowStrength * blowDirectionVertex.z * requireTimeToDrop)* (2.0 - time));
+						else
+							newPosition = vec3(position.x + blowStrength * blowDirectionVertex.x * requireTimeToDrop, 
+											   lowestY, 
+											   position.z + blowStrength * blowDirectionVertex.z * requireTimeToDrop);
+					}
+				}
+				else if(drop == 2){//rising
+					float dropDistance = (time - 1.0) * (time - 1.0) * acceleration;
+					if(time < 1.0){
+						newPosition = vec3(0.0 + (position.x - 0.0) * (time) , lowestY, 0.0 + (position.z - 0.0) * (time));
+					}
+					else{
+						if(lowestY + dropDistance < position.y)
+							newPosition = vec3(position.x, lowestY + dropDistance, position.z);
+						else 
+							newPosition = vec3(position.x, position.y, position.z);
+					}
+				}
 
-				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+				
+				
+				
+				vec4 mvPosition = modelViewMatrix * vec4( newPosition, 1.0 );
+				//vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
-				// option (1): draw particles at constant size on screen
+
 				gl_PointSize = size;
-				// option (2): scale particles as objects in 3D space
-				//gl_PointSize = 40.0 * ( 300.0 / length( mvPosition.xyz ) );
-				gl_Position = projectionMatrix * mvPosition;
-				gl_Position += vec4(900.0, -1000.0, -1000.0, 1.0);
 
+				gl_Position = projectionMatrix * mvPosition;
+				gl_Position += vec4(offset, 1.0);
 			}
 		</script>
 
-		<script id="pointFragmentshader2" type="x-shader/x-fragment" >
-			uniform sampler2D texture;
+		<script id="objectPointFragmentshader" type="x-shader/x-fragment" >
 			varying vec3 vColor; // colors associated to vertices, assigned by vertex shader
 			void main() 
 			{
-				// calculates a color for the particle
 				gl_FragColor = vec4( vColor, 1.0 );
-				// sets a white particle texture to desired color
-				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
 			}
 		</script>
 		
+		
+		<script id="ringPointVertexshader" type="x-shader/x-vertex" >
+
+			uniform vec3 offset;
+			uniform float size;
+			attribute vec3 customColor;
+			varying vec3 vColor;
+
+			void main() {
+
+				vColor = customColor;
+
+				gl_PointSize = size;
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+				gl_Position += vec4(offset, 1.0);
+			}
+		</script>
+
+		<script id="ringPointFragmentshader" type="x-shader/x-fragment" >
+			uniform sampler2D texture;		
+			varying vec3 vColor;
+			void main() {
+
+				gl_FragColor = vec4( vColor, 1.0 );
+				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+				
+			}
+		</script>
 		
 		
 		<script type="text/javascript">
@@ -469,9 +519,30 @@
 
 		<div id="country_name"> </div>
 		
+		<div id="wrapper2"></div>
 
+		<div id="info">
+   		 <p> Reference: <a href="http://armsglobe.chromeexperiments.com/">Arms Globe </a>  </p>
+   		 <p> Data acquired from <a href="http://www.iie.org/Research-and-Publications/Open-Doors/Data/International-Students">IIE Open Doors Data</a></p>
+ 		</div>
 
-		
+ 		<div id="author">
+ 		 <p> Created By: </p>
+   		 <p> <img src="images/head_wct.png" alt="Wei-Chien Tu" style="width:35px;height:35px;border:0"> <a href="https://github.com/foxking0416"> Wei-Chien Tu</a> <span class="bull">&bull;</span> <a href="http://lovelessrara.wix.com/leiyang"> Lei Yang</a> <img src="images/head_ry.png" alt="Lei Yang" style="width:35px;height:35px;border:0"> </p>
+ 		</div>
+
+		<div class="overlayCountries noPointer" id="hudSwitch">
+
+			<div id="checkSwitch"><img src="images/check.png" alt="checked" style="width:20px;height:20px;border:0"></div>
+			<div id="checkSwitch2"><img src="images/check.png" alt="checked" style="width:20px;height:20px;border:0"></div>
+			
+   			<input type="button" value="General Trends" class="gnlBtn swBtn pointer">
+   			<input type="button" value="Field of Study" class="fosBtn swBtn pointer">
+			
+          	<br class="clear" />
+            
+        </div>
+
 		<div class="overlayCountries noPointer" id="hudButtons">
 			
    			<input type="button" value="Fine Arts" class="dartBtn armsBtn pointer">
@@ -491,7 +562,7 @@
             <div class="graph">
                 <div class="close"></div>
                 <div class="labels">
-                    <div class="change">RELATIVE PERCENT CHANGE</div>
+                    <div class="change">International Study Trends</div>
                     <!--<div class="exports">Study Abroad</div>
                     <div class="imports">International Students</div><br class="clear" />
                 -->
@@ -528,9 +599,9 @@
         <div id="graphIcon" class="overlayCountries"></div>
         <div id="importExportBtns" class="overlayCountries">
             <div class="typeLabels">
-                <div class="bsmg">Business Management</div>
+                <div class="bsmg">Business</div>
                 <div class="engr">Engineer</div>
-                <div class="dart">Design and Fine Arts</div>
+                <div class="dart">Fine Arts</div>
                 <div class="total">Total</div><br class="clear">
             </div>
         

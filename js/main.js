@@ -17,20 +17,23 @@ var lookupTexture;
 var globeMesh;
 var countryMesh;
 var flagBoxMesh;
-var visualizationMesh;							
+var visualizationMesh;
+var globeShpere;
+var objectMesh;							
 
 var mapUniforms;
 var shaderMaterial_Globe;
-var uniforms_Particle2;
-var particleGeometry;
-var attributes_Particle2;
-var vertexCollection;
 
 var clock = new THREE.Clock();
 var timeBins;
 var timePass = 0.0;
-var timePass2 = 0.0;
-var timePass3 = 0.0;
+
+//ra academic levels
+var acdLevel;
+var currentMode = 0;
+
+//ra field of study
+var currentFieldint;  //0: general, 1: bsmg, 2: dart, 3: engr
 
 //	contains latlon data for each country
 var latlonData;			    
@@ -46,20 +49,16 @@ var selectableYears = [];
 var selectableCountries = [];			    
 
 
-//	a list of weapon 'codes'
-//	now they are just strings of categories
-//	Category Name : Category Code
-/*var weaponLookup = {
-	'Military Weapons' 		: 'mil',
-	'Civilian Weapons'		: 'civ',
-	'Ammunition'			: 'ammo',
-};*/
+var drop = 0;
+
+var stats;
+
 
 var StudyAreaLookup = {
-	'Business_Management' 	: 'bsmg',
-	'Engineer'	           	: 'engr',
-	'Design_and_Fine_Arts'	: 'dart',
-	'Total'                 : 'total',
+	'Business' 	: 'bsmg',
+	'Engineer'	: 'engr',
+	'Fine_Arts'	: 'dart',
+	'Total'     : 'total',
 };
 
 //	a list of the reverse for easy lookup
@@ -83,12 +82,13 @@ var selectionData;
 //var cameraCube, sceneCube;
 var skyboxMesh;
 
+/*
 var manager = new THREE.LoadingManager();
 manager.onProgress = function ( item, loaded, total ) {
       //  console.log( item, loaded, total );
 };
 var loader = new THREE.OBJLoader( manager );
-
+*/
 
 function start( e ){	
 	//	detect for webgl and reject everything else
@@ -101,9 +101,14 @@ function start( e ){
 				loadWorldPins(
 					function(){										
 						loadContentData(								
-							function(){																	
-								initScene();
-								animate();		
+							function(){	
+								loadAcdLevelData(
+								function()
+								{
+									initScene();
+									animate();	
+								}
+							);												
 							}
 						);														
 					}
@@ -165,10 +170,15 @@ function initScene() {
 	scene.add(globeMesh);
 
 	countryMesh = new THREE.Object3D();
-	scene.add(countryMesh);
+	//scene.add(countryMesh);
 	
 	flagBoxMesh = new THREE.Object3D();
-	scene.add(flagBoxMesh);
+	//scene.add(flagBoxMesh);
+	
+	objectMesh = new THREE.Object3D();
+
+	currentFieldint = 0;//0: general
+
 	
 	lookupCanvas = document.createElement('canvas');	
 	lookupCanvas.width = 256;
@@ -191,7 +201,11 @@ function initScene() {
 		'earthLight': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthlight1024Tran.png" ) },
 		'earthBump': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthbump1024Tran.png" ) },
 		'earthSpec': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthspec1024Tran.png" ) },
+		'earthTech': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthmap1024Tran _Tech.png" ) },
+		'earthArt': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthmap1024Tran_art.png" ) },
+		'earthBusiness': { type: 't', value: THREE.ImageUtils.loadTexture( "images/earthmap1024Tran_business.png" ) },
 		'outlineLevel': {type: 'f', value: 1 },
+		'currentField':{type:'i', value: currentFieldint},
 	};
 	mapUniforms = uniforms_Globe;
 	
@@ -209,7 +223,7 @@ function initScene() {
 	});
 		
 
-	var globeSphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial_Globe );	//100 is radius, 40 is segments in width, 40 is segments in height
+	globeSphere = new THREE.Mesh( new THREE.SphereGeometry( 100, 40, 40 ), shaderMaterial_Globe );	//100 is radius, 40 is segments in width, 40 is segments in height
 	globeSphere.rotation.x = Math.PI;				
 	globeSphere.rotation.y = -Math.PI/2;
 	globeSphere.rotation.z = Math.PI;
@@ -217,81 +231,48 @@ function initScene() {
 	globeMesh.add( globeSphere );	
 
 	
-	/*var manager = new THREE.LoadingManager();
+	
+	var manager = new THREE.LoadingManager();
 		manager.onProgress = function ( item, loaded, total ) {
 		console.log( item, loaded, total );
 	};
 
-	function showBsmgModel(){
-		// model
-		var loader = new THREE.OBJLoader( manager );
-		loader.load( 'model/buddha.obj', function ( object ) {
-
-			object.traverse( function ( child ) {
-
-				if ( child instanceof THREE.Mesh ) {
-
-					//child.material.map = texture;
-				}
-			} );
-
-		////// ship parameters //////
-			object.position.x = - 60;
-			object.rotation.x = 20* Math.PI / 180;
-			object.rotation.z = 20* Math.PI / 180;
-			object.scale.x = 10;
-			object.scale.y = 10;
-			object.scale.z = 10;
+	// model
+	var loader = new THREE.OBJLoader( manager );
+	loader.load( 'model/buddha.obj', function ( object ) {
 		
-
 		////// buddha parameters ////////
-			object.scale.x = 60;
-			object.scale.y = 60;
-			object.scale.z = 60;
-			obj = object
-			globeMesh.add( obj );
+		createObjectMesh( object, 0, 60, 0.0, 0.0, 0.0, 3.0, //scale, x, y, z, blowOffsetX, blowOffsetZ, blowStrength
+					1.0,1.0,1.0, 3.0, 50, 140, 180); //colorR,colorG,colorB, drop acceleration, ring radius, ring rising height, ring rising velocity
+	} );
 
-		} );
-	};			
-*/
+	loader.load( 'model/digger.obj', function ( object ) {
+		
+		////// digger parameters ////////
+		createObjectMesh( object, 1, 0.35, 5.0, -59, 0.0, 510.0, 
+					0.0,0.3,1.0, 500.0, 100, 92, 180);
+	} );
 	
-	var ambient = new THREE.AmbientLight( 0x101030 );
-	//scene.add( ambient );
+	loader.load( 'model/dollar.obj', function ( object ) {
+		
+		////// dollar parameters ////////
+		createObjectMesh( object, 2, 0.05, 0.0, -57, 0.0, 3600.0, 
+					0.9,0.9,0.1, 2700.0, 30, 87, 140);
+	} );
+
+	createRingMesh();
 	
-	var directionalLight = new THREE.DirectionalLight( 0x505050 );
-	directionalLight.position.set( 0, 0, 1 );
-	scene.add( directionalLight );
 
 	//ra, skybox
 	//ra, skybox, http://learningthreejs.com/blog/2011/08/15/lets-do-a-sky/
-
-
-var sky_urlPrefix = "texture/";
-var sky_urlarea = "n_";
-var sky_urlPostfix = ".png";
-var sky_urls = [ sky_urlPrefix + sky_urlarea + "left" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "right" + sky_urlPostfix,
+	var sky_urlPrefix = "texture/";
+	var sky_urlarea = "n_";
+	var sky_urlPostfix = ".png";
+	var sky_urls = [ sky_urlPrefix + sky_urlarea + "left" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "right" + sky_urlPostfix,
     sky_urlPrefix + sky_urlarea + "up" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "down" + sky_urlPostfix,
     sky_urlPrefix + sky_urlarea + "front" + sky_urlPostfix, sky_urlPrefix + sky_urlarea + "back" + sky_urlPostfix ];
 
-
-/*var sky_textureCube = THREE.ImageUtils.loadTextureCube( sky_urls );
-sky_textureCube.format = THREE.RGBFormat;
-
-var sky_shader = THREE.ShaderLib["cube"];
-//var sky_uniforms = THREE.UniformsUtils.clone( sky_shader.uniforms );
-//sky_uniforms['tCube'].texture= sky_textureCube;   // textureCube has been init before
-sky_shader.uniforms["tCube"].value = sky_textureCube;
-var sky_material = new THREE.ShaderMaterial({
-    fragmentShader    : sky_shader.fragmentShader,
-    vertexShader  : sky_shader.vertexShader,
-    uniforms  : sky_shader.uniforms,
-    depthWrite: false,
-	side: THREE.BackSide
-});
-
-*/
-
-	var skyGeometry = new THREE.CubeGeometry(800, 800, 800);
+	var skyGeometry = new THREE.BoxGeometry(800, 800, 800);
 
 	var materialArray = [];
 
@@ -308,101 +289,6 @@ var sky_material = new THREE.ShaderMaterial({
 	// add it to the scene
 	scene.add( skyboxMesh );
 
-	
-	
-
-	var length = 100;
-	vertexCollection = [];
-	vertexCollection.push(new THREE.Vector3(0, 0, 0));
-	vertexCollection.push(new THREE.Vector3(0, length, 0));
-	
-	vertexCollection.push(new THREE.Vector3(0, 0, 0));
-	vertexCollection.push(new THREE.Vector3(0, 0, length));
-	
-	vertexCollection.push(new THREE.Vector3(0, length, 0));
-	vertexCollection.push(new THREE.Vector3(length, length, 0));
-	
-	vertexCollection.push(new THREE.Vector3(0, length, 0));
-	vertexCollection.push(new THREE.Vector3(0, length, length));
-	
-	vertexCollection.push(new THREE.Vector3(length, length, 0));
-	vertexCollection.push(new THREE.Vector3(length, 0, 0));
-	
-	vertexCollection.push(new THREE.Vector3(length, length, 0));
-	vertexCollection.push(new THREE.Vector3(length, length, length));
-	
-	vertexCollection.push(new THREE.Vector3(length, 0, 0));
-	vertexCollection.push(new THREE.Vector3(0, 0, 0));
-	
-	vertexCollection.push(new THREE.Vector3(length, 0, 0));
-	vertexCollection.push(new THREE.Vector3(length, 0, length));
-	
-	vertexCollection.push(new THREE.Vector3(0, 0, length));
-	vertexCollection.push(new THREE.Vector3(0, length, length));
-	
-	vertexCollection.push(new THREE.Vector3(0, length, length));
-	vertexCollection.push(new THREE.Vector3(length, length, length));
-	
-	vertexCollection.push(new THREE.Vector3(length, length, length));
-	vertexCollection.push(new THREE.Vector3(length, 0, length));
-	
-	vertexCollection.push(new THREE.Vector3(length, 0, length));
-	vertexCollection.push(new THREE.Vector3(0, 0, length));
-	
-	
-	
-	
-	particleGeometry = new THREE.Geometry();
-	for (var i = 0; i < vertexCollection.length; i++){
-		if(i % 2 === 0){
-			particleGeometry.vertices.push( vertexCollection[i] );
-			particleGeometry.vertices.push( vertexCollection[i] );
-			particleGeometry.vertices.push( vertexCollection[i] );
-		}
-	}
-	
-	attributes_Particle2 = {
-		customColor:	 { type: 'c',  value: [] },
-		customOffset:	 { type: 'f',  value: [] },
-		size:	 		 { type: 'f',  value: [] },
-	};
-	var particleCount = particleGeometry.vertices.length
-
-	for( var v = 0; v < particleCount; v++ ) 
-	{
-		attributes_Particle2.customColor.value[ v ] = new THREE.Color().setHSL( 1 - v / particleCount, 1.0, 0.5 );
-		attributes_Particle2.customOffset.value[ v ] = 6.282 * (v / particleCount); // not really used in shaders, move elsewhere
-		if( v % 3 === 0)
-			attributes_Particle2.size.value[ v ] = 50.0;
-		else if( v % 3 === 1)
-			attributes_Particle2.size.value[ v ] = 30.0;
-		else if( v % 3 === 2)
-			attributes_Particle2.size.value[ v ] = 10.0;
-	}
-	
-	uniforms_Particle2 = {
-		time:      { type: "f", value: 1.0 },
-		texture:   { type: "t", value: THREE.ImageUtils.loadTexture( "images/particleA.png" ) },
-	};
-
-	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
-
-		uniforms: 		uniforms_Particle2,
-		attributes:     attributes_Particle2,
-		vertexShader:   document.getElementById( 'pointVertexshader2' ).textContent,
-		fragmentShader: document.getElementById( 'pointFragmentshader2' ).textContent,
-		
-		blending: 		THREE.AdditiveBlending,
-		transparent:	true,
-		depthWrite: 	false,
-		depthTest: 		true,
-	});
-	
-	var particleCube = new THREE.ParticleSystem( particleGeometry, shaderMaterial_Particle );
-	particleCube.position.set(0, 85, 0);
-	particleCube.dynamic = true;
-	particleCube.sortParticles = true;
-	globeMesh.add( particleCube );
 	
 	
 	
@@ -480,51 +366,461 @@ var sky_material = new THREE.ShaderMaterial({
     camera = new THREE.PerspectiveCamera( 12, window.innerWidth / window.innerHeight, 1, 10000 ); 		        
 	camera.position.z = 1400;
 	camera.position.y = 0;
+	stats = initStats();
+	//////////////////////////
+
+	scene.add(countryMesh);
+	scene.add(flagBoxMesh);
+	//scene.add(objectMesh);
+}
+
+var objectMeshArray = [];
+var attributesObjectParticleArray = [];
+var uniformsObjectParticleArray = [];
+
+var ringMeshArray = [];
+var attributesRingParticleArray = [];
+var uniformsRingParticleArray = [];
+
+var radiusArray = [];
+var heightArray = [];
+var ringRisingVelArray = [];
+var lowestHeightArray = [];
+var highestHeightArray = [];
+var ringMesh;
+var currentModelIndex = 0;
+var changeModelIndex = 0;
+
+
+var realTimePass = 0.0
+var isBlow = false;
+var blowDir = new THREE.Vector3(0.0, 0.0, 0.0 );
+
+
+function createObjectMesh(originalGeometry, modelIndex, scale, x, y, z, blowStrength, colorR, colorG, colorB, acceleration, ringRadius, ringRisingHeight, ringRisingVelocity ) {
+
+	var attributes_Particle = {
+		blow:                  { type: 'f', value: []},
+		blowTime:              { type: 'f', value: []},
+		requireTimeToDrop:     { type: 'f', value: []},
+		customColor:		   { type: 'v3', value: []},
+		blowDirectionVertex:   { type: 'v3', value: []},
+	};
+	
+	var uniforms_Particle = {
+		time:         { type: "f", value: 1.0 },
+		size:	      { type: "f", value: 1.0 },
+		lowestY:      { type: 'f', value: 1.0},
+		acceleration: { type: 'f', value: acceleration},
+		realTime: 	  { type: 'f', value: 0.0},
+		blowStrength: { type: 'f', value: blowStrength},
+		//color:      { type: 'v3', value: new THREE.Vector3(0.0, 1.0, 0.0 )},
+		offset:    	  { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},
+		blowDirection:{ type: 'v3', value: new THREE.Vector3( 0, 0, 0 )},
+		drop:         { type: 'i', value: drop},
+		
+
+	};
+	var shaderMaterial_Particle = new THREE.ShaderMaterial( {
+
+		uniforms: 		uniforms_Particle,
+		attributes:     attributes_Particle,
+		vertexShader:   document.getElementById( 'objectPointVertexshader' ).textContent,
+		fragmentShader: document.getElementById( 'objectPointFragmentshader' ).textContent,
+		
+	});
+	attributesObjectParticleArray[modelIndex] = attributes_Particle;
+	uniformsObjectParticleArray[modelIndex] = uniforms_Particle;
+
+	var bufferGeometry = originalGeometry.children[0].geometry;
+	var customColor = [];
+	var blow = [];
+	var blowTime = [];
+	var requireTimeToDrop = [];
+	var blowDirection = [];
+	
+	var lowest;
+	var highest;
+	
+	for(var i = 0; i < bufferGeometry.attributes.position.length; i+=3){
+		
+		if(i === 0){
+			lowest = bufferGeometry.attributes.position.array[1];
+			highest = bufferGeometry.attributes.position.array[1];
+		}
+		else{
+			if(bufferGeometry.attributes.position.array[i+1] < lowest)
+				lowest = bufferGeometry.attributes.position.array[i+1];	
+			if(bufferGeometry.attributes.position.array[i+1] > highest)
+				highest = bufferGeometry.attributes.position.array[i+1];	
+		}	
+		
+		customColor[i] = colorR;
+		customColor[i+1] = colorG;
+		customColor[i+2] = colorB;		
+		
+		blowDirection[i] = 0.0;
+		blowDirection[i+1] = 0.0;
+		blowDirection[i+2] = 0.0;
+		
+		blow[i/3] = 0.0;
+		blowTime[i/3] = 0.0;
+		
+		requireTimeToDrop[i/3] = Math.sqrt((bufferGeometry.attributes.position.array[i+1] - lowest + 0.001)/ acceleration);	
+	}
+	lowestHeightArray[modelIndex] = lowest;
+	highestHeightArray[modelIndex] = highest;
+	
+	uniforms_Particle.lowestY.value = lowest;
+	
+	bufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
+	bufferGeometry.attributes.customColor.needsUpdate = true;
+	
+	bufferGeometry.addAttribute( 'blowDirectionVertex', new THREE.BufferAttribute( new Float32Array( blowDirection ), 3 ) );
+	bufferGeometry.attributes.blowDirectionVertex.needsUpdate = true;
+	
+	bufferGeometry.addAttribute( 'blow', new THREE.BufferAttribute( new Float32Array( blow ), 1 ) );
+	bufferGeometry.attributes.blow.needsUpdate = true;
+	
+	bufferGeometry.addAttribute( 'blowTime', new THREE.BufferAttribute( new Float32Array( blowTime ), 1 ) );
+	bufferGeometry.attributes.blowTime.needsUpdate = true;
+	
+	bufferGeometry.addAttribute( 'requireTimeToDrop', new THREE.BufferAttribute( new Float32Array( requireTimeToDrop ), 1 ) );
+	bufferGeometry.attributes.requireTimeToDrop.needsUpdate = true;
+		
+
+	var mesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );
+	mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
+
+	mesh.position.x = x;
+	mesh.position.y = y;
+	mesh.position.z = z;
+	
+	objectMeshArray[modelIndex] = mesh;
+	radiusArray[modelIndex] = ringRadius;
+	heightArray[modelIndex] = ringRisingHeight;
+	ringRisingVelArray[modelIndex] = ringRisingVelocity;
+	if(modelIndex === 0)//buddha
+		objectMesh.add( mesh );
 
 
 }
-function pointUpdate()
-{
-	if(timePass >= 1.0)
+
+function createRingMesh(){
+	var attributes_Particle_Ring = {
+		customColor:		   { type: 'v3', value: []},
+	};
+	
+	var uniforms_Particle_Ring = {
+		offset:    { type: 'v3', value: new THREE.Vector3( 900, 0, 0 )},		
+		time:      { type: "f", value: 1.0 },
+		size:      { type: "f", value: 30.0 },
+		texture:   { type: "t", value: THREE.ImageUtils.loadTexture( "images/particleA.png" ) },
+	};
+	
+	var shaderMaterial_Particle_Ring = new THREE.ShaderMaterial( {
+
+		uniforms: 		uniforms_Particle_Ring,
+		attributes:     attributes_Particle_Ring,
+		vertexShader:   document.getElementById( 'ringPointVertexshader' ).textContent,
+		fragmentShader: document.getElementById( 'ringPointFragmentshader' ).textContent,
+		
+		blending: 		THREE.AdditiveBlending,
+		transparent:	true,
+		depthWrite: 	false,
+		depthTest: 		true,
+	});
+
+	var ringPt = [];
+	var customColor = [];
+	
+	for(var i = 0; i < 36; i++){
+		ringPt[i * 3] = 0;
+		ringPt[i * 3 + 1] = 0;
+		ringPt[i * 3 + 2] = 0;
+		
+		customColor[i * 3] = 0;
+		customColor[i * 3 + 1] = 1 * i / 35; 
+		customColor[i * 3 + 2] = 1 - i / 35;
+	}
+	var ringBufferGeometry = new THREE.BufferGeometry();
+	ringBufferGeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( ringPt ), 3 ) );
+	ringBufferGeometry.addAttribute( 'customColor', new THREE.BufferAttribute( new Float32Array( customColor ), 3 ) );
+	
+	
+	ringMesh = new THREE.PointCloud( ringBufferGeometry, shaderMaterial_Particle_Ring );
+	ringMesh.position.y = -59;
+	//objectMesh.add( ringMesh );
+}
+
+var blowPart1 = false;
+var blowPart2 = false;
+var blowPart3 = false;
+var blowPart4 = false;
+var blowPart5 = false;
+var totalBlow = 0;
+
+function blowParticle(blowpart){
+	
+	
+	if(isBlow)
+		return;
+	
+	var blowTime = realTimePass; 
+	
+	uniformsObjectParticleArray[currentModelIndex].blowDirection.value = blowDir;
+	
+	
+	
+		if(blowpart === 0){
+			for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
+				if( (!blowPart1 && (objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) / 5
+				    )) 
+					|| 
+					(!blowPart2 && (objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) / 5 && 
+					   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 2 / 5
+				    ))
+					|| 
+					(!blowPart3 && (objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 2 / 5 && 
+					   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 3 / 5
+				    ))
+					|| 
+					(!blowPart4 && (objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 3 / 5 && 
+					   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 4 / 5
+				    ))
+					|| 
+					(!blowPart5 && (objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 4 / 5 && 
+					   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+					   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex])
+				    ))
+				){
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime - Math.random() / 10);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.setXYZ(i, blowDir.x, blowDir.y, blowDir.z);
+				}
+			}
+			isBlow = true;
+		}
+		else if(blowpart === 1 && !blowPart1){
+		
+			for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
+				if(objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+					lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) / 5 )	{
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime - Math.random() / 10);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.setXYZ(i, blowDir.x, blowDir.y, blowDir.z);
+				}
+			}
+			blowPart1 = true;
+			totalBlow += 1;
+		}
+		else if(blowpart === 2 && !blowPart2){
+			for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
+				if(objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) / 5 && 
+				   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 2 / 5
+					)	{
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime - Math.random() / 10);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.setXYZ(i, blowDir.x, blowDir.y, blowDir.z);
+				}
+			}
+			blowPart2 = true;
+			totalBlow += 2;
+		}
+		else if(blowpart === 3 && !blowPart3){
+			for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
+				if(objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 2 / 5 && 
+				   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 3 / 5
+					)	{
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime - Math.random() / 10);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.setXYZ(i, blowDir.x, blowDir.y, blowDir.z);
+				}
+			}
+			blowPart3 = true;
+			totalBlow += 3;
+		}
+		else if(blowpart === 4 && !blowPart4){
+			for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
+				if(objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 3 / 5 && 
+				   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 4 / 5
+					)	{
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime - Math.random() / 10);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.setXYZ(i, blowDir.x, blowDir.y, blowDir.z);
+				}
+			}
+			blowPart4 = true;
+			totalBlow += 4;
+		}
+		else if(blowpart === 5 && !blowPart5){
+			for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blowTime.length; i++){
+				if(objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] > 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex]) * 4 / 5 && 
+				   objectMeshArray[currentModelIndex].geometry.attributes.position.array[i*3+1] <= 
+				   lowestHeightArray[currentModelIndex] + (highestHeightArray[currentModelIndex] - lowestHeightArray[currentModelIndex])
+					)	{
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 1.0);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowTime.setX(i, blowTime - Math.random() / 10);
+					objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.setXYZ(i, blowDir.x, blowDir.y, blowDir.z);
+				}
+			}
+			blowPart5 = true;
+			totalBlow += 5;
+		}
+	
+
+	if(totalBlow >= 15)
+		isBlow = true;
+	
+	objectMeshArray[currentModelIndex].geometry.attributes.blow.needsUpdate = true;
+	objectMeshArray[currentModelIndex].geometry.attributes.blowTime.needsUpdate = true;
+	objectMeshArray[currentModelIndex].geometry.attributes.blowDirectionVertex.needsUpdate = true;
+	
+}
+
+function transformObject(modelIndex){
+	if(uniformsObjectParticleArray[0] === undefined || uniformsObjectParticleArray[1] === undefined|| uniformsObjectParticleArray[2] === undefined)
+		return;
+
+	if(timePass >= 2.0){
 		timePass = 0.0;
-	
-	timePass2 = timePass - 0.1;
-	timePass3 = timePass - 0.2;
-	if(timePass2 < 0)
-		timePass2 += 1.0; 
-	
-	if(timePass3 < 0)
-		timePass3 += 1.0; 
-	
+		
+		if(drop === 1){
+			while( objectMesh.children.length > 0 ){
+				var c = objectMesh.children[0];
+				objectMesh.remove(c);
+			}
+			if(isBlow || blowPart1 || blowPart2 || blowPart3 || blowPart4 || blowPart5){
+			
+				for(var i = 0; i < objectMeshArray[currentModelIndex].geometry.attributes.blow.length; i++){
+					objectMeshArray[currentModelIndex].geometry.attributes.blow.setX(i, 0.0);
+				}
+				objectMeshArray[currentModelIndex].geometry.attributes.blow.needsUpdate = true;
 
-	
-	for( var v = 0; v < particleGeometry.vertices.length; v++ ) 
-	{
-
-		var index = Math.floor(v / 3);
-
-		if(v % 3 === 0){
-			var dir = (new THREE.Vector3()).subVectors(vertexCollection[2 * index + 1], vertexCollection[2 * index]).multiplyScalar(timePass);
-			particleGeometry.vertices[v] = vertexCollection[2 * index].clone().add(dir);	
+				isBlow = false;
+				blowPart1 = false;
+				blowPart2 = false;
+				blowPart3 = false;
+				blowPart4 = false;
+				blowPart5 = false;
+				totalBlow = 0;
+			}
+			objectMesh.add( ringMesh );
+			objectMesh.add( objectMeshArray[modelIndex] );
+			drop = 2;
+			currentModelIndex = modelIndex;
 		}
-		else if(v % 3 === 1){
-			var dir = (new THREE.Vector3()).subVectors(vertexCollection[2 * index + 1], vertexCollection[2 * index]).multiplyScalar(timePass2);
-			particleGeometry.vertices[v] = vertexCollection[2 * index].clone().add(dir);	
-		}
-		else if(v % 3 === 2){
-			var dir = (new THREE.Vector3()).subVectors(vertexCollection[2 * index + 1], vertexCollection[2 * index]).multiplyScalar(timePass3);
-			particleGeometry.vertices[v] = vertexCollection[2 * index].clone().add(dir);
+		else if(drop === 2){
+			var c = objectMesh.children[0];
+			objectMesh.remove(c);
+			drop = 0;
 		}
 	}
 	
-	timePass += 0.02;
+	
+	if(drop === 0){//nothing
+		uniformsObjectParticleArray[modelIndex].drop.value = 0;
+	}
+	else if(drop === 1){//dropping
+		timePass += 0.01;
+		uniformsObjectParticleArray[currentModelIndex].drop.value = 1;
+		uniformsObjectParticleArray[currentModelIndex].time.value = timePass;
+		
+	}
+	else if(drop === 2){//rising
+		timePass += 0.01;
+		uniformsObjectParticleArray[modelIndex].drop.value = 2;
+		uniformsObjectParticleArray[modelIndex].time.value = timePass;
+		
+		
+		if(timePass < 1.0){
+			var particleLength = ringMesh.geometry.attributes.position.length / 3;
+			for(var i = 0; i < particleLength; i++){
+				ringMesh.geometry.attributes.position.setXYZ(i, timePass * radiusArray[modelIndex] * Math.cos(2 * Math.PI / particleLength * i + timePass * Math.PI / 2),
+																0,
+																timePass * radiusArray[modelIndex] * Math.sin(2 * Math.PI / particleLength * i + timePass * Math.PI / 2));
+			}
+			ringMesh.geometry.attributes.position.needsUpdate = true;
+		}
+		else{
+			var particleLength = ringMesh.geometry.attributes.position.length / 3;
+			for(var i = 0; i < particleLength; i++){
+				if((timePass - 1) * (timePass - 1) * ringRisingVelArray[modelIndex] < heightArray[modelIndex])
+					ringMesh.geometry.attributes.position.setXYZ(i, radiusArray[modelIndex] * Math.cos(2 * Math.PI / particleLength * i + timePass * Math.PI / 2),
+																	(timePass - 1) * (timePass - 1) * ringRisingVelArray[modelIndex],
+																	radiusArray[modelIndex] * Math.sin(2 * Math.PI / particleLength * i + timePass * Math.PI / 2));
+				else
+					ringMesh.geometry.attributes.position.setXYZ(i, radiusArray[modelIndex] * Math.cos(2 * Math.PI / particleLength * i + timePass * Math.PI / 2),
+																	heightArray[modelIndex],
+																	radiusArray[modelIndex] * Math.sin(2 * Math.PI / particleLength * i + timePass * Math.PI / 2));
+			}
+			ringMesh.geometry.attributes.position.needsUpdate = true;
+		}
+	}
+}
+function updateGlobeTexture(currentFieldint){
+
+	globeMesh.remove(globeSphere);
+	mapUniforms['currentField'].value = currentFieldint;
+	globeMesh.add(globeSphere);
+}
+function updateMode(currentMode){
+
+	if(currentMode == 1) //Field of Study Mode
+	{
+		scene.remove(countryMesh);
+		scene.remove(flagBoxMesh);
+		scene.add(objectMesh);
+	}
+	else if(currentMode == 0)
+	{
+		scene.add(countryMesh);
+		scene.add(flagBoxMesh);		
+		scene.remove(objectMesh);
+	}
 }
 
 
 function animate() {	
+	if(stats != undefined)
+		stats.update();
 
-	pointUpdate();
+	transformObject(changeModelIndex);
 
+	if(currentFieldint != 0)
+	{updateGlobeTexture(currentFieldint);}
+	updateMode(currentMode);
+	
+	var check = true;
+	for(var i = 0; i <uniformsObjectParticleArray.length; ++i){
+		if(uniformsObjectParticleArray[i] === undefined){
+			check = false;
+			break;
+		}
+	}
+	if(check){
+		realTimePass += 0.005;
+		for(var i = 0; i <uniformsObjectParticleArray.length; ++i){
+			uniformsObjectParticleArray[i].realTime.value = realTimePass;
+		}		
+	}
+	
+	
 	if( rotateTargetX !== undefined && rotateTargetY !== undefined ){
 
 		rotateVX += (rotateTargetX - rotateX) * 0.012;
@@ -574,7 +870,15 @@ function animate() {
 	//console.log("x:" + globeMesh.rotation.x + "  y:"+globeMesh.rotation.y);
 	//countryMesh.rotation.x = rotateX;
 	countryMesh.rotation.y += 0.01;	
-	
+	//objectMesh.rotation.y += 0.01;	
+	if(objectMeshArray[currentModelIndex] !== undefined)
+		objectMeshArray[currentModelIndex].rotation.y += 0.01;
+	objectMesh.rotation.x = rotateX;
+	objectMesh.rotation.y = rotateY;	
+	if(objectMeshArray[currentModelIndex] !== undefined)
+	blowDir = new THREE.Vector3(Math.sin(Math.PI - (rotateY +objectMeshArray[currentModelIndex].rotation.y ) ), 0.0, Math.cos(Math.PI - (rotateY +objectMeshArray[currentModelIndex].rotation.y)) );
+	//blowDir = new THREE.Vector3(Math.sin(Math.PI / 2 * 3), 0.0, Math.cos(Math.PI / 2 * 3) );
+	//console.log( rotateY );
     render();	
     		        		       
     requestAnimationFrame( animate );	
@@ -750,4 +1054,19 @@ function getPickColor(){
 		highlightCountry(affectedCountries);
 	}
 	return buf[0]; 	
+}
+
+function initStats() {
+	stats = new Stats();
+	stats.setMode(0); // 0: fps, 1: ms
+
+	// Align top-left
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.right = '0px';
+	stats.domElement.style.top = '0px';
+
+	document.body.appendChild( stats.domElement );
+
+
+	return stats;
 }
