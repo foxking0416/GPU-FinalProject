@@ -11,7 +11,7 @@ Interactive Globe: Global International Study
   - http://lovelessrara.wix.com/leiyang
   - https://github.com/radiumyang
 
-####Live Demo:
+####Live Demo: http://foxking0416.github.io/GPU-FinalProject/
 
 ####Walkthrough Video: http://youtu.be/mhCQRrjc6zM
 
@@ -159,8 +159,6 @@ It dynamically shows the population data of the country in terms of different fi
 
 ===================
 12/1/2014, Update
-
-Beta Version Demo: http://foxking0416.github.io/GPU-FinalProject/
 
 ####Beta Features:
 * 3D Interactive Globe (Three.js + GLSL)
