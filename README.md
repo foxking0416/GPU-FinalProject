@@ -38,3 +38,8 @@ Beta Version Demo: http://foxking0416.github.io/GPU-FinalProject/
 ####Next Steps:
 * Re-design the structure of the tool -> neat and elegant interface
 * Add sand obj morphing shader for field of study
+
+![1](images/Readme1.png)
+
+#Video
+http://youtu.be/mhCQRrjc6zM
