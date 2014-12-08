@@ -127,9 +127,14 @@ It dynamically shows the population data of the country in terms of different fi
 ![1](images/de-bargraph.JPG)
 
 #Performance Analysis
-* With tube/ Without tube
+* With Visual Line/ Without Visual Line
+![1](images/visual-line-analysis.JPG)
+
 * With vertices model / without vertices model
+![1](images/obj-analysis.JPG)
+
 * Budhha model / digger model/ dollar model
+![1](images/obj-model-analysis.JPG)
 
 
 #Reference
