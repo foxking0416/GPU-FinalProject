@@ -25,7 +25,7 @@ Beta Version Demo: http://foxking0416.github.io/GPU-FinalProject/
 
 ####Beta Features:
 * 3D Interactive Globe (Three.js + GLSL)
-  - Spiral Line Pipe
+  - Spiral Line Tube
   - Objloader
   - Skybox
   - Particle Animation
@@ -35,9 +35,12 @@ Beta Version Demo: http://foxking0416.github.io/GPU-FinalProject/
   - Field of study switch buttons
   - History Diagram
 
-12/7/2014 , Update
+ ===================
+ 12/7/2014 , Update
+ 
+ ####Final Features:
 * 3D Interactive Globe (Three.js + GLSL)
-  - Spiral Line Pipe
+  - Spiral Line Tube
   - Objloader
   - Skybox
   - Particle Animation
@@ -50,18 +53,21 @@ Beta Version Demo: http://foxking0416.github.io/GPU-FinalProject/
   - History Diagram
 
 #General Trends
+* This project is a data visualization webGL application of global international study trends from 1940s to 2013.
+We have two mode in this web page and the first page is the general trends which could show the show the data that students study abroad or international students come into this country
 ![1](images/Readme1.png)
 
-* In order to show the data that students study abroad or international students come into this country, we build a spiral pipe to show this effect.
-The yellow points represent students study abroad and purple points represent international students come into this country. 
-The more points around a pipe means the more students population from this country. 
+* The yellow points represent students study abroad and purple points represent international students come into this country. 
+The more points around a tube means the more students population from this country. Both the tube and points are built by using three.js library. 
+To build the tube, we have to build the bezier curve first and then use this curve as the central axis to extrude the tube. 
+To build the point, we use the position on the bezier curve every certain period and then build the THREE.Pointcloud.  
 ![1](images/Readme2.png)
 * By clicking different country, it will show up the data from your selecting country. 
-Besides, there will be a contry name tag and country shape object with flag to tell users which coutry they just selected.
-Right now we have built 9 countries geometry that could be showed(United States, China, South Korea, Japan, Inida, Vietnam, Taiwan, Turkey, Mexico)  
+Besides, there will be a country name tag and country shape object with flag to tell users which coutry they just selected.
+Right now we have built 9 countries geometry that could be shown(United States, China, South Korea, Japan, Inida, Vietnam, Taiwan, Turkey, Mexico)  
 ![1](images/Readme3.png)
 ![1](images/Readme4.png)
-* We used extrusion function to extrude the shape from 2D information and then apply alpha blending with flag box. 
+* We used extrusion function to extrude the shape from 2D information and then apply alpha blending shaders with flag box. 
 ![1](images/Readme12.png)
 * The radar chart showes you the students population of each degree. We use D3.js to build this effect.  
 ![1](images/Readme5.png)
@@ -90,5 +96,15 @@ To achieve this effect, we have to assign each vertex with different blow time a
 ![1](images/Readme10.png)
 * By pushing 'b', user could blow the entire the model at one time. 
 ![1](images/Readme11.png)
+
+#Performance Analysis
+* With tube/ Without tube
+* With vertices model / without vertices model
+* Budhha model / digger model/ dollar model
+
 #Video
 http://youtu.be/mhCQRrjc6zM
+
+#Reference
+* http://threejs.org/
+* http://armsglobe.chromeexperiments.com/

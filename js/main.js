@@ -23,13 +23,6 @@ var objectMesh;
 
 var mapUniforms;
 var shaderMaterial_Globe;
-//var attributes_Particle_Buddha;
-//var uniforms_Particle_Buddha;
-//var attributes_Particle_Digger;
-//var uniforms_Particle_Digger;
-//var buddhaMesh;
-//var diggerMesh;
-//var dollarMesh;
 
 var clock = new THREE.Clock();
 var timeBins;
@@ -238,20 +231,6 @@ function initScene() {
 	globeMesh.add( globeSphere );	
 
 	
-
-	/*CRAYON.extends( 'SceneNode', CRAYON.ShaderNode, {
-		init: function() {
-			CRAYON.ShaderNode.call( this );
-		},
-	});
-	sceneNode = new CRAYON.SceneNode();
-	sceneDepthNode = new CRAYON.SceneDepthNode( sceneNode );
-	screenNode = new CRAYON.RenderToScreenNode( renderer );*/
-	//edgeNode = new CRAYON.EdgeFilterNode( renderer );
-	//multiplyNode = new CRAYON.MultiplyNode( renderer );
-	//executorNode = new CRAYON.ExecutorNode( renderer );
-	//particleNode = new CRAYON.ParticleRendererNode( renderer );
-	
 	
 	var manager = new THREE.LoadingManager();
 		manager.onProgress = function ( item, loaded, total ) {
@@ -283,12 +262,6 @@ function initScene() {
 
 	createRingMesh();
 	
-	/*var ambient = new THREE.AmbientLight( 0x101030 );
-	//scene.add( ambient );
-	
-	var directionalLight = new THREE.DirectionalLight( 0x505050 );
-	directionalLight.position.set( 0, 0, 1 );
-	scene.add( directionalLight );*/
 
 	//ra, skybox
 	//ra, skybox, http://learningthreejs.com/blog/2011/08/15/lets-do-a-sky/
@@ -515,14 +488,7 @@ function createObjectMesh(originalGeometry, modelIndex, scale, x, y, z, blowStre
 	bufferGeometry.addAttribute( 'requireTimeToDrop', new THREE.BufferAttribute( new Float32Array( requireTimeToDrop ), 1 ) );
 	bufferGeometry.attributes.requireTimeToDrop.needsUpdate = true;
 		
-	/*if(modelIndex === 0)
-		uniforms_Particle.lowestY.value = -0.975;//Budha 
-	else if(modelIndex === 1)
-		uniforms_Particle.lowestY.value = -0.355;
-	else if(modelIndex === 2)
-		uniforms_Particle.lowestY.value = 0.0;*/
-		
-	//uniforms_Particle_Buddha.color.value = new THREE.Vector3(0.0, 1.0, 0.0 );
+
 	var mesh = new THREE.PointCloud( bufferGeometry, shaderMaterial_Particle );
 	mesh.scale.x = mesh.scale.y = mesh.scale.z = scale;
 
