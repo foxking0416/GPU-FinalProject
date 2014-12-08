@@ -11,7 +11,13 @@ Interactive Globe: Global International Study
   - http://lovelessrara.wix.com/leiyang
   - https://github.com/radiumyang
 
-####Lei Yang
+####Live Demo:
+
+####Walkthrough Video: http://youtu.be/mhCQRrjc6zM
+
+####Final Presentation Slides:
+* https://docs.google.com/presentation/d/1Jv2kuLtRkd-uKbQByFJf72L96bNAwOkvRSUU-BDX1vA/edit?usp=sharing
+
 ================
 11/24/2014, Update
 
@@ -63,16 +69,20 @@ Beta Version Demo: http://foxking0416.github.io/GPU-FinalProject/
 * 2D UI (D3.js)
   - Bar graphs
   - Field of study switch buttons
+  - Radar Chart (academic level)
   - History Diagram
 
+====================
 
- #### Final Presentation Slides:
-* https://docs.google.com/presentation/d/1Jv2kuLtRkd-uKbQByFJf72L96bNAwOkvRSUU-BDX1vA/edit?usp=sharing
+#Overview
+This project is a data visualization webGL application of global international study trends from 1940s to 2013.
+We have two mode in this web page.
+
+#Structure
 
 
-#General Trends
-* This project is a data visualization webGL application of global international study trends from 1940s to 2013.
-We have two mode in this web page and the first mode is the general trends which could show the data that students study abroad or international students come into this country.
+#General Trends Mode (GT Mode)
+*The first mode is the general trends which could show the data that students study abroad or international students come into this country.
 ![1](images/Readme1.png)
 
 * The yellow points represent students study abroad and purple points represent international students come into this country. 
@@ -80,6 +90,7 @@ The more points around a tube means the more students population from this count
 To build the tube, we have to build the bezier curve first and then use this curve as the central axis to extrude the tube. 
 To build the point, we use the position on the bezier curve every certain period and then using THREE.PointCloud to build them.  
 ![1](images/Readme2.png)
+![a](images/visual-line.gif)
 * By clicking different country, it will show up the data from your selecting country. 
 Besides, there will be a country name tag and country shape object with flag to tell users which coutry they just selected.
 Right now we have built 9 countries geometry that could be shown(United States, China, South Korea, Japan, Inida, Vietnam, Taiwan, Turkey, Mexico)  
@@ -130,8 +141,6 @@ To achieve this effect, we have to assign each vertex with different blow time a
 * With vertices model / without vertices model
 * Budhha model / digger model/ dollar model
 
-#Video
-http://youtu.be/mhCQRrjc6zM
 
 #Reference
 * http://threejs.org/
