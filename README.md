@@ -21,7 +21,7 @@ Interactive Globe: Global International Study
 ===================
 12/7/2014 , Update
  
- #### Final Features:
+#### Final Features:
 * 3D Interactive Globe (Three.js + GLSL)
   - Spiral Line Tube
   - Objloader
@@ -34,7 +34,8 @@ Interactive Globe: Global International Study
   - Bar graphs
   - Field of study switch buttons
   - Radar Chart (academic level)
-  - History Diagram
+  - History Timeline Diagram
+  - Buttons
 
 ====================
 
@@ -45,7 +46,7 @@ We have two modes in this web page.
 * Field of Study (FOS Mode)
 
 ####Structure:
-
+![1](images/structure.JPG)
 
 
 #General Trends Mode (GT Mode)
