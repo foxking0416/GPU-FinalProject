@@ -38,7 +38,7 @@ Beta Version Demo: http://foxking0416.github.io/GPU-FinalProject/
 ===================
 12/7/2014 , Update
  
- ####Final Features:
+####Final Features:
 * 3D Interactive Globe (Three.js + GLSL)
   - Spiral Line Tube
   - Objloader
